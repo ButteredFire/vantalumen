@@ -27,7 +27,6 @@ export type ViewStage =
   | 'ORBITAL_OVERVIEW'
   | 'WARPING'
   | 'SUB_SCENE'
-  | 'SURFACE_VIEW'
   | 'SURFACE_CESIUM';
 
 export type CelestialTargetId = string;
@@ -51,19 +50,6 @@ export interface SurfaceCoordinates {
   lon: number;
   height: number;
   elevationKm?: number;
-}
-
-export interface SurfaceEquipmentItem {
-  id: string;
-  name: string;
-  realCoords: { lat: number; lon: number };
-  status: string;
-  mission: string;
-  description: string;
-  elevationM?: number;
-  coords?: [number, number, number];
-  /** Pin color on the 3D surface map (hex). */
-  pinColor?: string;
 }
 
 export interface OrbitalElements {

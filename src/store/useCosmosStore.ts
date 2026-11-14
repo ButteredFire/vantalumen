@@ -15,7 +15,6 @@ import type {
   RotorStepDeg,
   InspectionViewMode,
   SensorFilterMode,
-  SurfaceEquipmentItem,
 } from '../types/cosmos.types';
 
 export type {
@@ -25,7 +24,6 @@ export type {
   ViewStage,
   InspectionViewMode,
   SensorFilterMode,
-  SurfaceEquipmentItem,
 };
 
 const INITIAL_POV_STATE: {
@@ -63,7 +61,6 @@ const INITIAL_DEVICE_CONTROL_STATE: {
 interface CosmosState {
   activeBodyId: BodyId;
   activeDeviceId: string | null;
-  selectedSurfaceEquipment: SurfaceEquipmentItem | null;
   assetLoad: { status: 'idle' | 'loading' | 'ready' | 'error' | 'unavailable'; progress?: number; message?: string };
   assetRetryTick: number;
   deviceCameraViewId: DeviceCameraViewId;
@@ -86,7 +83,6 @@ interface CosmosState {
   selectDevice: (id: string) => void;
   retryAsset: () => void;
   setAssetLoad: (id: string, load: CosmosState['assetLoad']) => void;
-  setSelectedSurfaceEquipment: (equipment: SurfaceEquipmentItem | null) => void;
   setDeviceCameraView: (viewId: DeviceCameraViewId) => void;
   setActivePartGroup: (groupId: DevicePartGroupId) => void;
   setRotorSpinMode: (mode: RotorSpinMode) => void;
@@ -148,7 +144,6 @@ export const useCosmosStore = create<CosmosState>()(
   subscribeWithSelector((set, get) => ({
     activeBodyId: 'mars',
     activeDeviceId: null,
-    selectedSurfaceEquipment: null,
     assetLoad: { status: 'idle' },
     assetRetryTick: 0,
     ...INITIAL_DEVICE_CONTROL_STATE,
@@ -163,7 +158,6 @@ export const useCosmosStore = create<CosmosState>()(
         activeBodyId: bodyId,
         activeTarget: null,
         activeDeviceId: null,
-        selectedSurfaceEquipment: null,
         assetLoad: { status: 'idle' },
         ...INITIAL_DEVICE_CONTROL_STATE,
         ...INITIAL_POV_STATE,
@@ -197,7 +191,6 @@ export const useCosmosStore = create<CosmosState>()(
     },
     retryAsset: () => set((state) => ({ assetRetryTick: state.assetRetryTick + 1 })),
     setAssetLoad: (id, assetLoad) => { if (get().activeDeviceId === id) set({ assetLoad }); },
-    setSelectedSurfaceEquipment: (equipment) => set({ selectedSurfaceEquipment: equipment }),
     setDeviceCameraView: (viewId) =>
       set((state) => ({
         deviceCameraViewId: viewId,
@@ -332,7 +325,6 @@ export const useCosmosStore = create<CosmosState>()(
         set({
           activeTarget: null,
           activeDeviceId: null,
-          selectedSurfaceEquipment: null,
           assetLoad: { status: 'idle' },
           ...INITIAL_DEVICE_CONTROL_STATE,
           ...INITIAL_POV_STATE,
@@ -348,22 +340,6 @@ export const useCosmosStore = create<CosmosState>()(
         ? { ...target, position: dynamicPos.clone() }
         : { ...target, position: target.position.clone() };
 
-      // Surface POI → go directly to 3D terrain view
-      if (target.category === 'SURFACE_POI') {
-        set({
-          activeTarget: syncedTarget,
-          activeDeviceId: null,
-          selectedSurfaceEquipment: null,
-          assetLoad: { status: 'idle' },
-          ...INITIAL_DEVICE_CONTROL_STATE,
-          ...INITIAL_POV_STATE,
-          ...(get().spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
-          viewStage: 'SURFACE_VIEW',
-          controlsLocked: false,
-        });
-        return;
-      }
-
       set({
         activeTarget: syncedTarget,
         activeDeviceId: null,
@@ -378,9 +354,9 @@ export const useCosmosStore = create<CosmosState>()(
 
     enterSurfaceLanding: () => {
       const current = get().activeTarget;
-      if (current?.coordinates) {
+      if (current?.coordinates && current.isSurfaceLanding) {
         set({
-          viewStage: 'SURFACE_VIEW',
+          viewStage: 'SURFACE_CESIUM',
           controlsLocked: false,
         });
       }
@@ -390,7 +366,6 @@ export const useCosmosStore = create<CosmosState>()(
       set((state) => ({
         activeTarget: null,
         activeDeviceId: null,
-        selectedSurfaceEquipment: null,
         assetLoad: { status: 'idle' },
         ...INITIAL_DEVICE_CONTROL_STATE,
         ...INITIAL_POV_STATE,
@@ -406,6 +381,7 @@ export const useCosmosStore = create<CosmosState>()(
         controlsLocked:
           stage === 'WARPING' || stage === 'PRELOADING' || stage === 'LAUNCHING',
       }),
+
     setTimeScale: (scale) => set({ timeScale: scale }),
 
     setSpectralMode: (mode) => {
