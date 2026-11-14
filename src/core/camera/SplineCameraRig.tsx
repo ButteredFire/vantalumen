@@ -11,9 +11,17 @@ import { getDeviceControlSpec } from '../../config/deviceControlSpecs';
 import { buildSafeWarpSpline } from './warpPaths';
 import { spatialAudio } from '../audio/SpatialAudioEngine';
 import { OPENING_CAMERA_POS, OPENING_LOOK_TARGET } from '../../scene/opening/OpeningShipScene';
+import type { BodyId } from '../../types/cosmos.types';
 
 const INSPECTION_MIN_DISTANCE = 0.35;
 const INSPECTION_MAX_DISTANCE = 24;
+
+function getOrbitalOverviewPosition(bodyId: BodyId): Vector3 {
+  const radius = BODY_CATALOG[bodyId].radiusKm;
+  return bodyId === 'mars'
+    ? new Vector3(0, radius * 1.15, radius * 5.2)
+    : new Vector3(0, radius * 0.72, radius * 3.9);
+}
 
 function isOrbitalDevice(deviceId: string | null): boolean {
   return (
@@ -95,11 +103,13 @@ export function SplineCameraRig() {
                 spatialAudio.playWarpTransition(durationTotal);
 
                 const currentBody = useCosmosStore.getState().activeBodyId;
-                const bodyRadius = BODY_CATALOG[currentBody].radiusKm;
-                const destOverview =
-                    currentBody === 'mars'
-                        ? new Vector3(0, 8000, 22000)
-                        : new Vector3(0, bodyRadius * 0.72, bodyRadius * 3.9);
+                const destOverview = getOrbitalOverviewPosition(currentBody);
+                perspective.rotation.order = 'XYZ';
+                const startOrientation = perspective.quaternion.clone();
+                const destinationCamera = perspective.clone();
+                destinationCamera.position.copy(destOverview);
+                destinationCamera.lookAt(0, 0, 0);
+                const destinationOrientation = destinationCamera.quaternion.clone();
 
                 const jumpCurve = new CatmullRomCurve3(
                     [
@@ -118,11 +128,19 @@ export function SplineCameraRig() {
                 launchTimelineRef.current = gsap
                     .timeline({
                         onComplete: () => {
-                            if (!controls.current) return;
+                            const orbit = controls.current;
+                            if (!orbit) return;
+                            const enableDamping = orbit.enableDamping;
+                            // Clear residual damping before handing the animated pose to OrbitControls.
+                            orbit.enableDamping = false;
+                            orbit.target.set(0, 0, 0);
+                            orbit.update();
                             perspective.position.copy(destOverview);
-                            controls.current.target.set(0, 0, 0);
-                            controls.current.update();
-                            controls.current.enabled = true;
+                            perspective.quaternion.copy(destinationOrientation);
+                            orbit.target.set(0, 0, 0);
+                            orbit.update();
+                            orbit.enableDamping = enableDamping;
+                            orbit.enabled = true;
                             useCosmosStore.getState().completeLaunchSequence();
                         },
                     })
@@ -136,7 +154,11 @@ export function SplineCameraRig() {
                                 const pt = jumpCurve.getPointAt(progressProxy.t);
                                 perspective.position.copy(pt);
                                 controls.current?.target.set(0, 0, 0);
-                                perspective.lookAt(0, 0, 0);
+                                perspective.quaternion.slerpQuaternions(
+                                    startOrientation,
+                                    destinationOrientation,
+                                    progressProxy.t,
+                                );
                             },
                         },
                         0,
@@ -231,10 +253,7 @@ export function SplineCameraRig() {
     perspective.fov = 45;
     perspective.updateProjectionMatrix();
 
-    const overview =
-      bodyId === 'mars'
-        ? new Vector3(0, radius * 1.15, radius * 5.2)
-        : new Vector3(0, radius * 0.72, radius * 3.9);
+    const overview = getOrbitalOverviewPosition(bodyId);
     orbit.enabled = true;
 
     if (isTerrainShowcase) {

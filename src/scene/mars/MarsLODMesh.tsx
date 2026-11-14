@@ -1,24 +1,54 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Detailed } from '@react-three/drei';
-import { Vector2 } from 'three';
+import { useLoader } from '@react-three/fiber';
+import * as THREE from 'three';
 import type { BodyConfig } from '../../types/cosmos.types';
 import {
   generateProceduralMarsTextures,
-  generateProceduralMoonTextures,
   loadBakedMarsWebPTextures,
-  loadBakedMoonWebPTextures,
   type BakedMarsWebPSet,
   type BodyPlanetaryTextures,
 } from '../../core/loaders/useProgressiveAsset';
 import { useCosmosStore } from '../../store/useCosmosStore';
 
+const MOON_COLOR_TEXTURE_PATH = '/assets/models/moons/moon_color.jpg';
+
 export function MarsLODMesh({ body }: { body: BodyConfig }) {
+  return body.id === 'moon' ? <MoonLODMesh body={body} /> : <MarsTextureLODMesh body={body} />;
+}
+
+function MoonLODMesh({ body }: { body: BodyConfig }) {
+  const colorMap = useLoader(THREE.TextureLoader, MOON_COLOR_TEXTURE_PATH);
+
+  useMemo(() => {
+    colorMap.colorSpace = THREE.SRGBColorSpace;
+    colorMap.wrapS = THREE.RepeatWrapping;
+    colorMap.wrapT = THREE.ClampToEdgeWrapping;
+    colorMap.anisotropy = 8;
+    colorMap.needsUpdate = true;
+  }, [colorMap]);
+
+  return (
+    <Detailed distances={[0, body.radiusKm * 5, body.radiusKm * 18]}>
+      {[96, 48, 24].map((segments) => (
+        <mesh key={segments}>
+          <sphereGeometry args={[body.radiusKm, segments, segments]} />
+          <meshStandardMaterial
+            color="#ffffff"
+            map={colorMap}
+            roughness={0.92}
+            metalness={0.04}
+          />
+        </mesh>
+      ))}
+    </Detailed>
+  );
+}
+
+function MarsTextureLODMesh({ body }: { body: BodyConfig }) {
   const spectralMode = useCosmosStore((state) => state.spectralMode);
   const [textures, setTextures] = useState<BodyPlanetaryTextures | null>(null);
-  const normalScale = useMemo(
-    () => (body.id === 'moon' ? new Vector2(2.35, 2.35) : new Vector2(1.55, 1.55)),
-    [body.id],
-  );
+  const normalScale = useMemo(() => new THREE.Vector2(1.55, 1.55), []);
 
   useEffect(() => {
     if (body.textureStyle === 'plain') {
@@ -27,23 +57,13 @@ export function MarsLODMesh({ body }: { body: BodyConfig }) {
     }
 
     const controller = new AbortController();
-    const owned =
-      body.textureStyle === 'illustrative-moon'
-        ? generateProceduralMoonTextures()
-        : generateProceduralMarsTextures();
+    const owned = generateProceduralMarsTextures();
     let baked: BakedMarsWebPSet | null = null;
 
     setTextures(owned);
 
-    if (
-      body.textureStyle === 'illustrative-mars' ||
-      body.textureStyle === 'illustrative-moon'
-    ) {
-      const loadBaked =
-        body.textureStyle === 'illustrative-moon'
-          ? loadBakedMoonWebPTextures
-          : loadBakedMarsWebPTextures;
-      void loadBaked({ flipY: true, signal: controller.signal })
+    if (body.textureStyle === 'illustrative-mars') {
+      void loadBakedMarsWebPTextures({ flipY: true, signal: controller.signal })
         .then((webpSet) => {
           if (controller.signal.aborted) {
             webpSet.albedo.dispose();
@@ -62,24 +82,20 @@ export function MarsLODMesh({ body }: { body: BodyConfig }) {
             thermalPreview: owned.thermalPreview,
             elevationPreview: owned.elevationPreview,
           });
-          if (body.id === 'mars') {
-            useCosmosStore.getState().reportAssetTaskProgress(
-              'mars_surface_maps',
-              100,
-              'Đã tải bản đồ Sao Hỏa & các lớp quang phổ',
-            );
-          }
+          useCosmosStore.getState().reportAssetTaskProgress(
+            'mars_surface_maps',
+            100,
+            'Đã tải bản đồ Sao Hỏa & các lớp quang phổ',
+          );
         })
         .catch((error: unknown) => {
           if (controller.signal.aborted) return;
           console.warn(`Failed to load ${body.name} surface maps; retaining illustrative textures.`, error);
-          if (body.id === 'mars') {
-            useCosmosStore.getState().reportAssetTaskProgress(
-              'mars_surface_maps',
-              100,
-              'Dùng texture minh họa dự phòng; không tải được bản đồ Sao Hỏa',
-            );
-          }
+          useCosmosStore.getState().reportAssetTaskProgress(
+            'mars_surface_maps',
+            100,
+            'Dùng texture minh họa dự phòng; không tải được bản đồ Sao Hỏa',
+          );
         });
     }
 
@@ -95,7 +111,7 @@ export function MarsLODMesh({ body }: { body: BodyConfig }) {
         Object.values(owned).forEach((texture) => texture.dispose());
       }
     };
-  }, [body.textureStyle]);
+  }, [body.name, body.textureStyle]);
 
   const activeMap = useMemo(() => {
     if (!textures) return null;
@@ -114,18 +130,12 @@ export function MarsLODMesh({ body }: { body: BodyConfig }) {
           <sphereGeometry args={[body.radiusKm, segments, segments]} />
           <meshStandardMaterial
             key={materialKey}
-            color={
-              textures
-                ? body.id === 'moon' && !isFalseColor
-                  ? '#c2c4ca'
-                  : '#ffffff'
-                : body.color
-            }
+            color={textures ? '#ffffff' : body.color}
             map={activeMap}
             normalMap={textures?.normal ?? null}
             normalScale={normalScale}
             roughnessMap={textures?.roughness ?? null}
-            roughness={body.id === 'moon' ? 0.92 : 0.88}
+            roughness={0.88}
             metalness={0.04}
             emissive={isFalseColor ? '#ffffff' : '#000000'}
             emissiveMap={isFalseColor ? activeMap : null}
