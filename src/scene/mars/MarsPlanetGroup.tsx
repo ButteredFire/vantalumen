@@ -3,10 +3,12 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Vector3, type Group } from 'three';
 import { ATLAS_POIS, latLonToBodyVector } from '../../config/atlasPOIs';
+import { BODY_CATALOG } from '../../config/bodyCatalog';
 import { MARS_AXIAL_TILT_RAD, MOON_AXIAL_TILT_RAD } from '../../config/celestialCatalog';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
+import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
 import { useCosmosStore } from '../../store/useCosmosStore';
-import type { BodyConfig, DeviceRecord } from '../../types/cosmos.types';
+import type { BodyConfig, CelestialTarget, DeviceRecord } from '../../types/cosmos.types';
 import { PhobosOrbit } from '../moons/PhobosOrbit';
 import { DeimosOrbit } from '../moons/DeimosOrbit';
 import { MarsAtmosphereMesh } from './MarsAtmosphereMesh';
@@ -36,10 +38,36 @@ const SurfaceDevicePinNode: React.FC<SurfaceDevicePinNodeProps> = ({
     const activeDeviceId = useCosmosStore((state) => state.activeDeviceId);
     const viewStage = useCosmosStore((state) => state.viewStage);
     const controlsLocked = useCosmosStore((state) => state.controlsLocked);
-    const selectDevice = useCosmosStore((state) => state.selectDevice);
+    const selectSurfaceTarget = useCosmosStore((state) => state.selectSurfaceTarget);
 
     const isSelected = activeDeviceId === device.id;
     const dotColor = device.status === 'available' ? '#38bdf8' : '#f59e0b';
+    const selectSurfaceDevice = () => {
+        if (controlsLocked || !device.coordinates) return;
+        const body = BODY_CATALOG[device.bodyId];
+        const target: CelestialTarget = {
+            id: `surface_device_${device.id}`,
+            bodyId: device.bodyId,
+            name: device.name,
+            subtitle: `${device.kind} · Surface equipment`,
+            category: 'SURFACE_POI',
+            position: latLonToBodyVector(
+                device.coordinates.lat,
+                device.coordinates.lon,
+                body.radiusKm + 18,
+            ),
+            radius: 100,
+            safeViewDistance: body.radiusKm * 0.8,
+            coordinates: { ...device.coordinates, height: 0 },
+            telemetry: {
+                ...body.target.telemetry,
+                classification: device.kind,
+                missionSummary: device.summary,
+                keyHighlights: [device.evidence],
+            },
+        };
+        selectSurfaceTarget(target);
+    };
 
     useFrame(({ camera }) => {
         if (!groupRef.current) return;
@@ -63,10 +91,11 @@ const SurfaceDevicePinNode: React.FC<SurfaceDevicePinNodeProps> = ({
             <mesh
                 onClick={(event) => {
                     event.stopPropagation();
-                    if (!controlsLocked) selectDevice(device.id);
+                    selectSurfaceDevice();
                 }}
                 onPointerOver={() => {
                     document.body.style.cursor = 'pointer';
+                    surfaceAudio.playHover();
                 }}
                 onPointerOut={() => {
                     document.body.style.cursor = 'default';
@@ -97,9 +126,8 @@ const SurfaceDevicePinNode: React.FC<SurfaceDevicePinNodeProps> = ({
                     accentColor={dotColor}
                     isSelected={isSelected}
                     isVisible={showCallout}
-                    onClick={() => {
-                        if (!controlsLocked) selectDevice(device.id);
-                    }}
+                    onClick={selectSurfaceDevice}
+                    onMouseEnter={() => surfaceAudio.playHover()}
                 />
             </Html>
         </group>

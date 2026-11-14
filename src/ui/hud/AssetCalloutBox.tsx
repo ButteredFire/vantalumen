@@ -12,6 +12,7 @@ interface AssetCalloutBoxProps {
     isVisible?: boolean;
     accentColor?: string;
     onClick: () => void;
+    onMouseEnter?: () => void;
 }
 
 /**
@@ -27,6 +28,7 @@ export const AssetCalloutBox: React.FC<AssetCalloutBoxProps> = ({
     isVisible = true,
     accentColor,
     onClick,
+    onMouseEnter,
 }) => {
   const categoryClass =
     category === 'MOON'
@@ -184,7 +186,11 @@ export const AssetCalloutBox: React.FC<AssetCalloutBoxProps> = ({
     return (
         <button
             type="button"
-            onClick={onClick}
+            onClick={(event) => {
+                event.stopPropagation();
+                onClick();
+            }}
+            onMouseEnter={onMouseEnter}
             className={`hud-callout-box variant-${variant} ${categoryClass} ${
                 isSelected ? 'is-active' : ''
             } ${isVisible ? 'is-visible' : 'is-hidden'}`}

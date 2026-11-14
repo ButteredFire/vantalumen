@@ -43,6 +43,7 @@ export function SplineCameraRig() {
     const spectralMode = useCosmosStore((state) => state.spectralMode);
     const target = useCosmosStore((state) => state.activeTarget);
     const reset = useCosmosStore((state) => state.cameraResetTick);
+    const viewStage = useCosmosStore((state) => state.viewStage);
 
     const device = DEVICE_CATALOG.find((item) => item.id === deviceId);
     const hasPovSelection = Boolean(device) || Boolean(target);
@@ -218,6 +219,10 @@ export function SplineCameraRig() {
             orbit.enabled = false;
             return;
         }
+        if (currentStage === 'SURFACE_VIEW' || currentStage === 'SURFACE_CESIUM') {
+            orbit.enabled = false;
+            return;
+        }
 
         camera.rotation.order = 'XYZ';
     const perspective = camera as PerspectiveCamera;
@@ -318,6 +323,11 @@ export function SplineCameraRig() {
       return;
     }
 
+    if (currentStage === 'SUB_SCENE' && !isNormalizedCloseup) {
+      orbit.enabled = true;
+      return;
+    }
+
     // Returning from normalized unit modes or POV resets back to orbital scale before warping.
     if (camera.position.length() < radius) {
       camera.position.copy(overview);
@@ -360,6 +370,7 @@ export function SplineCameraRig() {
     isProceduralDevice,
     isTerrainShowcase,
     target,
+    viewStage,
     reset,
     radius,
   ]);

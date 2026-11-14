@@ -103,6 +103,7 @@ interface CosmosState {
     viewStage: ViewStage;
     activeTarget: CelestialTarget | null;
     selectedSurfaceEquipment: SurfaceEquipmentItem | null;
+    inspectionTransitionTarget: string | null;
     timeScale: number;          // Tốc độ tua thời gian (1 = thực tế, 1000 = tua nhanh quỹ đạo)
     simulationTime: number;     // Thời gian mô phỏng tích lũy (đọc trực tiếp trong useFrame)
     spectralMode: SpectralMode;
@@ -126,7 +127,9 @@ interface CosmosState {
     completeLaunchSequence: () => void;
     completePreloader: () => void;
     selectTarget: (target: CelestialTarget | null) => void;
+    selectSurfaceTarget: (target: CelestialTarget) => void;
     setSelectedSurfaceEquipment: (equipment: SurfaceEquipmentItem | null) => void;
+    setInspectionTransitionTarget: (targetName: string | null) => void;
     enterSurfaceLanding: () => void;
     returnToOrbit: () => void;
     setViewStage: (stage: ViewStage) => void;
@@ -165,6 +168,7 @@ export const useCosmosStore = create<CosmosState>()(
                 activeTarget: null,
                 activeDeviceId: null,
                 selectedSurfaceEquipment: null,
+                inspectionTransitionTarget: null,
                 assetLoad: { status: 'idle' },
                 ...INITIAL_DEVICE_CONTROL_STATE,
                 ...INITIAL_POV_STATE,
@@ -262,6 +266,7 @@ export const useCosmosStore = create<CosmosState>()(
         viewStage: 'PRELOADING',
         activeTarget: null,
         selectedSurfaceEquipment: null,
+        inspectionTransitionTarget: null,
         timeScale: 100,
         simulationTime: 0,
         spectralMode: 'VISUAL_RGB',
@@ -362,8 +367,30 @@ export const useCosmosStore = create<CosmosState>()(
             });
         },
 
+        selectSurfaceTarget: (target) => {
+            if (target.bodyId !== get().activeBodyId) return;
+            const dynamicPos = get().dynamicPositions[target.id];
+            const syncedTarget: CelestialTarget = dynamicPos
+                ? { ...target, position: dynamicPos.clone() }
+                : { ...target, position: target.position.clone() };
+
+            set({
+                activeTarget: syncedTarget,
+                activeDeviceId: null,
+                selectedSurfaceEquipment: null,
+                assetLoad: { status: 'idle' },
+                ...INITIAL_DEVICE_CONTROL_STATE,
+                ...INITIAL_POV_STATE,
+                spectralMode: 'VISUAL_RGB',
+                viewStage: 'SURFACE_VIEW',
+                controlsLocked: false,
+            });
+        },
+
         setSelectedSurfaceEquipment: (equipment) =>
             set({ selectedSurfaceEquipment: equipment }),
+        setInspectionTransitionTarget: (targetName) =>
+            set({ inspectionTransitionTarget: targetName }),
 
         enterSurfaceLanding: () => {
             set({
@@ -377,6 +404,7 @@ export const useCosmosStore = create<CosmosState>()(
                 activeTarget: null,
                 activeDeviceId: null,
                 selectedSurfaceEquipment: null,
+                inspectionTransitionTarget: null,
                 assetLoad: { status: 'idle' },
                 ...INITIAL_DEVICE_CONTROL_STATE,
                 ...INITIAL_POV_STATE,

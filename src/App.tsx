@@ -6,6 +6,7 @@ import { CelestialQuickSelect } from './ui/hud/CelestialQuickSelect';
 import { SubSceneInfoPanel } from './ui/hud/SubSceneInfoPanel';
 import { TimeScrubberBar } from './ui/hud/TimeScrubberBar';
 import { ControlRoomHudOverlay } from './ui/hud/ControlRoomHudOverlay';
+import { InspectionTransitionOverlay } from './ui/surface/InspectionTransitionOverlay';
 import { validateCatalog, validateDeviceControlSpecs } from './config/validateCatalog';
 import { BODY_CATALOG } from './config/bodyCatalog';
 import { ATLAS_POIS } from './config/atlasPOIs';
@@ -32,6 +33,7 @@ function App() {
 
             {/* Layer 2: 3D Planetary Surface Terrain Environment (Generalized for Mars & Lunar) */}
             <MarsSurfaceTerrainView />
+            <InspectionTransitionOverlay />
 
             {/* Layer 3: Cockpit Preloader, POV HUD, Control Systems & Navigation Panels */}
             <ImmersivePreloader />

@@ -21,7 +21,7 @@ export const SurfaceTelemetryPanel: React.FC<SurfaceTelemetryPanelProps> = ({
     };
 
     const handleInspect = () => {
-        surfaceAudio.playSelect();
+        surfaceAudio.playAnalyze();
         onInspect();
     };
 
@@ -109,15 +109,15 @@ export const SurfaceTelemetryPanel: React.FC<SurfaceTelemetryPanelProps> = ({
                 <button
                     type="button"
                     onClick={handleInspect}
-                    className="hud-action-btn"
+                    className="hud-action-btn surface-inspect-btn"
                     onMouseEnter={() => surfaceAudio.playHover()}
                 >
-                    Run Diagnostics
+                    Inspect
                 </button>
                 <button
                     type="button"
                     onClick={handleRecenter}
-                    className="hud-action-btn"
+                    className="hud-action-btn surface-recenter-btn"
                     onMouseEnter={() => surfaceAudio.playHover()}
                 >
                     Re-Center Camera

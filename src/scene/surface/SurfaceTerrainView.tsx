@@ -19,12 +19,83 @@ import { SurfaceHeaderBanner } from '../../ui/surface/SurfaceHeaderBanner';
 import { SurfaceTelemetryPanel } from '../../ui/surface/SurfaceTelemetryPanel';
 import { SurfaceRadarGizmo } from '../../ui/surface/SurfaceRadarGizmo';
 import { SurfaceToastSystem, type SurfaceToast } from '../../ui/surface/SurfaceToastSystem';
+import { ATLAS_POIS, latLonToBodyVector } from '../../config/atlasPOIs';
+import { BODY_CATALOG } from '../../config/bodyCatalog';
+import { DEVICE_CATALOG } from '../../config/deviceCatalog';
+import type { BodyId, CelestialTarget } from '../../types/cosmos.types';
+
+const SURFACE_DEVICE_IDS: Record<string, string> = {
+    perseverance: 'perseverance_rover',
+    curiosity: 'curiosity_rover',
+    opportunity: 'spirit_and_opportunity_rover',
+    viking_1: 'viking_lander',
+    sojourner: 'sojourner_rover',
+    insight: 'insight_lander',
+    apollo_11: 'apollo_lm_equipment',
+    apollo_15_site: 'apollo_15_lrv',
+    apollo_17_site: 'apollo_17_lrv',
+    apollo_12_surveyor: 'apollo_surface_equipment',
+};
+
+const INSPECTION_LOADING_MS = 2100;
+
+function createSurfaceInspectionTarget(
+    equipment: SurfaceEquipmentItem,
+    bodyId: BodyId,
+): CelestialTarget {
+    const nearbyPoi = ATLAS_POIS.find((poi) => {
+        if (poi.bodyId !== bodyId || !poi.coordinates) return false;
+        const latDistance = Math.abs(poi.coordinates.lat - equipment.realCoords.lat);
+        const rawLonDistance = Math.abs(poi.coordinates.lon - equipment.realCoords.lon);
+        const lonDistance = Math.min(rawLonDistance, 360 - rawLonDistance);
+        return latDistance < 1 && lonDistance < 1;
+    });
+    if (nearbyPoi) return nearbyPoi;
+
+    const body = BODY_CATALOG[bodyId];
+    return {
+        id: `surface_inspection_${equipment.id}`,
+        bodyId,
+        name: equipment.name,
+        subtitle: 'Surface asset inspection',
+        category: 'SURFACE_POI',
+        position: latLonToBodyVector(
+            equipment.realCoords.lat,
+            equipment.realCoords.lon,
+            body.radiusKm + 18,
+        ),
+        radius: 100,
+        safeViewDistance: body.radiusKm * 0.8,
+        coordinates: {
+            lat: equipment.realCoords.lat,
+            lon: equipment.realCoords.lon,
+            height: 0,
+            ...(equipment.elevationM === undefined
+                ? {}
+                : { elevationKm: equipment.elevationM / 1000 }),
+        },
+        telemetry: {
+            ...body.target.telemetry,
+            classification: equipment.status,
+            missionSummary: equipment.description,
+            keyHighlights: [equipment.mission, equipment.status],
+        },
+    };
+}
 
 export const SurfaceTerrainView: React.FC = () => {
     const viewStage = useCosmosStore((state) => state.viewStage);
     const activeBodyId = useCosmosStore((state) => state.activeBodyId);
     const activeTarget = useCosmosStore((state) => state.activeTarget);
     const returnToOrbit = useCosmosStore((state) => state.returnToOrbit);
+    const selectDevice = useCosmosStore((state) => state.selectDevice);
+    const selectTarget = useCosmosStore((state) => state.selectTarget);
+    const setInspectionMode = useCosmosStore((state) => state.setInspectionMode);
+    const setSpectralMode = useCosmosStore((state) => state.setSpectralMode);
+    const inspectionTransitionTarget = useCosmosStore((state) => state.inspectionTransitionTarget);
+    const setInspectionTransitionTarget = useCosmosStore(
+        (state) => state.setInspectionTransitionTarget,
+    );
     const audioMuted = useCosmosStore((state) => state.audioMuted);
 
     const isMoon = activeBodyId === 'moon';
@@ -36,10 +107,20 @@ export const SurfaceTerrainView: React.FC = () => {
     const [focusRevision, setFocusRevision] = useState(0);
     const [selectedEquipment, setSelectedEquipment] = useState<SurfaceEquipmentItem | null>(null);
     const [toasts, setToasts] = useState<SurfaceToast[]>([]);
+    const inspectionTimerRef = useRef<number | null>(null);
 
     const equipmentList = useMemo(() => {
         return getSurfaceEquipmentForBody(activeBodyId);
     }, [activeBodyId]);
+    const surfacePinList = useMemo(() => {
+        if (
+            !selectedEquipment ||
+            equipmentList.some((equipment) => equipment.id === selectedEquipment.id)
+        ) {
+            return equipmentList;
+        }
+        return [...equipmentList, selectedEquipment];
+    }, [equipmentList, selectedEquipment]);
 
     // Handle smooth mounting & crossfade lifecycle
     useEffect(() => {
@@ -94,6 +175,16 @@ export const SurfaceTerrainView: React.FC = () => {
         surfaceAudio.updateMuteState(audioMuted);
     }, [audioMuted]);
 
+    useEffect(
+        () => () => {
+            if (inspectionTimerRef.current !== null) {
+                window.clearTimeout(inspectionTimerRef.current);
+            }
+            setInspectionTransitionTarget(null);
+        },
+        [setInspectionTransitionTarget],
+    );
+
     const addToast = (type: SurfaceToast['type'], title: string, description?: string) => {
         const id = Date.now() + Math.random();
         setToasts((prev) => [...prev, { id, type, title, description }]);
@@ -113,12 +204,25 @@ export const SurfaceTerrainView: React.FC = () => {
     };
 
     const handleInspect = () => {
-        if (!selectedEquipment) return;
-        addToast(
-            'success',
-            'DIAGNOSTICS COMPLETE',
-            `${selectedEquipment.name}: Power & thermal margins nominal. Scientific payload telemetry transmitting.`,
-        );
+        if (!selectedEquipment || inspectionTransitionTarget) return;
+        setInspectionTransitionTarget(selectedEquipment.name);
+        inspectionTimerRef.current = window.setTimeout(() => {
+            const deviceId = SURFACE_DEVICE_IDS[selectedEquipment.id];
+            const device = DEVICE_CATALOG.find(
+                (item) => item.id === deviceId && item.bodyId === activeBodyId,
+            );
+
+            if (device) {
+                selectDevice(device.id);
+            } else {
+                selectTarget(createSurfaceInspectionTarget(selectedEquipment, activeBodyId));
+                setInspectionMode('MODEL_CLOSEUP');
+                setSpectralMode('TERRAIN_MESH_3D');
+            }
+
+            inspectionTimerRef.current = null;
+            setInspectionTransitionTarget(null);
+        }, INSPECTION_LOADING_MS);
     };
 
     const handleRecenter = () => {
@@ -166,7 +270,7 @@ export const SurfaceTerrainView: React.FC = () => {
 
             {/* Left Radar Navigation Gizmo */}
             <SurfaceRadarGizmo
-                equipmentList={equipmentList}
+                equipmentList={surfacePinList}
                 selectedEquipment={selectedEquipment}
                 cameraTargetRef={cameraTargetRef}
                 onSelectEquipment={handleSelectEquipment}
@@ -213,7 +317,7 @@ export const SurfaceTerrainView: React.FC = () => {
                     )}
 
                     {/* Fixed-size Beacon Pins for Equipment & Landmarks */}
-                    {equipmentList.map((eq) => (
+                    {surfacePinList.map((eq) => (
                         <SurfaceBeaconPin
                             key={eq.id}
                             equipment={eq}

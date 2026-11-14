@@ -1,5 +1,6 @@
 import type React from 'react';
 import type * as THREE from 'three';
+import { Environment } from '@react-three/drei';
 import { BODY_CATALOG } from '../config/bodyCatalog';
 import { DEVICE_CATALOG } from '../config/deviceCatalog';
 import { useCosmosStore } from '../store/useCosmosStore';
@@ -14,6 +15,18 @@ import { OrbitalGlbModel } from './common/OrbitalGlbModel';
 import { ProceduralDeviceModel } from './spacecraft/ProceduralDeviceModel';
 import { OpeningShipScene } from './opening/OpeningShipScene';
 import { MarsTerrainPatch } from './surface/MarsTerrainPatch';
+
+function DeviceInspectionLighting() {
+  return (
+    <>
+      <ambientLight intensity={1.1} />
+      <hemisphereLight args={['#e8f4ff', '#30384a', 1.1]} />
+      <directionalLight position={[4, 7, 5]} intensity={2.8} color="#fff3df" />
+      <directionalLight position={[-5, 3, -4]} intensity={1.5} color="#b4ddff" />
+      <Environment preset="studio" environmentIntensity={0.65} />
+    </>
+  );
+}
 
 export function CosmosSceneRoot({
   sunLightRef,
@@ -50,9 +63,7 @@ export function CosmosSceneRoot({
   if (isAvailableDevice && device) {
     return (
       <group>
-        <ambientLight intensity={0.85} />
-        <directionalLight position={[3, 5, 4]} intensity={1.85} />
-        <directionalLight position={[-3, 1, -2]} intensity={0.8} />
+        <DeviceInspectionLighting />
         <DeviceModel key={device.id} device={device} />
       </group>
     );
@@ -61,9 +72,7 @@ export function CosmosSceneRoot({
   if (isProceduralDevice && device) {
     return (
       <group>
-        <ambientLight intensity={0.85} />
-        <directionalLight position={[3, 5, 4]} intensity={1.85} />
-        <directionalLight position={[-3, 1, -2]} intensity={0.8} />
+        <DeviceInspectionLighting />
         <ProceduralDeviceModel
           key={device.id}
           kind={device.proceduralModel ?? 'mars_rover_rtg'}

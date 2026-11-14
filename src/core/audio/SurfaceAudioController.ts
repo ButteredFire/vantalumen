@@ -22,6 +22,7 @@ class SurfaceAudioController {
         collapse?: Howl;
         error?: Howl;
         select?: Howl;
+        analyze?: Howl;
         mouseHover: Howl[];
     } = {
         mouseHover: [],
@@ -52,6 +53,7 @@ class SurfaceAudioController {
             this.sounds.collapse = new Howl({ src: ['/ui_collapse.mp3'], volume: 0.08 });
             this.sounds.error = new Howl({ src: ['/ui_error.mp3'], volume: 0.12 });
             this.sounds.select = new Howl({ src: ['/ui_select.mp3'], volume: 0.08 });
+            this.sounds.analyze = new Howl({ src: ['/ui_analyze.mp3'], volume: 0.22 });
 
             this.sounds.mouseHover = [
                 new Howl({ src: ['/ui_mouse_1.mp3'], volume: 0.04 }),
@@ -189,6 +191,11 @@ class SurfaceAudioController {
     public playSelect() {
         if (useCosmosStore.getState().audioMuted) return;
         this.sounds.select?.play();
+    }
+
+    public playAnalyze() {
+        if (useCosmosStore.getState().audioMuted) return;
+        this.sounds.analyze?.play();
     }
 
     public playError() {

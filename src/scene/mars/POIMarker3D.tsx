@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Group, Vector3 } from 'three';
+import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import type { CelestialTarget } from '../../types/cosmos.types';
 import { AssetCalloutBox, type CalloutVariant } from '../../ui/hud/AssetCalloutBox';
@@ -23,6 +24,16 @@ export function POIMarker3D({ target, planetCenter, variant = 1 }: POIMarker3DPr
     const viewStage = useCosmosStore((state) => state.viewStage);
     const controlsLocked = useCosmosStore((state) => state.controlsLocked);
     const selectTarget = useCosmosStore((state) => state.selectTarget);
+    const selectSurfaceTarget = useCosmosStore((state) => state.selectSurfaceTarget);
+
+    const handleSelect = () => {
+        if (controlsLocked) return;
+        if (target.category === 'SURFACE_POI') {
+            selectSurfaceTarget(target);
+        } else {
+            selectTarget(target);
+        }
+    };
 
     useFrame(({ camera }) => {
         if (!ref.current) return;
@@ -51,10 +62,11 @@ export function POIMarker3D({ target, planetCenter, variant = 1 }: POIMarker3DPr
             <mesh
                 onClick={(event) => {
                     event.stopPropagation();
-                    if (!controlsLocked) selectTarget(target);
+                    handleSelect();
                 }}
                 onPointerOver={() => {
                     document.body.style.cursor = 'pointer';
+                    surfaceAudio.playHover();
                 }}
                 onPointerOut={() => {
                     document.body.style.cursor = 'default';
@@ -81,9 +93,8 @@ export function POIMarker3D({ target, planetCenter, variant = 1 }: POIMarker3DPr
                     accentColor={dotColor}
                     isSelected={selected}
                     isVisible={showCallout}
-                    onClick={() => {
-                        if (!controlsLocked) selectTarget(target);
-                    }}
+                    onClick={handleSelect}
+                    onMouseEnter={() => surfaceAudio.playHover()}
                 />
             </Html>
         </group>

@@ -2423,6 +2423,182 @@ button:disabled {
     text-transform: uppercase;
 }
 
+.surface-panel-actions .surface-inspect-btn {
+    flex: 1.15;
+    border-color: rgb(255 153 94 / 90%);
+    background: linear-gradient(135deg, rgb(241 115 62 / 92%), rgb(179 58 26 / 96%));
+    box-shadow: 0 0 18px rgb(241 115 62 / 22%), inset 0 1px rgb(255 255 255 / 20%);
+    color: #fff7f1;
+}
+
+.surface-panel-actions .surface-inspect-btn:hover {
+    background: linear-gradient(135deg, #ff9865, #cf4c25);
+    box-shadow: 0 0 24px rgb(241 115 62 / 42%), inset 0 1px rgb(255 255 255 / 30%);
+}
+
+.surface-panel-actions .surface-recenter-btn {
+    border-color: rgb(158 179 208 / 34%);
+    background: rgb(255 255 255 / 5%);
+    color: #aebdd0;
+}
+
+.surface-panel-actions .surface-recenter-btn:hover {
+    border-color: rgb(158 179 208 / 60%);
+    background: rgb(255 255 255 / 11%);
+    color: #e4eefc;
+}
+
+.inspection-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: #020205;
+    color: #ff9568;
+    animation: inspection-fade-in 0.3s ease-out both;
+}
+
+.inspection-transition-overlay.is-revealing {
+    animation: inspection-fade-out 0.85s ease-in forwards;
+}
+
+.inspection-transition-grid {
+    position: absolute;
+    inset: -50%;
+    opacity: 0.16;
+    background-image:
+        linear-gradient(rgb(94 149 190 / 24%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(94 149 190 / 24%) 1px, transparent 1px);
+    background-size: 34px 34px;
+    transform: perspective(420px) rotateX(58deg) scale(1.7);
+    animation: inspection-grid-drift 4s linear infinite;
+}
+
+.inspection-transition-content {
+    position: relative;
+    display: flex;
+    width: min(32rem, calc(100vw - 3rem));
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 1.2rem;
+    text-align: center;
+    text-shadow: 0 0 18px rgb(241 115 62 / 45%);
+}
+
+.inspection-transition-kicker,
+.inspection-transition-status,
+.inspection-transition-coordinates {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.inspection-transition-kicker {
+    color: #88c9e8;
+}
+
+.inspection-glitch-title {
+    position: relative;
+    max-width: 100%;
+    color: #fff5ed;
+    font-size: clamp(1.4rem, 5vw, 2.8rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.inspection-glitch-title::before,
+.inspection-glitch-title::after {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #020205;
+    content: attr(data-text);
+}
+
+.inspection-glitch-title::before {
+    color: #68dcff;
+    clip-path: inset(0 0 58% 0);
+    animation: inspection-glitch-cyan 0.42s steps(2, end) infinite;
+}
+
+.inspection-glitch-title::after {
+    color: #ff654f;
+    clip-path: inset(56% 0 0 0);
+    animation: inspection-glitch-red 0.31s steps(2, end) infinite;
+}
+
+.inspection-transition-status {
+    color: #ff9568;
+    animation: inspection-status-blink 0.8s steps(2, end) infinite;
+}
+
+.inspection-scan-bars {
+    display: flex;
+    width: min(18rem, 80vw);
+    height: 2.4rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.inspection-scan-bars i {
+    width: 0.24rem;
+    height: 35%;
+    background: #ff9568;
+    box-shadow: 0 0 10px rgb(241 115 62 / 72%);
+    animation: inspection-equalizer 0.7s ease-in-out infinite alternate;
+}
+
+.inspection-scan-bars i:nth-child(3n) { animation-delay: -0.5s; }
+.inspection-scan-bars i:nth-child(3n + 1) { animation-delay: -0.2s; }
+.inspection-scan-bars i:nth-child(4n) { height: 75%; }
+
+.inspection-transition-coordinates {
+    color: rgb(136 201 232 / 65%);
+    font-size: 0.58rem;
+}
+
+@keyframes inspection-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes inspection-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; pointer-events: none; }
+}
+
+@keyframes inspection-grid-drift {
+    from { transform: perspective(420px) rotateX(58deg) scale(1.7) translateY(0); }
+    to { transform: perspective(420px) rotateX(58deg) scale(1.7) translateY(34px); }
+}
+
+@keyframes inspection-glitch-cyan {
+    0% { transform: translate(3px, -1px); }
+    50% { transform: translate(-2px, 1px); }
+    100% { transform: translate(1px, 0); }
+}
+
+@keyframes inspection-glitch-red {
+    0% { transform: translate(-2px, 1px); }
+    50% { transform: translate(2px, -1px); }
+    100% { transform: translate(-1px, 0); }
+}
+
+@keyframes inspection-status-blink {
+    0%, 45% { opacity: 1; }
+    46%, 100% { opacity: 0.5; }
+}
+
+@keyframes inspection-equalizer {
+    from { height: 18%; opacity: 0.55; }
+    to { height: 92%; opacity: 1; }
+}
+
 /* =========================================================
    SURFACE TOAST SYSTEM
    ========================================================= */

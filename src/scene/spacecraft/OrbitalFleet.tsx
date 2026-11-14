@@ -6,6 +6,7 @@ import {
     computeOrbitalPosition,
     getOrbitalActorsForBody,
 } from '../../config/celestialCatalog';
+import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
 import { useCosmosStore, type CelestialTarget } from '../../store/useCosmosStore';
 import { NativeOrbitLine } from '../common/NativeOrbitLine';
 import { OrbitalGlbModel } from '../common/OrbitalGlbModel';
@@ -104,6 +105,7 @@ const SpacecraftNode: React.FC<{ target: CelestialTarget }> = ({ target }) => {
                 }}
                 onPointerOver={() => {
                     document.body.style.cursor = 'pointer';
+                    surfaceAudio.playHover();
                 }}
                 onPointerOut={() => {
                     document.body.style.cursor = 'default';
@@ -136,6 +138,7 @@ const SpacecraftNode: React.FC<{ target: CelestialTarget }> = ({ target }) => {
                         accentColor={meta.accentGlow}
                         isSelected={isSelected}
                         isVisible={showCallout}
+                        onMouseEnter={() => surfaceAudio.playHover()}
                         onClick={() => {
                             if (!controlsLocked) selectTarget(target);
                         }}

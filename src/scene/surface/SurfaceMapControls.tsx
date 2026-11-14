@@ -23,8 +23,11 @@ export const SurfaceMapControls: React.FC<SurfaceMapControlsProps> = ({
     const lastFocusRevision = useRef<number | null>(null);
     const lastNavigationSoundAt = useRef(0);
     const offset = useRef(new THREE.Vector3());
-    const limitX = 1000;
-    const limitZ = 500;
+    
+    // Define limits for camera movement
+    // The divisions are arbitrary on purpose
+    const limitX = 1000 / 1.5;
+    const limitZ = 500 / 2.0;
 
     useEffect(() => {
         if (!focusTarget) {
