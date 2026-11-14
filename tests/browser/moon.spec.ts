@@ -10,7 +10,9 @@ const moonDevices = [
 ];
 
 const buttonContaining = (page: Page, label: string) =>
-  page.getByRole('button', { name: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
+  page.locator('.target-list-btn').filter({
+    hasText: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  });
 
 const ORBITAL_MOON_GLBS = new Set([
   '/assets/models/moons/lro_orbiter.glb',
@@ -23,6 +25,14 @@ const ALLOWED_MOON_GLBS = new Set([
 ]);
 
 const pathFromUrl = (rawUrl: string) => new URL(rawUrl).pathname;
+
+async function startAtOrbit(page: Page) {
+  await page.goto('/');
+  const launchButton = page.getByRole('button', { name: /ENGAGE ORBITAL INSERTION/ });
+  await expect(launchButton).toBeEnabled({ timeout: 60000 });
+  await launchButton.click();
+  await expect(page.locator('.hud-top-bar')).toBeVisible({ timeout: 60000 });
+}
 
 test('Moon globe, orbital GLBs, sourced POIs and six documented Apollo records without surface GLB requests', async ({ page }) => {
   test.setTimeout(180000);
@@ -39,7 +49,7 @@ test('Moon globe, orbital GLBs, sourced POIs and six documented Apollo records w
       marsInitialModels.push(pathFromUrl(request.url()));
     }
   });
-  await page.goto('/');
+  await startAtOrbit(page);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Mars');
   await expect.poll(() => new Set(marsInitialModels).size, { timeout: 30000 }).toBeGreaterThanOrEqual(7);
   onMoon = true;
@@ -52,7 +62,7 @@ test('Moon globe, orbital GLBs, sourced POIs and six documented Apollo records w
   await expect.poll(() => new Set(moonModels).size, { timeout: 30000 }).toBe(2);
   expect(moonModels.every((path) => ORBITAL_MOON_GLBS.has(path))).toBeTruthy();
 
-  await page.getByRole('button', { name: /Mare Tranquillitatis/ }).click();
+  await buttonContaining(page, 'Mare Tranquillitatis').click();
   await expect(page.getByLabel('Thông tin và nguồn')).toContainText('8.35°');
   await expect(page.getByRole('link', { name: 'IAU / USGS · Mare Tranquillitatis' }))
     .toHaveAttribute('href', 'https://planetarynames.wr.usgs.gov/Feature/3691');
@@ -64,7 +74,7 @@ test('Moon globe, orbital GLBs, sourced POIs and six documented Apollo records w
     .toHaveAttribute('href', 'https://planetarynames.wr.usgs.gov/Feature/6163');
   await page.getByRole('button', { name: 'Trở về toàn cảnh', exact: true }).click();
 
-  await page.getByRole('button', { name: /South Pole–Aitken/ }).click();
+  await buttonContaining(page, 'South Pole–Aitken').click();
   const panel = page.getByLabel('Thông tin và nguồn');
   await expect(panel).toContainText('-53.00°');
   await expect(panel).toContainText('không phải tâm địa danh do IAU xác lập');
@@ -87,7 +97,7 @@ test('Moon globe, orbital GLBs, sourced POIs and six documented Apollo records w
 });
 
 test('Mars → Moon → Mars switching resets body state and keeps both globes usable', async ({ page }) => {
-  await page.goto('/');
+  await startAtOrbit(page);
   await buttonContaining(page, 'Viking landers').click();
   await expect(page.getByTestId('model-status')).toHaveText('Đã tải mô hình', { timeout: 60000 });
 
@@ -116,7 +126,7 @@ test('a failed Mars model does not block the Moon and remains recoverable', asyn
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.route(model, (route) => route.fulfill({ status: 404 }));
-  await page.goto('/');
+  await startAtOrbit(page);
   await buttonContaining(page, 'Viking landers').click();
   await expect(page.getByRole('alert')).toContainText('missing-file');
 
@@ -124,7 +134,7 @@ test('a failed Mars model does not block the Moon and remains recoverable', asyn
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Moon');
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.locator('canvas')).toBeVisible();
-  await page.getByRole('button', { name: /Mare Tranquillitatis/ }).click();
+  await buttonContaining(page, 'Mare Tranquillitatis').click();
   await expect(page.getByLabel('Thông tin và nguồn')).toContainText('8.35°');
   await buttonContaining(page, 'Lunar Roving Vehicle (LRV)').click();
   await expect(page.getByTestId('model-status')).toHaveText('Chưa có mô hình 3D được xác minh');
@@ -140,7 +150,7 @@ test('a failed Mars model does not block the Moon and remains recoverable', asyn
 
 test('narrow viewport keeps the Moon canvas, records and unavailable layers usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await startAtOrbit(page);
   await page.getByRole('button', { name: 'Mặt Trăng · Moon' }).click();
   await expect(page.locator('canvas')).toBeVisible();
   const device = buttonContaining(page, 'LRV Apollo 15');
@@ -161,7 +171,7 @@ test('switching from active Ingenuity controls to Moon clears device panel and r
     if (onMoon && request.url().endsWith('.glb')) moonGlbRequests.push(request.url());
   });
 
-  await page.goto('/');
+  await startAtOrbit(page);
   await buttonContaining(page, 'Ingenuity').click();
   await expect(page.getByTestId('model-status')).toHaveText('Đã tải mô hình', { timeout: 60000 });
   await page.getByTestId('camera-view-rte_horizon').click();
@@ -206,7 +216,7 @@ test('Moon orbital actors GLB Option 1 close-up, procedural Apollo LRV and Optio
     }
   });
 
-  await page.goto('/');
+  await startAtOrbit(page);
   await expect.poll(() => new Set(marsInitialGlbs).size, { timeout: 30000 }).toBeGreaterThanOrEqual(7);
   onMoon = true;
   await page.getByRole('button', { name: 'Mặt Trăng · Moon' }).click();

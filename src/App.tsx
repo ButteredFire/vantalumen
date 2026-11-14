@@ -1,4 +1,6 @@
 import { MarsCanvas } from './core/canvas/MarsCanvas';
+import { MarsSurfaceTerrainView } from './scene/surface/MarsSurfaceTerrainView';
+import { ImmersivePreloader } from './ui/preloader/ImmersivePreloader';
 import { TopNavigationBar } from './ui/hud/TopNavigationBar';
 import { CelestialQuickSelect } from './ui/hud/CelestialQuickSelect';
 import { SubSceneInfoPanel } from './ui/hud/SubSceneInfoPanel';
@@ -9,20 +11,41 @@ import { BODY_CATALOG } from './config/bodyCatalog';
 import { ATLAS_POIS } from './config/atlasPOIs';
 import { DEVICE_CATALOG } from './config/deviceCatalog';
 import { DEVICE_CONTROL_SPECS } from './config/deviceControlSpecs';
+import { useCosmosStore } from './store/useCosmosStore';
 
 validateCatalog(Object.values(BODY_CATALOG), ATLAS_POIS, DEVICE_CATALOG);
 validateDeviceControlSpecs(DEVICE_CATALOG, DEVICE_CONTROL_SPECS);
 
 function App() {
-  return (
-    <div className="cosmos-app-root atlas-release">
-      <MarsCanvas />
-      <ControlRoomHudOverlay />
-      <TopNavigationBar />
-      <CelestialQuickSelect />
-      <SubSceneInfoPanel />
-      <TimeScrubberBar />
-    </div>
-  );
+    const viewStage = useCosmosStore((state) => state.viewStage);
+    const showOrbitalHud =
+        viewStage !== 'PRELOADING' &&
+        viewStage !== 'LAUNCHING' &&
+        viewStage !== 'SURFACE_VIEW' &&
+        viewStage !== 'SURFACE_CESIUM';
+    const isAlphaJumpStage = viewStage === 'PRELOADING' || viewStage === 'LAUNCHING';
+
+    return (
+        <div className={`cosmos-app-root atlas-release ${isAlphaJumpStage ? 'is-alpha-jump' : ''}`}>
+            {/* Layer 1: 3D Deep Space & Orbital Globe (Three.js + R3F + 4-Tier LOD) */}
+            <MarsCanvas />
+
+            {/* Layer 2: 3D Planetary Surface Terrain Environment (Generalized for Mars & Lunar) */}
+            <MarsSurfaceTerrainView />
+
+            {/* Layer 3: Cockpit Preloader, POV HUD, Control Systems & Navigation Panels */}
+            <ImmersivePreloader />
+            {showOrbitalHud && (
+                <>
+                    <ControlRoomHudOverlay />
+                    <TopNavigationBar />
+                    <CelestialQuickSelect />
+                    <SubSceneInfoPanel />
+                    <TimeScrubberBar />
+                </>
+            )}
+        </div>
+    );
 }
+
 export default App;

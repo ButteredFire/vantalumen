@@ -12,6 +12,7 @@ import { DeviceModel } from './spacecraft/DeviceModel';
 import { OrbitalFleet } from './spacecraft/OrbitalFleet';
 import { OrbitalGlbModel } from './common/OrbitalGlbModel';
 import { ProceduralDeviceModel } from './spacecraft/ProceduralDeviceModel';
+import { OpeningShipScene } from './opening/OpeningShipScene';
 import { MarsTerrainPatch } from './surface/MarsTerrainPatch';
 
 export function CosmosSceneRoot({
@@ -114,6 +115,7 @@ export function CosmosSceneRoot({
     <group>
       <SunLightSource sunLightRef={sunLightRef} />
       <DeepSpaceStarfield />
+      <OpeningShipScene />
       <PlanetaryOrbitContext body={BODY_CATALOG[bodyId]} />
       <MarsPlanetGroup key={bodyId} body={BODY_CATALOG[bodyId]} />
       <OrbitalFleet />

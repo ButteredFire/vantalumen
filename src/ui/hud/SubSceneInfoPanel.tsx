@@ -45,8 +45,9 @@ export function SubSceneInfoPanel() {
   const deviceId = useCosmosStore((state) => state.activeDeviceId);
   const load = useCosmosStore((state) => state.assetLoad);
   const retry = useCosmosStore((state) => state.retryAsset);
-  const returnToOrbit = useCosmosStore((state) => state.returnToOrbit);
-  const selectDevice = useCosmosStore((state) => state.selectDevice);
+    const returnToOrbit = useCosmosStore((state) => state.returnToOrbit);
+    const enterSurfaceLanding = useCosmosStore((state) => state.enterSurfaceLanding);
+    const selectDevice = useCosmosStore((state) => state.selectDevice);
 
   const viewStage = useCosmosStore((state) => state.viewStage);
   const spectralMode = useCosmosStore((state) => state.spectralMode);
@@ -434,9 +435,20 @@ export function SubSceneInfoPanel() {
         />
       )}
 
-      <button className="hud-action-btn secondary-btn" onClick={returnToOrbit}>
-        Trở về toàn cảnh
-      </button>
+            {(Boolean(device?.coordinates) || rawTarget?.category === 'SURFACE_POI' || spectralMode === 'TERRAIN_MESH_3D') && (
+                <button
+                    type="button"
+                    className="hud-action-btn primary-btn"
+                    onClick={() => enterSurfaceLanding()}
+                    style={{ marginBottom: '0.5rem' }}
+                >
+                    Khám phá Bề mặt 3D (Surface Terrain)
+                </button>
+            )}
+
+            <button className="hud-action-btn secondary-btn" onClick={returnToOrbit}>
+                Trở về toàn cảnh
+            </button>
     </aside>
   );
 }

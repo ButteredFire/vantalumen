@@ -4,13 +4,14 @@ import type { CelestialCategory } from '../../types/cosmos.types';
 export type CalloutVariant = 1 | 2 | 3 | 4;
 
 interface AssetCalloutBoxProps {
-  title: string;
-  meta?: string;
-  category: CelestialCategory;
-  variant?: CalloutVariant;
-  isSelected?: boolean;
-  isVisible?: boolean;
-  onClick: () => void;
+    title: string;
+    meta?: string;
+    category: CelestialCategory;
+    variant?: CalloutVariant;
+    isSelected?: boolean;
+    isVisible?: boolean;
+    accentColor?: string;
+    onClick: () => void;
 }
 
 /**
@@ -18,13 +19,14 @@ interface AssetCalloutBoxProps {
  * dual accent borders, diagonal tech stripes, and animated SVG leader-line + concentric anchor reticle.
  */
 export const AssetCalloutBox: React.FC<AssetCalloutBoxProps> = ({
-  title,
-  meta,
-  category,
-  variant = 1,
-  isSelected = false,
-  isVisible = true,
-  onClick,
+    title,
+    meta,
+    category,
+    variant = 1,
+    isSelected = false,
+    isVisible = true,
+    accentColor,
+    onClick,
 }) => {
   const categoryClass =
     category === 'MOON'
@@ -169,15 +171,25 @@ export const AssetCalloutBox: React.FC<AssetCalloutBoxProps> = ({
   const anchorLeftPct =
     variant === 1 ? '81%' : variant === 2 ? '49%' : variant === 3 ? '52.5%' : '66%';
 
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`hud-callout-box variant-${variant} ${categoryClass} ${
-        isSelected ? 'is-active' : ''
-      } ${isVisible ? 'is-visible' : 'is-hidden'}`}
-      style={{ ['--anchor-x' as string]: anchorLeftPct }}
-    >
+    const styleVars: React.CSSProperties = {
+        ['--anchor-x' as string]: anchorLeftPct,
+        ...(accentColor
+            ? {
+                ['--callout-color' as string]: accentColor,
+                ['--callout-color-dim' as string]: `${accentColor}55`,
+            }
+            : {}),
+    };
+
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`hud-callout-box variant-${variant} ${categoryClass} ${
+                isSelected ? 'is-active' : ''
+            } ${isVisible ? 'is-visible' : 'is-hidden'}`}
+            style={styleVars}
+        >
       <div className="callout-frame-layer">
         {renderFrameSvg()}
         <span className="callout-scan-beam" aria-hidden="true" />

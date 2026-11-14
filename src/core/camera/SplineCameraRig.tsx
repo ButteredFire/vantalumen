@@ -2,13 +2,15 @@ import { useEffect, useRef } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { MathUtils, PerspectiveCamera, Vector3 } from 'three';
+import { CatmullRomCurve3, MathUtils, PerspectiveCamera, Vector3 } from 'three';
 import gsap from 'gsap';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import { BODY_CATALOG } from '../../config/bodyCatalog';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
 import { getDeviceControlSpec } from '../../config/deviceControlSpecs';
 import { buildSafeWarpSpline } from './warpPaths';
+import { spatialAudio } from '../audio/SpatialAudioEngine';
+import { OPENING_CAMERA_POS, OPENING_LOOK_TARGET } from '../../scene/opening/OpeningShipScene';
 
 const INSPECTION_MIN_DISTANCE = 0.35;
 const INSPECTION_MAX_DISTANCE = 24;
@@ -24,45 +26,148 @@ function isOrbitalDevice(deviceId: string | null): boolean {
 }
 
 export function SplineCameraRig() {
-  const { camera } = useThree();
-  const controls = useRef<OrbitControlsImpl>(null);
-  const prevDeviceIdRef = useRef<string | null>(null);
+    const { camera } = useThree();
+    const controls = useRef<OrbitControlsImpl>(null);
+    const prevDeviceIdRef = useRef<string | null>(null);
+    const launchTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  const bodyId = useCosmosStore((state) => state.activeBodyId);
-  const deviceId = useCosmosStore((state) => state.activeDeviceId);
-  const deviceCameraViewId = useCosmosStore((state) => state.deviceCameraViewId);
-  const deviceCameraTick = useCosmosStore((state) => state.deviceCameraTick);
-  const inspectionMode = useCosmosStore((state) => state.inspectionMode);
-  const orbitalCloseup = useCosmosStore((state) => state.orbitalCloseup);
-  const povYawDeg = useCosmosStore((state) => state.povYawDeg);
-  const povPitchDeg = useCosmosStore((state) => state.povPitchDeg);
-  const povFovZoom = useCosmosStore((state) => state.povFovZoom);
-  const spectralMode = useCosmosStore((state) => state.spectralMode);
-  const target = useCosmosStore((state) => state.activeTarget);
-  const reset = useCosmosStore((state) => state.cameraResetTick);
+    const bodyId = useCosmosStore((state) => state.activeBodyId);
+    const deviceId = useCosmosStore((state) => state.activeDeviceId);
+    const deviceCameraViewId = useCosmosStore((state) => state.deviceCameraViewId);
+    const deviceCameraTick = useCosmosStore((state) => state.deviceCameraTick);
+    const inspectionMode = useCosmosStore((state) => state.inspectionMode);
+    const orbitalCloseup = useCosmosStore((state) => state.orbitalCloseup);
+    const povYawDeg = useCosmosStore((state) => state.povYawDeg);
+    const povPitchDeg = useCosmosStore((state) => state.povPitchDeg);
+    const povFovZoom = useCosmosStore((state) => state.povFovZoom);
+    const spectralMode = useCosmosStore((state) => state.spectralMode);
+    const target = useCosmosStore((state) => state.activeTarget);
+    const reset = useCosmosStore((state) => state.cameraResetTick);
 
-  const device = DEVICE_CATALOG.find((item) => item.id === deviceId);
-  const hasPovSelection = Boolean(device) || Boolean(target);
-  const isControlRoomPov = inspectionMode === 'CONTROL_ROOM_POV' && hasPovSelection;
+    const device = DEVICE_CATALOG.find((item) => item.id === deviceId);
+    const hasPovSelection = Boolean(device) || Boolean(target);
+    const isControlRoomPov = inspectionMode === 'CONTROL_ROOM_POV' && hasPovSelection;
 
-  const isAvailableDevice = device?.status === 'available';
-  const isProceduralDevice =
-    device?.status === 'unavailable' && Boolean(device.proceduralModel);
-  const isTerrainShowcase =
-    spectralMode === 'TERRAIN_MESH_3D' &&
-    !device &&
-    (!target || target.category === 'SURFACE_POI');
-  const isOrbitalCloseup =
-    !device &&
-    Boolean(target?.modelPath) &&
-    orbitalCloseup &&
-    inspectionMode === 'MODEL_CLOSEUP';
+    const isAvailableDevice = device?.status === 'available';
+    const isProceduralDevice =
+        device?.status === 'unavailable' && Boolean(device.proceduralModel);
+    const isTerrainShowcase =
+        spectralMode === 'TERRAIN_MESH_3D' &&
+        !device &&
+        (!target || target.category === 'SURFACE_POI');
+    const isOrbitalCloseup =
+        !device &&
+        Boolean(target?.modelPath) &&
+        orbitalCloseup &&
+        inspectionMode === 'MODEL_CLOSEUP';
 
-  const isNormalizedCloseup =
-    !isControlRoomPov &&
-    (isAvailableDevice || isProceduralDevice || isTerrainShowcase || isOrbitalCloseup);
+    const isNormalizedCloseup =
+        !isControlRoomPov &&
+        (isAvailableDevice || isProceduralDevice || isTerrainShowcase || isOrbitalCloseup);
 
-  const radius = BODY_CATALOG[bodyId].radiusKm;
+    const radius = BODY_CATALOG[bodyId].radiusKm;
+
+    // Cockpit camera setup on launch and alpha jump listener
+    useEffect(() => {
+        const perspective = camera as PerspectiveCamera;
+        const initialStage = useCosmosStore.getState().viewStage;
+
+        if (initialStage === 'PRELOADING' && controls.current) {
+            perspective.position.copy(OPENING_CAMERA_POS);
+            controls.current.target.copy(OPENING_LOOK_TARGET);
+            controls.current.enabled = false;
+            perspective.lookAt(OPENING_LOOK_TARGET);
+        }
+
+        const unsubStage = useCosmosStore.subscribe(
+            (state) => state.viewStage,
+            (stage, prevStage) => {
+                if (stage !== 'LAUNCHING' || prevStage === 'LAUNCHING' || !controls.current) return;
+
+                launchTimelineRef.current?.kill();
+                controls.current.enabled = false;
+
+                const reduced =
+                    typeof window !== 'undefined' &&
+                    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                const durationTotal = reduced ? 1.8 : 3.4;
+                spatialAudio.playWarpTransition(durationTotal);
+
+                const currentBody = useCosmosStore.getState().activeBodyId;
+                const bodyRadius = BODY_CATALOG[currentBody].radiusKm;
+                const destOverview =
+                    currentBody === 'mars'
+                        ? new Vector3(0, 8000, 22000)
+                        : new Vector3(0, bodyRadius * 0.72, bodyRadius * 3.9);
+
+                const jumpCurve = new CatmullRomCurve3(
+                    [
+                        OPENING_CAMERA_POS.clone(),
+                        new Vector3(0, 8150, 56000),
+                        destOverview.clone(),
+                    ],
+                    false,
+                    'centripetal',
+                    0.5,
+                );
+
+                const progressProxy = { t: 0 };
+                const peakFov = reduced ? 52 : 76;
+
+                launchTimelineRef.current = gsap
+                    .timeline({
+                        onComplete: () => {
+                            if (!controls.current) return;
+                            perspective.position.copy(destOverview);
+                            controls.current.target.set(0, 0, 0);
+                            controls.current.update();
+                            controls.current.enabled = true;
+                            useCosmosStore.getState().completeLaunchSequence();
+                        },
+                    })
+                    .to(
+                        progressProxy,
+                        {
+                            t: 1,
+                            duration: durationTotal,
+                            ease: 'power3.inOut',
+                            onUpdate: () => {
+                                const pt = jumpCurve.getPointAt(progressProxy.t);
+                                perspective.position.copy(pt);
+                                controls.current?.target.set(0, 0, 0);
+                                perspective.lookAt(0, 0, 0);
+                            },
+                        },
+                        0,
+                    )
+                    .to(
+                        perspective,
+                        {
+                            fov: peakFov,
+                            duration: durationTotal * 0.36,
+                            ease: 'power2.in',
+                            onUpdate: () => perspective.updateProjectionMatrix(),
+                        },
+                        0,
+                    )
+                    .to(
+                        perspective,
+                        {
+                            fov: 45,
+                            duration: durationTotal * 0.64,
+                            ease: 'power3.out',
+                            onUpdate: () => perspective.updateProjectionMatrix(),
+                        },
+                        durationTotal * 0.36,
+                    );
+            },
+        );
+
+        return () => {
+            unsubStage();
+            launchTimelineRef.current?.kill();
+        };
+    }, [camera]);
 
   // Apply real-time pan/tilt/zoom inside CONTROL_ROOM_POV without triggering warp animations
   useEffect(() => {
@@ -103,12 +208,18 @@ export function SplineCameraRig() {
     target?.category,
   ]);
 
-  useEffect(() => {
-    if (isControlRoomPov) return;
-    const orbit = controls.current;
-    if (!orbit) return;
+    useEffect(() => {
+        if (isControlRoomPov) return;
+        const orbit = controls.current;
+        if (!orbit) return;
 
-    camera.rotation.order = 'XYZ';
+        const currentStage = useCosmosStore.getState().viewStage;
+        if (currentStage === 'PRELOADING' || currentStage === 'LAUNCHING') {
+            orbit.enabled = false;
+            return;
+        }
+
+        camera.rotation.order = 'XYZ';
     const perspective = camera as PerspectiveCamera;
     perspective.near = isNormalizedCloseup ? 0.01 : 1;
     perspective.far = isNormalizedCloseup ? 180 : 1000000;

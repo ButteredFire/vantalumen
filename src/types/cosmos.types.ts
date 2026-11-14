@@ -22,12 +22,25 @@ export type ProceduralModelKind =
   | 'apollo_lm_mesa';
 
 export type ViewStage =
-  | 'PRELOADING'
-  | 'LAUNCHING'
-  | 'ORBITAL_OVERVIEW'
-  | 'WARPING'
-  | 'SUB_SCENE'
-  | 'SURFACE_CESIUM';
+    | 'PRELOADING'
+    | 'LAUNCHING'
+    | 'ORBITAL_OVERVIEW'
+    | 'WARPING'
+    | 'SUB_SCENE'
+    | 'SURFACE_VIEW'
+    | 'SURFACE_CESIUM';
+
+export interface SurfaceEquipmentItem {
+    id: string;
+    name: string;
+    bodyId?: BodyId;
+    realCoords: { lat: number; lon: number };
+    status: string;
+    mission: string;
+    description: string;
+    elevationM?: number;
+    coords?: [number, number, number];
+}
 
 export type CelestialTargetId = string;
 

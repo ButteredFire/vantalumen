@@ -1,9 +1,15 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const buttonContaining = (page: Page, label: string) =>
-  page.getByRole('button', { name: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) });
+  page.locator('.target-list-btn').filter({
+    hasText: new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  });
 
 const ORBITAL_MARS_GLBS = new Set([
+  '/assets/models/moons/phobos_draco.glb',
+  '/assets/models/moons/deimos_draco.glb',
+  '/assets/models/spacecraft/mars_reconnaissance_orbiter.glb',
+  '/assets/models/stations/ares_orbital_station_lod0.glb',
   '/assets/models/moons/phobos.glb',
   '/assets/models/moons/deimos.glb',
   '/assets/models/mars/mro_orbiter.glb',
@@ -30,6 +36,80 @@ const SURFACE_MARS_GLBS = [
 
 const pathFromUrl = (rawUrl: string) => new URL(rawUrl).pathname;
 
+async function startAtOrbit(page: Page) {
+  await page.goto('/');
+  const launchButton = page.getByRole('button', { name: /ENGAGE ORBITAL INSERTION/ });
+  await expect(launchButton).toBeEnabled({ timeout: 60000 });
+  await launchButton.click();
+  await expect(page.locator('.hud-top-bar')).toBeVisible({ timeout: 60000 });
+}
+
+test('alpha jump destination selection and holographic console zoom work', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+
+  await page.goto('/');
+  const marsButton = page.getByRole('button', { name: 'MARS', exact: true });
+  const moonButton = page.getByRole('button', { name: 'THE MOON', exact: true });
+  const card = page.locator('.preloader-card-3d');
+
+  await expect(page.locator('.hud-top-bar')).toHaveCount(0);
+  await expect(page.locator('.hud-left-dock')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /NATURAL LANDMARK/ })).toHaveCount(0);
+  await expect(marsButton).toHaveAttribute('aria-pressed', 'true');
+  await expect(moonButton).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('.preloader-3d-stage').dispatchEvent('wheel', { deltaY: -200 });
+  await expect.poll(() => card.evaluate((element) => element.style.transform))
+    .toContain('scale(1.3)');
+
+  await moonButton.click();
+  await expect(moonButton).toHaveAttribute('aria-pressed', 'true');
+  await expect(marsButton).toHaveAttribute('aria-pressed', 'false');
+  const launchButton = page.getByRole('button', { name: /ENGAGE ORBITAL INSERTION/ });
+  await expect(launchButton).toBeEnabled({ timeout: 60000 });
+  await launchButton.click();
+  await expect(page.locator('.alpha-jump-hud-notice'))
+    .toContainText('WARPING SPACE-TIME INTO THE MOON ORBIT');
+  await expect(page.locator('.hud-top-bar')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Moon', { timeout: 15000 });
+  await expect(page.locator('.hud-top-bar')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('surface terrain applies the Mars texture and hides orbital HUD until returning to orbit', async ({ page }) => {
+  const requestedPaths: string[] = [];
+  page.on('request', (request) => requestedPaths.push(pathFromUrl(request.url())));
+
+  await page.goto('/');
+  await expect(page.locator('.hud-top-bar')).toHaveCount(0);
+  const launchButton = page.getByRole('button', { name: /ENGAGE ORBITAL INSERTION/ });
+  await expect(launchButton).toBeEnabled({ timeout: 60000 });
+  await launchButton.click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Mars', { timeout: 15000 });
+
+  await page.locator('.hud-left-dock').getByRole('button', { name: /Jezero/ }).click();
+  await page.getByRole('button', { name: /Khám phá Bề mặt 3D/ }).click();
+  await expect(page.getByRole('region', { name: '3D Martian Surface Terrain View' })).toBeVisible();
+  await expect(page.locator('.surface-terrain-experience')).toHaveCSS('opacity', '1');
+  await expect(page.locator('.surface-header-bar')).toBeVisible();
+  await expect(page.locator('.hud-top-bar, .hud-left-dock, .hud-right-panel, .hud-bottom-bar'))
+    .toHaveCount(0);
+  await expect.poll(() => requestedPaths).toContain('/assets/textures/mars_albedo_baked.webp');
+  await expect(page.locator('.surface-terrain-experience canvas')).toBeVisible();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'test-results/mars-surface-terrain.png' });
+
+  await page.getByRole('button', { name: /Return to Orbit/ }).click();
+  await expect(page.locator('.hud-top-bar')).toBeVisible();
+  await expect(page.locator('.surface-terrain-experience')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Mặt Trăng · Moon' }).click();
+  await page.locator('.hud-left-dock').getByRole('button', { name: /Mare Tranquillitatis/ }).click();
+  await page.getByRole('button', { name: /Khám phá Bề mặt 3D/ }).click();
+  await expect(page.getByRole('region', { name: '3D Lunar Surface Terrain View' })).toBeVisible();
+  await expect.poll(() => requestedPaths).toContain('/assets/textures/moon_albedo_baked.webp');
+});
+
 test('Mars globe, orbital GLBs, sourced POIs, lazy surface GLB models and Moon unavailable entries', async ({ page }) => {
   test.setTimeout(240000);
   const errors: string[] = [];
@@ -38,12 +118,15 @@ test('Mars globe, orbital GLBs, sourced POIs, lazy surface GLB models and Moon u
   page.on('request', (request) => {
     if (request.url().endsWith('.glb')) models.push(pathFromUrl(request.url()));
   });
-  await page.goto('/');
+  await startAtOrbit(page);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Mars');
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.getByText('Globe minh họa · chưa có ảnh / địa hình đo đạc')).toBeVisible();
   await expect.poll(() => new Set(models).size, { timeout: 30000 }).toBeGreaterThanOrEqual(7);
-  expect(models.every((path) => ORBITAL_MARS_GLBS.has(path))).toBeTruthy();
+  expect(
+    models.every((path) => ORBITAL_MARS_GLBS.has(path)),
+    `Unexpected GLB requests: ${models.join(', ')}`,
+  ).toBeTruthy();
   expect(models.some((path) => SURFACE_MARS_GLBS.includes(path))).toBeFalsy();
   await buttonContaining(page, 'Jezero').click();
   await expect(page.getByLabel('Thông tin và nguồn')).toContainText('18.41°');
@@ -72,7 +155,7 @@ test('Mars globe, orbital GLBs, sourced POIs, lazy surface GLB models and Moon u
 
 test('repeated model inspection releases model geometries and textures', async ({ page }) => {
   test.setTimeout(210000);
-  await page.goto('/');
+  await startAtOrbit(page);
   const memory = () => page.evaluate(async () => {
     const modulePath = '/src/core/canvas/rendererDiagnostics.ts';
     return (await import(modulePath)).rendererMemory();
@@ -125,7 +208,7 @@ test('repeated model inspection releases model geometries and textures', async (
 test('missing model and malformed model remain recoverable', async ({ page }) => {
   const model = '**/assets/models/mars/viking_lander.glb';
   await page.route(model, (route) => route.fulfill({ status: 404 }));
-  await page.goto('/');
+  await startAtOrbit(page);
   await buttonContaining(page, 'Viking landers').click();
   await expect(page.getByRole('alert')).toContainText('missing-file');
   await page.unroute(model);
@@ -141,7 +224,7 @@ test('missing model and malformed model remain recoverable', async ({ page }) =>
 
 test('narrow viewport keeps canvas, navigation, unavailable layers and sources usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await startAtOrbit(page);
   await expect(page.locator('canvas')).toBeVisible();
   const device = buttonContaining(page, 'Perseverance');
   await device.scrollIntoViewIfNeeded();
@@ -157,7 +240,7 @@ test('narrow viewport keeps canvas, navigation, unavailable layers and sources u
 test('Ingenuity device inspection exposes documented camera views, coaxial rotor controls and GLB subsystem limits', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/');
+  await startAtOrbit(page);
 
   await buttonContaining(page, 'Ingenuity').click();
   await expect(page.getByTestId('model-status')).toHaveText('Đã tải mô hình', { timeout: 60000 });
@@ -229,7 +312,7 @@ test('Mars orbital actors, 8K terrain mesh and Option 1 / Option 2 flows work wi
     requestedUrls.push(request.url());
   });
 
-  await page.goto('/');
+  await startAtOrbit(page);
   await expect(page.getByTestId('toggle-orbits-btn')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByTestId('orbital-actor-phobos')).toBeVisible();
   await expect(page.getByTestId('orbital-actor-mro_orbiter')).toBeVisible();
@@ -273,7 +356,8 @@ test('Mars orbital actors, 8K terrain mesh and Option 1 / Option 2 flows work wi
   expect(requestedUrls.some((url) => url.endsWith('/mars_terrain.glb'))).toBeTruthy();
 
   // Official NASA GLB rovers (Curiosity & Perseverance) lazy-load on demand with dossier + Option 1/Option 2 controls
-  await buttonContaining(page, 'Curiosity').click();
+  const deviceCatalog = page.getByRole('complementary', { name: 'Danh mục khám phá' });
+  await deviceCatalog.getByRole('button', { name: /Curiosity/ }).click();
   await expect(page.getByTestId('model-status')).toHaveText('Đã tải mô hình', { timeout: 60000 });
   await expect(page.getByTestId('dual-view-mode-switcher')).toBeVisible();
   await expect(page.getByTestId('device-control-panel')).toBeVisible();
@@ -282,7 +366,7 @@ test('Mars orbital actors, 8K terrain mesh and Option 1 / Option 2 flows work wi
   await expect(page.getByTestId('dossier-section-contributions')).toContainText('Gale Crater');
   await page.getByTestId('dossier-tab-all').click();
 
-  await buttonContaining(page, 'Perseverance').click();
+  await deviceCatalog.getByRole('button', { name: /Perseverance/ }).click();
   await expect(page.getByTestId('model-status')).toHaveText('Đã tải mô hình', { timeout: 60000 });
   await expect(page.getByTestId('device-control-panel')).toBeVisible();
   await page.getByTestId('camera-view-mastcam_supercam').click();
@@ -301,8 +385,8 @@ test('Mars orbital actors, 8K terrain mesh and Option 1 / Option 2 flows work wi
   // Regression guard: returning to orbital overview after Terrain 3D / POV unmounts must NOT blank out Mars's baked globe texture
   await page.getByRole('button', { name: 'Trở về toàn cảnh', exact: true }).click();
   await expect(page.getByTestId('control-room-hud')).toHaveCount(0);
-  await page.waitForTimeout(1600);
-  const canvasBox = await page.locator('canvas').boundingBox();
+  await expect(page.locator('.surface-terrain-experience')).toHaveCount(0);
+  const canvasBox = await page.locator('.mars-canvas-wrapper canvas').boundingBox();
   expect(canvasBox).not.toBeNull();
   const centerClip = {
     x: Math.round(canvasBox!.x + canvasBox!.width * 0.35),
@@ -342,7 +426,7 @@ test('Mars orbital actors, 8K terrain mesh and Option 1 / Option 2 flows work wi
 test('Ingenuity missing model hides control panel until retry succeeds', async ({ page }) => {
   const model = '**/assets/models/mars/ingenuity_helicopter.glb';
   await page.route(model, (route) => route.fulfill({ status: 404 }));
-  await page.goto('/');
+  await startAtOrbit(page);
   await buttonContaining(page, 'Ingenuity').click();
   await expect(page.getByRole('alert')).toContainText('missing-file');
   await expect(page.getByTestId('device-control-panel')).toHaveCount(0);
@@ -355,7 +439,7 @@ test('Ingenuity missing model hides control panel until retry succeeds', async (
 
 test('narrow viewport keeps Ingenuity control panel usable without horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await startAtOrbit(page);
   const device = buttonContaining(page, 'Ingenuity');
   await device.scrollIntoViewIfNeeded();
   await device.click();

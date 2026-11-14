@@ -42,6 +42,7 @@
   .atlas-release .hud-bottom-bar { order: 4; flex-wrap: wrap; }
   .atlas-release .hud-brand-eyebrow { font-size: 0.6rem; }
 }
+.atlas-release.is-alpha-jump .mars-canvas-wrapper { inset: 0; }
 
 * {
   box-sizing: border-box;
@@ -1747,4 +1748,767 @@ button:disabled {
   font-size: 0.69rem;
   color: #9cb2cf;
   line-height: 1.38;
+}
+
+
+/* =========================================================
+   PRELOADER DESTINATION SELECTOR
+   ========================================================= */
+.preloader-destination-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgb(158 179 208 / 16%);
+    transform: translateZ(22px);
+}
+
+.destination-tag-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #8b9bb4;
+    text-transform: uppercase;
+}
+
+.destination-btn-row {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.destination-choice-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgb(158 179 208 / 26%);
+    background: rgb(255 255 255 / 6%);
+    color: #b0c2de;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.destination-choice-btn:hover {
+    background: rgb(255 255 255 / 12%);
+    border-color: #6ce3ff;
+    color: #ffffff;
+}
+
+.destination-choice-btn.is-active {
+    background: linear-gradient(135deg, rgb(56 220 255 / 24%) 0%, rgb(14 38 68 / 55%) 100%);
+    border-color: #38dcff;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgb(56 220 255 / 32%);
+}
+
+.dest-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+}
+
+.dest-mars {
+    background: #ff7b47;
+    box-shadow: 0 0 6px #ff7b47;
+}
+
+.dest-moon {
+    background: #7dd3fc;
+    box-shadow: 0 0 6px #7dd3fc;
+}
+
+/* =========================================================
+   3D SURFACE TERRAIN EXPERIENCE (MARTIAN & LUNAR HUD)
+   ========================================================= */
+.surface-terrain-experience {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 12;
+    background: #c7a47b;
+    user-select: none;
+    overflow: hidden;
+    opacity: 0;
+    animation: surfaceCrossfadeIn 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.surface-terrain-experience.is-lunar-view {
+    background: #020205;
+}
+
+.surface-terrain-experience.is-martian-view {
+    background: #c7a47b;
+}
+
+.surface-terrain-experience.is-exiting {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+@keyframes surfaceCrossfadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.surface-vignette-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.88);
+}
+
+/* =========================================================
+   SURFACE HEADER BAR
+   ========================================================= */
+.surface-header-bar {
+    position: fixed;
+    top: 1.25rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.4rem;
+    border-radius: 0.95rem;
+    gap: 1.5rem;
+}
+
+.surface-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.surface-brand-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(241, 139, 98, 0.4);
+    box-shadow: 0 0 12px rgba(241, 139, 98, 0.2);
+    object-fit: cover;
+}
+
+.surface-brand-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.surface-site-heading {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #e8edf5;
+    text-transform: uppercase;
+}
+
+.surface-environmental-telemetry {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.surface-telemetry-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.surface-telemetry-item .telemetry-label {
+    font-size: 0.64rem;
+    font-weight: 700;
+    color: #8b9bb4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.surface-telemetry-item .telemetry-val {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #e8edf5;
+}
+
+.surface-telemetry-item .telemetry-val.is-locked {
+    color: #7cdaa1;
+    text-shadow: 0 0 10px rgba(124, 218, 161, 0.4);
+}
+
+.surface-telemetry-item .telemetry-val.is-standby {
+    color: #f18b62;
+    animation: textBlink 1.8s ease-in-out infinite;
+}
+
+@keyframes textBlink {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+.surface-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.return-orbit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.15rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #e8edf5;
+    background: linear-gradient(135deg, rgba(241, 139, 98, 0.28) 0%, rgba(184, 75, 41, 0.4) 100%);
+    border: 1px solid rgba(241, 139, 98, 0.5);
+    border-radius: 0.55rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.return-orbit-btn:hover {
+    background: linear-gradient(135deg, rgba(241, 139, 98, 0.5) 0%, rgba(184, 75, 41, 0.7) 100%);
+    border-color: rgba(241, 139, 98, 0.85);
+    box-shadow: 0 0 20px rgba(241, 139, 98, 0.4);
+    transform: translateY(-1px);
+}
+
+.return-orbit-btn .btn-icon {
+    font-size: 0.9rem;
+    color: #f18b62;
+}
+
+/* =========================================================
+   SURFACE BEACON PINS (3D RETICLE LABELS)
+   ========================================================= */
+.surface-beacon-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.55rem;
+    width: 140px;
+    max-width: 144px;
+    background: rgba(9, 14, 24, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(164, 192, 232, 0.28);
+    border-radius: 0.45rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.surface-beacon-tag:hover {
+    transform: scale(1.05);
+    background: rgba(14, 22, 38, 0.95);
+    border-color: rgba(124, 218, 161, 0.7);
+    box-shadow: 0 0 16px rgba(124, 218, 161, 0.4);
+}
+
+.surface-beacon-tag.is-selected {
+    background: rgba(16, 28, 48, 0.98);
+    border-color: #7cdaa1;
+    box-shadow: 0 0 20px rgba(124, 218, 161, 0.55), inset 0 0 8px rgba(124, 218, 161, 0.2);
+}
+
+.surface-beacon-status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #f18b62;
+    box-shadow: 0 0 6px #f18b62;
+    flex-shrink: 0;
+}
+
+.surface-beacon-tag.is-active-target .surface-beacon-status-dot {
+    background: #64d2ff;
+    box-shadow: 0 0 8px #64d2ff;
+}
+
+.surface-beacon-tag.is-selected .surface-beacon-status-dot {
+    background: #7cdaa1;
+    box-shadow: 0 0 10px #7cdaa1;
+}
+
+.surface-beacon-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    text-align: left;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.surface-beacon-name {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #e8edf5;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.surface-beacon-coords {
+    font-size: 0.54rem;
+    color: #8b9bb4;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   SURFACE RADAR GIZMO
+   ========================================================= */
+.surface-radar-wrapper {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 25;
+    width: 172px;
+    padding: 0.85rem;
+    border-radius: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.surface-radar-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.radar-coords-readout {
+    font-size: 0.62rem;
+    color: #8b9bb4;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.surface-radar-display {
+    position: relative;
+    width: 144px;
+    height: 144px;
+    border-radius: 50%;
+    border: 1px solid rgba(164, 192, 232, 0.3);
+    background: radial-gradient(circle, rgba(14, 22, 38, 0.8) 0%, rgba(4, 7, 14, 0.95) 100%);
+    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.radar-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px dashed rgba(164, 192, 232, 0.18);
+    pointer-events: none;
+}
+
+.radar-ring.ring-outer {
+    width: 132px;
+    height: 132px;
+}
+
+.radar-ring.ring-mid {
+    width: 88px;
+    height: 88px;
+}
+
+.radar-ring.ring-inner {
+    width: 44px;
+    height: 44px;
+}
+
+.radar-axis-h {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(164, 192, 232, 0.15);
+    pointer-events: none;
+}
+
+.radar-axis-v {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: rgba(164, 192, 232, 0.15);
+    pointer-events: none;
+}
+
+.radar-cardinal {
+    position: absolute;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #8b9bb4;
+    pointer-events: none;
+}
+
+.cardinal-n { top: 3px; left: 50%; transform: translateX(-50%); }
+.cardinal-s { bottom: 3px; left: 50%; transform: translateX(-50%); }
+.cardinal-e { right: 5px; top: 50%; transform: translateY(-50%); }
+.cardinal-w { left: 5px; top: 50%; transform: translateY(-50%); }
+
+.radar-sweep-beam {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    transform-origin: 50% 50%;
+    background: conic-gradient(from 0deg at 50% 50%, rgba(124, 218, 161, 0.42) 0deg, rgba(124, 218, 161, 0.08) 45deg, transparent 55deg);
+    pointer-events: none;
+    animation: radarSweep 4s linear infinite;
+}
+
+@keyframes radarSweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.radar-center-reticle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #7cdaa1;
+    box-shadow: 0 0 8px #7cdaa1;
+    pointer-events: none;
+}
+
+.surface-radar-blip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f18b62;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 0 6px #f18b62;
+    transform: translate(-50%, -50%);
+    transition: background 0.2s, box-shadow 0.2s;
+    z-index: 10;
+}
+
+.surface-radar-blip.is-active {
+    background: #7cdaa1;
+    box-shadow: 0 0 10px #7cdaa1;
+    transform: translate(-50%, -50%) scale(1.3);
+}
+
+.surface-radar-blip:hover {
+    transform: translate(-50%, -50%) scale(1.4);
+    box-shadow: 0 0 12px #ffffff;
+}
+
+/* =========================================================
+   SURFACE TELEMETRY PANEL (RIGHT)
+   ========================================================= */
+.surface-info-panel {
+    position: fixed;
+    top: 5.5rem;
+    right: 1.5rem;
+    width: min(24rem, calc(100vw - 3rem));
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    z-index: 25;
+    padding: 1.35rem 1.6rem;
+    border-radius: 1.05rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    animation: panelSlideIn 0.35s ease-out forwards;
+}
+
+@keyframes panelSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.surface-panel-top-notch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.surface-close-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid rgba(164, 192, 232, 0.22);
+    background: rgba(255, 255, 255, 0.05);
+    color: #8b9bb4;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.surface-close-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.surface-panel-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.surface-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.surface-pulse-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+}
+
+.surface-pulse-dot.status-active {
+    background: #7cdaa1;
+    box-shadow: 0 0 10px #7cdaa1;
+}
+
+.surface-pulse-dot.status-dormant {
+    background: #f18b62;
+    box-shadow: 0 0 8px #f18b62;
+}
+
+.surface-status-text {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #8b9bb4;
+    text-transform: uppercase;
+}
+
+.surface-equipment-title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #e8edf5;
+    letter-spacing: 0.02em;
+}
+
+.surface-coords-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    color: #8b9bb4;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.badge-divider {
+    opacity: 0.4;
+}
+
+.surface-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+}
+
+.surface-stat-box {
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.65rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(164, 192, 232, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.surface-stat-box .stat-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #8b9bb4;
+    text-transform: uppercase;
+}
+
+.surface-stat-box .stat-value {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #e8edf5;
+    line-height: 1.35;
+}
+
+.surface-narrative-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(164, 192, 232, 0.12);
+}
+
+.narrative-heading {
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #f18b62;
+    text-transform: uppercase;
+}
+
+.narrative-body {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: #c4d1e2;
+}
+
+.surface-panel-actions {
+    display: flex;
+    gap: 0.65rem;
+    padding-top: 0.4rem;
+}
+
+.surface-panel-actions .hud-action-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* =========================================================
+   SURFACE TOAST SYSTEM
+   ========================================================= */
+.surface-toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    pointer-events: none;
+}
+
+.surface-toast-item {
+    pointer-events: auto;
+    width: min(22rem, calc(100vw - 3rem));
+    padding: 0.75rem 1rem;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    animation: toastIn 0.3s ease-out forwards;
+    border-left: 3px solid;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.toast-info {
+    border-left-color: #64d2ff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(100, 210, 255, 0.08);
+}
+
+.toast-success {
+    border-left-color: #7cdaa1;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(124, 218, 161, 0.08);
+}
+
+.toast-warning {
+    border-left-color: #f18b62;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(241, 139, 98, 0.08);
+}
+
+.toast-error {
+    border-left-color: #ff5252;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 82, 82, 0.08);
+}
+
+.toast-badge-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+    margin-top: 0.1rem;
+}
+
+.toast-info .toast-badge-icon { color: #64d2ff; }
+.toast-success .toast-badge-icon { color: #7cdaa1; }
+.toast-warning .toast-badge-icon { color: #f18b62; }
+.toast-error .toast-badge-icon { color: #ff5252; }
+
+.toast-content-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.toast-item-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #e8edf5;
+    text-transform: uppercase;
+}
+
+.toast-item-desc {
+    margin: 0;
+    font-size: 0.68rem;
+    line-height: 1.4;
+    color: #8b9bb4;
 }

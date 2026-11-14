@@ -37,8 +37,9 @@ export function CelestialQuickSelect() {
   const selectBody = useCosmosStore((state) => state.selectBody);
   const selectTarget = useCosmosStore((state) => state.selectTarget);
   const selectDevice = useCosmosStore((state) => state.selectDevice);
-  const setSpectralMode = useCosmosStore((state) => state.setSpectralMode);
-  const toggleOrbits = useCosmosStore((state) => state.toggleOrbits);
+    const setSpectralMode = useCosmosStore((state) => state.setSpectralMode);
+    const toggleOrbits = useCosmosStore((state) => state.toggleOrbits);
+    const enterSurfaceLanding = useCosmosStore((state) => state.enterSurfaceLanding);
 
   const body = BODY_CATALOG[bodyId];
   const pois = ATLAS_POIS.filter((poi) => poi.bodyId === bodyId);
@@ -116,19 +117,24 @@ export function CelestialQuickSelect() {
       ))}
 
       <div className="dock-section-title">Lớp dữ liệu</div>
-      {BODY_LAYER_OPTIONS[bodyId].map((layer) => (
-        <button
-          key={layer.mode}
-          type="button"
-          className="target-list-btn"
-          data-testid={`layer-btn-${layer.mode}`}
-          aria-pressed={spectralMode === layer.mode}
-          onClick={() => setSpectralMode(layer.mode)}
-        >
-          <span className="target-btn-name">{layer.label}</span>
-          <span className="target-btn-sub">{layer.tag}</span>
-        </button>
-      ))}
+            {BODY_LAYER_OPTIONS[bodyId].map((layer) => (
+                <button
+                    key={layer.mode}
+                    type="button"
+                    className="target-list-btn"
+                    data-testid={`layer-btn-${layer.mode}`}
+                    aria-pressed={spectralMode === layer.mode}
+                    onClick={() => {
+                        setSpectralMode(layer.mode);
+                        if (layer.mode === 'TERRAIN_MESH_3D') {
+                            enterSurfaceLanding();
+                        }
+                    }}
+                >
+                    <span className="target-btn-name">{layer.label}</span>
+                    <span className="target-btn-sub">{layer.tag}</span>
+                </button>
+            ))}
     </aside>
   );
 }

@@ -62,9 +62,24 @@ export function MarsLODMesh({ body }: { body: BodyConfig }) {
             thermalPreview: owned.thermalPreview,
             elevationPreview: owned.elevationPreview,
           });
+          if (body.id === 'mars') {
+            useCosmosStore.getState().reportAssetTaskProgress(
+              'mars_surface_maps',
+              100,
+              'Đã tải bản đồ Sao Hỏa & các lớp quang phổ',
+            );
+          }
         })
-        .catch(() => {
-          // Graceful fallback: retain procedural Mars textures when offline/aborted
+        .catch((error: unknown) => {
+          if (controller.signal.aborted) return;
+          console.warn(`Failed to load ${body.name} surface maps; retaining illustrative textures.`, error);
+          if (body.id === 'mars') {
+            useCosmosStore.getState().reportAssetTaskProgress(
+              'mars_surface_maps',
+              100,
+              'Dùng texture minh họa dự phòng; không tải được bản đồ Sao Hỏa',
+            );
+          }
         });
     }
 

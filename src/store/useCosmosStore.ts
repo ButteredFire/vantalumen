@@ -4,26 +4,28 @@ import * as THREE from 'three';
 import { BODY_CATALOG } from '../config/bodyCatalog';
 import { DEVICE_CATALOG } from '../config/deviceCatalog';
 import type {
-  CelestialTarget,
-  CelestialTargetId,
-  SpectralMode,
-  ViewStage,
-  BodyId,
-  DeviceCameraViewId,
-  DevicePartGroupId,
-  RotorSpinMode,
-  RotorStepDeg,
-  InspectionViewMode,
-  SensorFilterMode,
+    CelestialTarget,
+    CelestialTargetId,
+    SpectralMode,
+    ViewStage,
+    BodyId,
+    DeviceCameraViewId,
+    DevicePartGroupId,
+    RotorSpinMode,
+    RotorStepDeg,
+    InspectionViewMode,
+    SensorFilterMode,
+    SurfaceEquipmentItem,
 } from '../types/cosmos.types';
 
 export type {
-  CelestialTarget,
-  CelestialTargetId,
-  SpectralMode,
-  ViewStage,
-  InspectionViewMode,
-  SensorFilterMode,
+    CelestialTarget,
+    CelestialTargetId,
+    SpectralMode,
+    ViewStage,
+    InspectionViewMode,
+    SensorFilterMode,
+    SurfaceEquipmentItem,
 };
 
 const INITIAL_POV_STATE: {
@@ -96,43 +98,45 @@ interface CosmosState {
   togglePovArm: () => void;
   togglePovScan: () => void;
   resetPovCamera: () => void;
-  toggleOrbits: () => void;
-  togglePOIs: () => void;
-  viewStage: ViewStage;
-  activeTarget: CelestialTarget | null;
-  timeScale: number;          // Tốc độ tua thời gian (1 = thực tế, 1000 = tua nhanh quỹ đạo)
-  simulationTime: number;     // Thời gian mô phỏng tích lũy (đọc trực tiếp trong useFrame)
-  spectralMode: SpectralMode;
-  audioMuted: boolean;
-  controlsLocked: boolean;
-  loadingProgress: number;
-  requiredAssetsReady: boolean;
-  loadingStatusLabel: string;
-  loadingTasks: Record<string, number>;
-  cameraAltitudeKm: number;
-  cameraResetTick: number;
-  floatingOriginOffset: THREE.Vector3;
+    toggleOrbits: () => void;
+    togglePOIs: () => void;
+    viewStage: ViewStage;
+    activeTarget: CelestialTarget | null;
+    selectedSurfaceEquipment: SurfaceEquipmentItem | null;
+    timeScale: number;          // Tốc độ tua thời gian (1 = thực tế, 1000 = tua nhanh quỹ đạo)
+    simulationTime: number;     // Thời gian mô phỏng tích lũy (đọc trực tiếp trong useFrame)
+    spectralMode: SpectralMode;
+    audioMuted: boolean;
+    controlsLocked: boolean;
+    loadingProgress: number;
+    requiredAssetsReady: boolean;
+    loadingStatusLabel: string;
+    loadingTasks: Record<string, number>;
+    cameraAltitudeKm: number;
+    cameraResetTick: number;
+    floatingOriginOffset: THREE.Vector3;
 
-  // Dynamic runtime positions of orbiting bodies & rotating surface POIs
-  dynamicPositions: Record<string, THREE.Vector3>;
+    // Dynamic runtime positions of orbiting bodies & rotating surface POIs
+    dynamicPositions: Record<string, THREE.Vector3>;
 
-  // Actions
-  reportAssetTaskProgress: (taskId: string, progressPct: number, label?: string) => void;
-  setLoadingProgress: (progress: number) => void;
-  startLaunchSequence: () => void;
-  completeLaunchSequence: () => void;
-  completePreloader: () => void;
-  selectTarget: (target: CelestialTarget | null) => void;
-  enterSurfaceLanding: () => void;
-  returnToOrbit: () => void;
-  setViewStage: (stage: ViewStage) => void;
-  setTimeScale: (scale: number) => void;
-  setSpectralMode: (mode: SpectralMode) => void;
-  toggleAudio: () => void;
-  advanceSimulationTime: (delta: number) => void;
-  setCameraAltitudeKm: (altitudeKm: number) => void;
-  setFloatingOriginOffset: (offset: THREE.Vector3) => void;
-  updateDynamicPosition: (id: CelestialTargetId, position: THREE.Vector3) => void;
+    // Actions
+    reportAssetTaskProgress: (taskId: string, progressPct: number, label?: string) => void;
+    setLoadingProgress: (progress: number) => void;
+    startLaunchSequence: () => void;
+    completeLaunchSequence: () => void;
+    completePreloader: () => void;
+    selectTarget: (target: CelestialTarget | null) => void;
+    setSelectedSurfaceEquipment: (equipment: SurfaceEquipmentItem | null) => void;
+    enterSurfaceLanding: () => void;
+    returnToOrbit: () => void;
+    setViewStage: (stage: ViewStage) => void;
+    setTimeScale: (scale: number) => void;
+    setSpectralMode: (mode: SpectralMode) => void;
+    toggleAudio: () => void;
+    advanceSimulationTime: (delta: number) => void;
+    setCameraAltitudeKm: (altitudeKm: number) => void;
+    setFloatingOriginOffset: (offset: THREE.Vector3) => void;
+    updateDynamicPosition: (id: CelestialTargetId, position: THREE.Vector3) => void;
 }
 
 const REQUIRED_LOADING_TASKS = [
@@ -152,24 +156,27 @@ export const useCosmosStore = create<CosmosState>()(
     rotorStepTick: 0,
     showOrbits: true,
     showPOIs: true,
-    selectBody: (bodyId) => {
-      if (!BODY_CATALOG[bodyId]) return;
-      set((state) => ({
-        activeBodyId: bodyId,
-        activeTarget: null,
-        activeDeviceId: null,
-        assetLoad: { status: 'idle' },
-        ...INITIAL_DEVICE_CONTROL_STATE,
-        ...INITIAL_POV_STATE,
-        rotorStepTick: state.rotorStepTick + 1,
-        dynamicPositions: {},
-        viewStage: 'ORBITAL_OVERVIEW',
-        spectralMode: 'VISUAL_RGB',
-        controlsLocked: false,
-        cameraResetTick: state.cameraResetTick + 1,
-        floatingOriginOffset: new THREE.Vector3(),
-      }));
-    },
+        selectBody: (bodyId) => {
+            if (!BODY_CATALOG[bodyId]) return;
+            const currentStage = get().viewStage;
+            const keepPreloading = currentStage === 'PRELOADING' || currentStage === 'LAUNCHING';
+            set((state) => ({
+                activeBodyId: bodyId,
+                activeTarget: null,
+                activeDeviceId: null,
+                selectedSurfaceEquipment: null,
+                assetLoad: { status: 'idle' },
+                ...INITIAL_DEVICE_CONTROL_STATE,
+                ...INITIAL_POV_STATE,
+                rotorStepTick: state.rotorStepTick + 1,
+                dynamicPositions: {},
+                viewStage: keepPreloading ? currentStage : 'ORBITAL_OVERVIEW',
+                spectralMode: 'VISUAL_RGB',
+                controlsLocked: keepPreloading,
+                cameraResetTick: state.cameraResetTick + 1,
+                floatingOriginOffset: new THREE.Vector3(),
+            }));
+        },
     selectDevice: (id) => {
       const device = DEVICE_CATALOG.find((item) => item.id === id && item.bodyId === get().activeBodyId);
       if (!device) return;
@@ -252,128 +259,132 @@ export const useCosmosStore = create<CosmosState>()(
       }),
     toggleOrbits: () => set((state) => ({ showOrbits: !state.showOrbits })),
     togglePOIs: () => set((state) => ({ showPOIs: !state.showPOIs })),
-    viewStage: 'ORBITAL_OVERVIEW',
-    activeTarget: null,
-    timeScale: 100,
-    simulationTime: 0,
-    spectralMode: 'VISUAL_RGB',
-    audioMuted: true,
-    controlsLocked: false,
-    loadingProgress: 0,
-    requiredAssetsReady: false,
-    loadingStatusLabel: 'Đang khởi tạo hệ thống quang học & bộ giải mã...',
-    loadingTasks: {
-      mars_surface_maps: 0,
-      decoders_and_models: 0,
-    },
-    cameraAltitudeKm: 84610,
-    cameraResetTick: 0,
-    floatingOriginOffset: new THREE.Vector3(0, 0, 0),
-    dynamicPositions: {},
-
-    reportAssetTaskProgress: (taskId, progressPct, label) =>
-      set((state) => {
-        const clamped = Math.max(0, Math.min(100, progressPct));
-        const nextTasks = { ...state.loadingTasks, [taskId]: clamped };
-        const total = REQUIRED_LOADING_TASKS.reduce(
-          (sum, key) => sum + (nextTasks[key] ?? 0),
-          0,
-        );
-        const avgProgress = Math.round(total / REQUIRED_LOADING_TASKS.length);
-        const allDone = REQUIRED_LOADING_TASKS.every((key) => (nextTasks[key] ?? 0) >= 100);
-
-        return {
-          loadingTasks: nextTasks,
-          loadingProgress: avgProgress,
-          requiredAssetsReady: allDone,
-          loadingStatusLabel: allDone
-            ? 'Tài nguyên lõi đã sẵn sàng • Chờ lệnh nhảy Alpha'
-            : (label ?? state.loadingStatusLabel),
-        };
-      }),
-
-    setLoadingProgress: (progress) =>
-      set((state) => ({
-        loadingProgress: Math.max(state.loadingProgress, Math.min(100, progress)),
-      })),
-
-    startLaunchSequence: () => {
-      if (!get().requiredAssetsReady) return;
-      set({
-        viewStage: 'LAUNCHING',
-        controlsLocked: true,
-      });
-    },
-
-    completeLaunchSequence: () =>
-      set({
-        viewStage: 'ORBITAL_OVERVIEW',
-        loadingProgress: 100,
-        controlsLocked: false,
-      }),
-
-    completePreloader: () =>
-      set({
-        viewStage: 'ORBITAL_OVERVIEW',
-        loadingProgress: 100,
-        controlsLocked: false,
-      }),
-
-    selectTarget: (target) => {
-      if (target && target.bodyId !== get().activeBodyId) return;
-      if (!target) {
-        set({
-          activeTarget: null,
-          activeDeviceId: null,
-          assetLoad: { status: 'idle' },
-          ...INITIAL_DEVICE_CONTROL_STATE,
-          ...INITIAL_POV_STATE,
-          viewStage: 'ORBITAL_OVERVIEW',
-          controlsLocked: false,
-        });
-        return;
-      }
-
-      // Sync target position with its latest dynamic orbital/rotational world position
-      const dynamicPos = get().dynamicPositions[target.id];
-      const syncedTarget: CelestialTarget = dynamicPos
-        ? { ...target, position: dynamicPos.clone() }
-        : { ...target, position: target.position.clone() };
-
-      set({
-        activeTarget: syncedTarget,
-        activeDeviceId: null,
-        assetLoad: { status: 'idle' },
-        ...INITIAL_DEVICE_CONTROL_STATE,
-        ...INITIAL_POV_STATE,
-        ...(get().spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
-        viewStage: 'WARPING',
-        controlsLocked: true,
-      });
-    },
-
-    enterSurfaceLanding: () => {
-      const current = get().activeTarget;
-      if (current?.coordinates && current.isSurfaceLanding) {
-        set({
-          viewStage: 'SURFACE_CESIUM',
-          controlsLocked: false,
-        });
-      }
-    },
-
-    returnToOrbit: () =>
-      set((state) => ({
+        viewStage: 'PRELOADING',
         activeTarget: null,
-        activeDeviceId: null,
-        assetLoad: { status: 'idle' },
-        ...INITIAL_DEVICE_CONTROL_STATE,
-        ...INITIAL_POV_STATE,
-        spectralMode: state.spectralMode === 'TERRAIN_MESH_3D' ? 'VISUAL_RGB' : state.spectralMode,
-        viewStage: 'WARPING',
+        selectedSurfaceEquipment: null,
+        timeScale: 100,
+        simulationTime: 0,
+        spectralMode: 'VISUAL_RGB',
+        audioMuted: false,
         controlsLocked: true,
-        cameraResetTick: state.cameraResetTick + 1,
-      })),
+        loadingProgress: 0,
+        requiredAssetsReady: false,
+        loadingStatusLabel: 'Đang khởi tạo hệ thống quang học & bộ giải mã...',
+        loadingTasks: {
+            mars_surface_maps: 0,
+            decoders_and_models: 0,
+        },
+        cameraAltitudeKm: 84610,
+        cameraResetTick: 0,
+        floatingOriginOffset: new THREE.Vector3(0, 0, 0),
+        dynamicPositions: {},
+
+        reportAssetTaskProgress: (taskId, progressPct, label) =>
+            set((state) => {
+                const clamped = Math.max(0, Math.min(100, progressPct));
+                const nextTasks = { ...state.loadingTasks, [taskId]: clamped };
+                const total = REQUIRED_LOADING_TASKS.reduce(
+                    (sum, key) => sum + (nextTasks[key] ?? 0),
+                    0,
+                );
+                const avgProgress = Math.round(total / REQUIRED_LOADING_TASKS.length);
+                const allDone = REQUIRED_LOADING_TASKS.every((key) => (nextTasks[key] ?? 0) >= 100);
+
+                return {
+                    loadingTasks: nextTasks,
+                    loadingProgress: avgProgress,
+                    requiredAssetsReady: allDone,
+                    loadingStatusLabel: allDone
+                        ? 'Tài nguyên lõi đã sẵn sàng • Chờ lệnh nhảy Alpha'
+                        : (label ?? state.loadingStatusLabel),
+                };
+            }),
+
+        setLoadingProgress: (progress) =>
+            set((state) => ({
+                loadingProgress: Math.max(state.loadingProgress, Math.min(100, progress)),
+            })),
+
+        startLaunchSequence: () => {
+            if (!get().requiredAssetsReady) return;
+            set({
+                viewStage: 'LAUNCHING',
+                controlsLocked: true,
+            });
+        },
+
+        completeLaunchSequence: () =>
+            set({
+                viewStage: 'ORBITAL_OVERVIEW',
+                loadingProgress: 100,
+                controlsLocked: false,
+            }),
+
+        completePreloader: () =>
+            set({
+                viewStage: 'ORBITAL_OVERVIEW',
+                loadingProgress: 100,
+                controlsLocked: false,
+            }),
+
+        selectTarget: (target) => {
+            if (target && target.bodyId !== get().activeBodyId) return;
+            if (!target) {
+                set({
+                    activeTarget: null,
+                    activeDeviceId: null,
+                    selectedSurfaceEquipment: null,
+                    assetLoad: { status: 'idle' },
+                    ...INITIAL_DEVICE_CONTROL_STATE,
+                    ...INITIAL_POV_STATE,
+                    viewStage: 'ORBITAL_OVERVIEW',
+                    controlsLocked: false,
+                });
+                return;
+            }
+
+            // Sync target position with its latest dynamic orbital/rotational world position
+            const dynamicPos = get().dynamicPositions[target.id];
+            const syncedTarget: CelestialTarget = dynamicPos
+                ? { ...target, position: dynamicPos.clone() }
+                : { ...target, position: target.position.clone() };
+
+            set({
+                activeTarget: syncedTarget,
+                activeDeviceId: null,
+                selectedSurfaceEquipment: null,
+                assetLoad: { status: 'idle' },
+                ...INITIAL_DEVICE_CONTROL_STATE,
+                ...INITIAL_POV_STATE,
+                ...(get().spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
+                viewStage: 'WARPING',
+                controlsLocked: true,
+            });
+        },
+
+        setSelectedSurfaceEquipment: (equipment) =>
+            set({ selectedSurfaceEquipment: equipment }),
+
+        enterSurfaceLanding: () => {
+            set({
+                viewStage: 'SURFACE_VIEW',
+                controlsLocked: false,
+            });
+        },
+
+        returnToOrbit: () =>
+            set((state) => ({
+                activeTarget: null,
+                activeDeviceId: null,
+                selectedSurfaceEquipment: null,
+                assetLoad: { status: 'idle' },
+                ...INITIAL_DEVICE_CONTROL_STATE,
+                ...INITIAL_POV_STATE,
+                spectralMode: state.spectralMode === 'TERRAIN_MESH_3D' ? 'VISUAL_RGB' : state.spectralMode,
+                viewStage: 'ORBITAL_OVERVIEW',
+                controlsLocked: false,
+                cameraResetTick: state.cameraResetTick + 1,
+            })),
 
     setViewStage: (stage) =>
       set({
