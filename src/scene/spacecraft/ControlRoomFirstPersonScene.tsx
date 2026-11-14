@@ -325,6 +325,7 @@ function OrbitalCupolaBody({
 export function ControlRoomFirstPersonScene() {
   const { gl } = useThree();
   const bodyId = useCosmosStore((state) => state.activeBodyId);
+  const viewStage = useCosmosStore((state) => state.viewStage);
   const deviceId = useCosmosStore((state) => state.activeDeviceId);
   const activeTarget = useCosmosStore((state) => state.activeTarget);
   const povSensorMode = useCosmosStore((state) => state.povSensorMode);
@@ -400,7 +401,7 @@ export function ControlRoomFirstPersonScene() {
       />
       <directionalLight position={[-10, 6, -12]} intensity={0.45} color="#7dd3fc" />
 
-      <DeepSpaceStarfield />
+      <DeepSpaceStarfield visible={viewStage !== 'BODY_TRANSITION'} />
 
       {/* Warm butterscotch atmospheric skydome for Martian surface POV */}
       {!isOrbital && bodyId === 'mars' && (

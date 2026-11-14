@@ -141,7 +141,10 @@ export function MarsPlanetGroup({ body }: { body: BodyConfig }) {
     const showOrbits = useCosmosStore((state) => state.showOrbits);
     const viewStage = useCosmosStore((state) => state.viewStage);
     const showSurfaceMarkers =
-        showPOIs && viewStage !== 'PRELOADING' && viewStage !== 'LAUNCHING';
+        showPOIs &&
+        viewStage !== 'PRELOADING' &&
+        viewStage !== 'LAUNCHING' &&
+        viewStage !== 'BODY_TRANSITION';
 
     const tiltRad = body.id === 'mars' ? MARS_AXIAL_TILT_RAD : MOON_AXIAL_TILT_RAD;
     const pois = useMemo(

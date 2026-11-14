@@ -8,12 +8,28 @@ import { SplineCameraRig } from '../camera/SplineCameraRig';
 import { FloatingOriginManager } from './FloatingOriginManager';
 import { registerRenderer } from './rendererDiagnostics';
 import { useCosmosStore } from '../../store/useCosmosStore';
+import { DeepSpaceStarfield } from '../../scene/environment/DeepSpaceStarfield';
 
 export const MarsCanvas: React.FC = () => {
     const directionalLightRef = useRef<THREE.DirectionalLight | null>(null);
     const viewStage = useCosmosStore((state) => state.viewStage);
+    const activeDeviceId = useCosmosStore((state) => state.activeDeviceId);
+    const activeTarget = useCosmosStore((state) => state.activeTarget);
+    const inspectionMode = useCosmosStore((state) => state.inspectionMode);
+    const orbitalCloseup = useCosmosStore((state) => state.orbitalCloseup);
 
     const isSurface = viewStage === 'SURFACE_VIEW' || viewStage === 'SURFACE_CESIUM';
+    const isControlRoomPov =
+        inspectionMode === 'CONTROL_ROOM_POV' &&
+        (Boolean(activeDeviceId) || Boolean(activeTarget));
+    const isOrbitalCloseup =
+        !activeDeviceId &&
+        Boolean(activeTarget?.modelPath) &&
+        orbitalCloseup &&
+        inspectionMode === 'MODEL_CLOSEUP';
+    const showStarfield =
+        viewStage === 'BODY_TRANSITION' ||
+        (!activeDeviceId && !isControlRoomPov && !isOrbitalCloseup);
 
     return (
         <div
@@ -44,13 +60,14 @@ export const MarsCanvas: React.FC = () => {
                 <color attach="background" args={['#020205']} />
                 <AdaptiveDpr pixelated />
                 <AdaptiveEvents />
+                <DeepSpaceStarfield visible={showStarfield} showTransitionStreaks />
                 <Suspense fallback={null}>
                     <FloatingOriginManager>
                         <CosmosSceneRoot sunLightRef={directionalLightRef} />
                     </FloatingOriginManager>
-                    <SplineCameraRig />
-                    <PostProcessingRig />
                 </Suspense>
+                <SplineCameraRig />
+                <PostProcessingRig />
             </Canvas>
         </div>
     );

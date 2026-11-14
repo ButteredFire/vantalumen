@@ -28,6 +28,10 @@ function MoonLODMesh({ body }: { body: BodyConfig }) {
     colorMap.needsUpdate = true;
   }, [colorMap]);
 
+  useEffect(() => {
+    useCosmosStore.getState().beginBodyTransitionArrival(body.id);
+  }, [body.id]);
+
   return (
     <Detailed distances={[0, body.radiusKm * 5, body.radiusKm * 18]}>
       {[96, 48, 24].map((segments) => (
@@ -53,6 +57,7 @@ function MarsTextureLODMesh({ body }: { body: BodyConfig }) {
   useEffect(() => {
     if (body.textureStyle === 'plain') {
       setTextures(null);
+      useCosmosStore.getState().beginBodyTransitionArrival(body.id);
       return;
     }
 
@@ -87,6 +92,7 @@ function MarsTextureLODMesh({ body }: { body: BodyConfig }) {
             100,
             'Đã tải bản đồ Sao Hỏa & các lớp quang phổ',
           );
+          useCosmosStore.getState().beginBodyTransitionArrival(body.id);
         })
         .catch((error: unknown) => {
           if (controller.signal.aborted) return;
@@ -96,6 +102,7 @@ function MarsTextureLODMesh({ body }: { body: BodyConfig }) {
             100,
             'Dùng texture minh họa dự phòng; không tải được bản đồ Sao Hỏa',
           );
+          useCosmosStore.getState().beginBodyTransitionArrival(body.id);
         });
     }
 

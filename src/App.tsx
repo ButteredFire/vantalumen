@@ -22,9 +22,13 @@ function App() {
     const showOrbitalHud =
         viewStage !== 'PRELOADING' &&
         viewStage !== 'LAUNCHING' &&
+        viewStage !== 'BODY_TRANSITION' &&
         viewStage !== 'SURFACE_VIEW' &&
         viewStage !== 'SURFACE_CESIUM';
-    const isAlphaJumpStage = viewStage === 'PRELOADING' || viewStage === 'LAUNCHING';
+    const isAlphaJumpStage =
+        viewStage === 'PRELOADING' ||
+        viewStage === 'LAUNCHING' ||
+        viewStage === 'BODY_TRANSITION';
 
     return (
         <div className={`cosmos-app-root atlas-release ${isAlphaJumpStage ? 'is-alpha-jump' : ''}`}>

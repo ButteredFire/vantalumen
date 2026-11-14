@@ -60,8 +60,15 @@ const INITIAL_DEVICE_CONTROL_STATE: {
   rotorStepDeg: 0,
 };
 
+interface BodyTransition {
+  fromBodyId: BodyId;
+  targetBodyId: BodyId;
+  phase: 'departing' | 'loading' | 'arriving';
+}
+
 interface CosmosState {
   activeBodyId: BodyId;
+  bodyTransition: BodyTransition | null;
   activeDeviceId: string | null;
   assetLoad: { status: 'idle' | 'loading' | 'ready' | 'error' | 'unavailable'; progress?: number; message?: string };
   assetRetryTick: number;
@@ -82,6 +89,9 @@ interface CosmosState {
   showOrbits: boolean;
   showPOIs: boolean;
   selectBody: (bodyId: BodyId) => void;
+  beginBodyTransitionLoad: () => void;
+  beginBodyTransitionArrival: (bodyId: BodyId) => void;
+  completeBodyTransition: () => void;
   selectDevice: (id: string) => void;
   retryAsset: () => void;
   setAssetLoad: (id: string, load: CosmosState['assetLoad']) => void;
@@ -150,6 +160,7 @@ const REQUIRED_LOADING_TASKS = [
 export const useCosmosStore = create<CosmosState>()(
   subscribeWithSelector((set, get) => ({
     activeBodyId: 'mars',
+    bodyTransition: null,
     activeDeviceId: null,
     assetLoad: { status: 'idle' },
     assetRetryTick: 0,
@@ -161,10 +172,27 @@ export const useCosmosStore = create<CosmosState>()(
     showPOIs: true,
         selectBody: (bodyId) => {
             if (!BODY_CATALOG[bodyId]) return;
-            const currentStage = get().viewStage;
+            const current = get();
+            if (current.bodyTransition) return;
+            const currentStage = current.viewStage;
             const keepPreloading = currentStage === 'PRELOADING' || currentStage === 'LAUNCHING';
+            const isSurfaceView =
+                currentStage === 'SURFACE_VIEW' || currentStage === 'SURFACE_CESIUM';
+            if (bodyId !== current.activeBodyId && !keepPreloading && !isSurfaceView) {
+                set({
+                    bodyTransition: {
+                        fromBodyId: current.activeBodyId,
+                        targetBodyId: bodyId,
+                        phase: 'departing',
+                    },
+                    viewStage: 'BODY_TRANSITION',
+                    controlsLocked: true,
+                });
+                return;
+            }
             set((state) => ({
                 activeBodyId: bodyId,
+                bodyTransition: null,
                 activeTarget: null,
                 activeDeviceId: null,
                 selectedSurfaceEquipment: null,
@@ -181,6 +209,45 @@ export const useCosmosStore = create<CosmosState>()(
                 floatingOriginOffset: new THREE.Vector3(),
             }));
         },
+    beginBodyTransitionLoad: () =>
+      set((state) => {
+        const transition = state.bodyTransition;
+        if (!transition || transition.phase !== 'departing') return state;
+        return {
+          activeBodyId: transition.targetBodyId,
+          bodyTransition: { ...transition, phase: 'loading' },
+          activeTarget: null,
+          activeDeviceId: null,
+          selectedSurfaceEquipment: null,
+          inspectionTransitionTarget: null,
+          assetLoad: { status: 'idle' },
+          ...INITIAL_DEVICE_CONTROL_STATE,
+          ...INITIAL_POV_STATE,
+          rotorStepTick: state.rotorStepTick + 1,
+          dynamicPositions: {},
+          spectralMode: 'VISUAL_RGB',
+          cameraResetTick: state.cameraResetTick + 1,
+          floatingOriginOffset: new THREE.Vector3(),
+          controlsLocked: true,
+        };
+      }),
+    beginBodyTransitionArrival: (bodyId) =>
+      set((state) =>
+        state.bodyTransition?.phase === 'loading' &&
+        state.bodyTransition.targetBodyId === bodyId
+          ? { bodyTransition: { ...state.bodyTransition, phase: 'arriving' } }
+          : state,
+      ),
+    completeBodyTransition: () =>
+      set((state) =>
+        state.bodyTransition?.phase === 'arriving'
+          ? {
+              bodyTransition: null,
+              viewStage: 'ORBITAL_OVERVIEW',
+              controlsLocked: false,
+            }
+          : state,
+      ),
     selectDevice: (id) => {
       const device = DEVICE_CATALOG.find((item) => item.id === id && item.bodyId === get().activeBodyId);
       if (!device) return;
@@ -418,7 +485,10 @@ export const useCosmosStore = create<CosmosState>()(
       set({
         viewStage: stage,
         controlsLocked:
-          stage === 'WARPING' || stage === 'PRELOADING' || stage === 'LAUNCHING',
+          stage === 'WARPING' ||
+          stage === 'PRELOADING' ||
+          stage === 'LAUNCHING' ||
+          stage === 'BODY_TRANSITION',
       }),
 
     setTimeScale: (scale) => set({ timeScale: scale }),

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useCosmosStore } from '../../store/useCosmosStore';
@@ -15,10 +15,15 @@ void main() {
 }
 `;
 
-export const DeepSpaceStarfield: React.FC = () => {
+export const DeepSpaceStarfield: React.FC<{
+  visible?: boolean;
+  showTransitionStreaks?: boolean;
+}> = ({ visible = true, showTransitionStreaks = false }) => {
   const starsRef = useRef<THREE.Points>(null!);
   const warpMaterialRef = useRef<THREE.ShaderMaterial>(null!);
   const warpFactorRef = useRef(0);
+  const viewStage = useCosmosStore((state) => state.viewStage);
+  const bodyTransition = useCosmosStore((state) => state.bodyTransition);
 
   const { positions, colors } = useMemo(() => {
     const count = 7500;
@@ -65,25 +70,30 @@ export const DeepSpaceStarfield: React.FC = () => {
     }),
     [],
   );
-
   useFrame(({ clock }, delta) => {
     if (starsRef.current) {
       starsRef.current.rotation.y = clock.getElapsedTime() * 0.003;
     }
 
-    const viewStage = useCosmosStore.getState().viewStage;
     const targetWarp =
       viewStage === 'LAUNCHING'
         ? 1.35
-        : viewStage === 'WARPING'
-          ? 1.0
-          : viewStage === 'PRELOADING'
-            ? 0.28
-            : 0.0;
+        : viewStage === 'BODY_TRANSITION'
+          ? bodyTransition?.phase === 'arriving'
+            ? 0
+            : 2
+          : viewStage === 'WARPING'
+            ? 1.0
+            : viewStage === 'PRELOADING'
+              ? 0.28
+              : 0.0;
+    const warpEase = viewStage === 'BODY_TRANSITION' && bodyTransition?.phase === 'arriving'
+      ? 1.5
+      : 4.5;
     warpFactorRef.current = THREE.MathUtils.lerp(
       warpFactorRef.current,
       targetWarp,
-      Math.min(1, delta * 4.5),
+      Math.min(1, delta * warpEase),
     );
 
     if (warpMaterialRef.current) {
@@ -93,42 +103,145 @@ export const DeepSpaceStarfield: React.FC = () => {
   });
 
   return (
-    <group>
-      <points ref={starsRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[positions, 3]}
+    <>
+      <group visible={visible}>
+        <points ref={starsRef}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[positions, 3]}
+            />
+            <bufferAttribute
+              attach="attributes-color"
+              args={[colors, 3]}
+            />
+          </bufferGeometry>
+          <pointsMaterial
+            size={580}
+            vertexColors
+            transparent
+            opacity={0.92}
+            sizeAttenuation
+            depthWrite={false}
           />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[colors, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={580}
-          vertexColors
-          transparent
-          opacity={0.92}
-          sizeAttenuation
-          depthWrite={false}
-        />
-      </points>
+        </points>
 
-      {/* Vòm hiệu ứng kéo giãn ánh sao khi bay chuyển cảnh Warp */}
-      <mesh>
-        <sphereGeometry args={[320000, 32, 32]} />
-        <shaderMaterial
-          ref={warpMaterialRef}
-          vertexShader={warpTunnelVert}
-          fragmentShader={warpTunnelFrag}
-          uniforms={warpUniforms}
-          transparent
-          depthWrite={false}
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-    </group>
+        <mesh>
+          <sphereGeometry args={[320000, 32, 32]} />
+          <shaderMaterial
+            ref={warpMaterialRef}
+            vertexShader={warpTunnelVert}
+            fragmentShader={warpTunnelFrag}
+            uniforms={warpUniforms}
+            transparent
+            depthWrite={false}
+            side={THREE.BackSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      </group>
+      {showTransitionStreaks && viewStage === 'BODY_TRANSITION' && (
+        <WarpLightStreaks warpFactorRef={warpFactorRef} />
+      )}
+    </>
   );
 };
+
+interface WarpStreakData {
+  x: number;
+  y: number;
+  z: number;
+  speedFactor: number;
+  baseLength: number;
+  color: THREE.Color;
+}
+
+function WarpLightStreaks({
+  warpFactorRef,
+}: {
+  warpFactorRef: React.RefObject<number>;
+}) {
+  const groupRef = useRef<THREE.Group>(null!);
+  const streaksRef = useRef<THREE.InstancedMesh>(null!);
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null!);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const streaks = useMemo<WarpStreakData[]>(() => {
+    const items: WarpStreakData[] = [];
+    for (let i = 0; i < 260; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 11 + Math.random() * 78;
+      const tone = Math.random();
+      const color =
+        tone > 0.65
+          ? new THREE.Color('#78d8ff')
+          : tone > 0.25
+            ? new THREE.Color('#e8f1ff')
+            : new THREE.Color('#ffad75');
+
+      items.push({
+        x: Math.cos(angle) * radius,
+        y: Math.sin(angle) * radius * 0.72,
+        z: -260 + Math.random() * 290,
+        speedFactor: 0.7 + Math.random() * 0.9,
+        baseLength: 2.8 + Math.random() * 5.2,
+        color,
+      });
+    }
+    return items;
+  }, []);
+
+  useEffect(() => {
+    if (!streaksRef.current) return;
+    streaks.forEach((streak, index) => {
+      streaksRef.current.setColorAt(index, streak.color);
+    });
+    if (streaksRef.current.instanceColor) {
+      streaksRef.current.instanceColor.needsUpdate = true;
+    }
+  }, [streaks]);
+
+  useFrame(({ camera }, delta) => {
+    const warp = warpFactorRef.current;
+    if (!groupRef.current || !streaksRef.current || !materialRef.current) return;
+
+    groupRef.current.position.copy(camera.position);
+    groupRef.current.quaternion.copy(camera.quaternion);
+    materialRef.current.opacity = 0.86 * Math.min(1, warp / 1.5);
+
+    const speed = (48 + warp * 320) * Math.min(delta, 0.05);
+    const stretchMultiplier = 1 + warp * 5.5;
+    for (let i = 0; i < streaks.length; i++) {
+      const streak = streaks[i];
+      streak.z += speed * streak.speedFactor;
+      if (streak.z > 28) {
+        streak.z = -260 - Math.random() * 40;
+      }
+
+      dummy.position.set(streak.x, streak.y, streak.z);
+      dummy.scale.set(1, 1, streak.baseLength * stretchMultiplier);
+      dummy.updateMatrix();
+      streaksRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    streaksRef.current.instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+    <group ref={groupRef} frustumCulled={false}>
+      <instancedMesh
+        ref={streaksRef}
+        args={[undefined, undefined, streaks.length]}
+        frustumCulled={false}
+      >
+        <boxGeometry args={[0.14, 0.14, 1]} />
+        <meshBasicMaterial
+          ref={materialRef}
+          toneMapped={false}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </instancedMesh>
+    </group>
+  );
+}

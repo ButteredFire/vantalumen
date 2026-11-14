@@ -63,7 +63,12 @@ export function PlanetaryOrbitContext({ body }: { body: BodyConfig }) {
       };
     }, [body.id, body.radiusKm]);
 
-  if (!showOrbits || viewStage === 'PRELOADING' || viewStage === 'LAUNCHING') {
+  if (
+    !showOrbits ||
+    viewStage === 'PRELOADING' ||
+    viewStage === 'LAUNCHING' ||
+    viewStage === 'BODY_TRANSITION'
+  ) {
     return null;
   }
 

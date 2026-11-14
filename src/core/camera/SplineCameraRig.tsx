@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { CatmullRomCurve3, MathUtils, PerspectiveCamera, Vector3 } from 'three';
+import { CatmullRomCurve3, MathUtils, PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import gsap from 'gsap';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import { BODY_CATALOG } from '../../config/bodyCatalog';
@@ -23,6 +23,31 @@ function getOrbitalOverviewPosition(bodyId: BodyId): Vector3 {
     : new Vector3(0, radius * 0.72, radius * 3.9);
 }
 
+function synchronizeOrbitalControls(
+    orbit: OrbitControlsImpl,
+    camera: PerspectiveCamera,
+    bodyId: BodyId,
+    position: Vector3,
+    orientation: Quaternion,
+) {
+    const enableDamping = orbit.enableDamping;
+    orbit.enabled = false;
+    orbit.enableDamping = false;
+    camera.rotation.order = 'XYZ';
+    camera.near = 1;
+    camera.far = 1000000;
+    camera.fov = 45;
+    camera.updateProjectionMatrix();
+    camera.position.copy(position);
+    camera.quaternion.copy(orientation);
+    orbit.target.set(0, 0, 0);
+    orbit.minDistance = BODY_CATALOG[bodyId].radiusKm * 0.08;
+    orbit.maxDistance = BODY_CATALOG[bodyId].radiusKm * 25;
+    orbit.update();
+    orbit.enableDamping = enableDamping;
+    orbit.enabled = true;
+}
+
 function isOrbitalDevice(deviceId: string | null): boolean {
   return (
     deviceId === 'mro_orbiter' ||
@@ -38,6 +63,8 @@ export function SplineCameraRig() {
     const controls = useRef<OrbitControlsImpl>(null);
     const prevDeviceIdRef = useRef<string | null>(null);
     const launchTimelineRef = useRef<gsap.core.Timeline | null>(null);
+    const bodyTransitionTweenRef = useRef<gsap.core.Tween | null>(null);
+    const skipOverviewSyncRef = useRef(false);
 
     const bodyId = useCosmosStore((state) => state.activeBodyId);
     const deviceId = useCosmosStore((state) => state.activeDeviceId);
@@ -50,6 +77,7 @@ export function SplineCameraRig() {
     const povFovZoom = useCosmosStore((state) => state.povFovZoom);
     const spectralMode = useCosmosStore((state) => state.spectralMode);
     const target = useCosmosStore((state) => state.activeTarget);
+    const bodyTransition = useCosmosStore((state) => state.bodyTransition);
     const reset = useCosmosStore((state) => state.cameraResetTick);
     const viewStage = useCosmosStore((state) => state.viewStage);
 
@@ -130,17 +158,14 @@ export function SplineCameraRig() {
                         onComplete: () => {
                             const orbit = controls.current;
                             if (!orbit) return;
-                            const enableDamping = orbit.enableDamping;
-                            // Clear residual damping before handing the animated pose to OrbitControls.
-                            orbit.enableDamping = false;
-                            orbit.target.set(0, 0, 0);
-                            orbit.update();
-                            perspective.position.copy(destOverview);
-                            perspective.quaternion.copy(destinationOrientation);
-                            orbit.target.set(0, 0, 0);
-                            orbit.update();
-                            orbit.enableDamping = enableDamping;
-                            orbit.enabled = true;
+                            synchronizeOrbitalControls(
+                                orbit,
+                                perspective,
+                                currentBody,
+                                destOverview,
+                                destinationOrientation,
+                            );
+                            skipOverviewSyncRef.current = true;
                             useCosmosStore.getState().completeLaunchSequence();
                         },
                     })
@@ -192,6 +217,115 @@ export function SplineCameraRig() {
         };
     }, [camera]);
 
+    useEffect(() => {
+        if (!bodyTransition) return;
+        const orbit = controls.current;
+        if (!orbit) return;
+
+        bodyTransitionTweenRef.current?.kill();
+        orbit.enabled = false;
+        const perspective = camera as PerspectiveCamera;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        perspective.near = 1;
+        perspective.far = 1000000;
+        perspective.updateProjectionMatrix();
+
+        if (bodyTransition.phase === 'departing') {
+            const duration = reduced ? 0.25 : 1;
+            spatialAudio.playWarpTransition(reduced ? 1 : 3.4);
+            const startPosition = camera.position.clone();
+            const startTarget = orbit.target.clone();
+            const direction = startPosition.clone().sub(startTarget);
+            if (direction.lengthSq() < 1e-6) direction.set(0, 0, 1);
+            const startDistance = startPosition.distanceTo(startTarget);
+            const farDistance = Math.max(
+                startDistance * 8,
+                BODY_CATALOG[bodyTransition.fromBodyId].radiusKm * 60,
+            );
+            const destination = startTarget.clone().add(direction.normalize().multiplyScalar(farDistance));
+            const startFov = perspective.fov;
+            const startQuaternion = camera.quaternion.clone();
+            const destinationCamera = perspective.clone();
+            destinationCamera.position.copy(destination);
+            destinationCamera.lookAt(startTarget);
+            const destinationQuaternion = destinationCamera.quaternion.clone();
+            const progress = { t: 0 };
+
+            bodyTransitionTweenRef.current = gsap.to(progress, {
+                t: 1,
+                duration,
+                ease: 'power2.in',
+                onUpdate: () => {
+                    camera.position.lerpVectors(startPosition, destination, progress.t);
+                    orbit.target.copy(startTarget);
+                    camera.quaternion.slerpQuaternions(
+                        startQuaternion,
+                        destinationQuaternion,
+                        progress.t,
+                    );
+                    perspective.fov = MathUtils.lerp(startFov, 90, progress.t);
+                    perspective.updateProjectionMatrix();
+                },
+                onComplete: () => {
+                    camera.position.copy(destination);
+                    camera.quaternion.copy(destinationQuaternion);
+                    useCosmosStore.getState().beginBodyTransitionLoad();
+                },
+            });
+        } else if (bodyTransition.phase === 'arriving') {
+            const destination = getOrbitalOverviewPosition(bodyTransition.targetBodyId);
+            const startPosition = camera.position.clone();
+            const startDirection = startPosition.clone().normalize();
+            const destinationDirection = destination.clone().normalize();
+            const startDistance = startPosition.length();
+            const startFov = perspective.fov;
+            const startQuaternion = camera.quaternion.clone();
+            const destinationCamera = perspective.clone();
+            destinationCamera.position.copy(destination);
+            destinationCamera.lookAt(0, 0, 0);
+            const destinationQuaternion = destinationCamera.quaternion.clone();
+            const progress = { t: 0 };
+
+            bodyTransitionTweenRef.current = gsap.to(progress, {
+                t: 1,
+                duration: reduced ? 0.45 : 2.4,
+                ease: 'power3.out',
+                onUpdate: () => {
+                    const direction = startDirection.clone().lerp(destinationDirection, progress.t);
+                    if (direction.lengthSq() < 1e-6) direction.copy(destinationDirection);
+                    camera.position.copy(
+                        direction.normalize().multiplyScalar(
+                            MathUtils.lerp(startDistance, destination.length(), progress.t),
+                        ),
+                    );
+                    orbit.target.set(0, 0, 0);
+                    camera.quaternion.slerpQuaternions(
+                        startQuaternion,
+                        destinationQuaternion,
+                        progress.t,
+                    );
+                    perspective.fov = MathUtils.lerp(startFov, 45, progress.t);
+                    perspective.updateProjectionMatrix();
+                },
+                onComplete: () => {
+                    synchronizeOrbitalControls(
+                        orbit,
+                        perspective,
+                        bodyTransition.targetBodyId,
+                        destination,
+                        destinationQuaternion,
+                    );
+                    skipOverviewSyncRef.current = true;
+                    useCosmosStore.getState().completeBodyTransition();
+                },
+            });
+        }
+
+        return () => {
+            bodyTransitionTweenRef.current?.kill();
+        };
+    }, [bodyTransition, camera]);
+
   // Apply real-time pan/tilt/zoom inside CONTROL_ROOM_POV without triggering warp animations
   useEffect(() => {
     if (!isControlRoomPov) return;
@@ -237,12 +371,26 @@ export function SplineCameraRig() {
         if (!orbit) return;
 
         const currentStage = useCosmosStore.getState().viewStage;
-        if (currentStage === 'PRELOADING' || currentStage === 'LAUNCHING') {
+        if (
+            currentStage === 'PRELOADING' ||
+            currentStage === 'LAUNCHING' ||
+            currentStage === 'BODY_TRANSITION'
+        ) {
             orbit.enabled = false;
             return;
         }
         if (currentStage === 'SURFACE_VIEW' || currentStage === 'SURFACE_CESIUM') {
             orbit.enabled = false;
+            return;
+        }
+
+        if (
+            currentStage === 'ORBITAL_OVERVIEW' &&
+            skipOverviewSyncRef.current &&
+            !target &&
+            !deviceId
+        ) {
+            skipOverviewSyncRef.current = false;
             return;
         }
 
@@ -411,7 +559,14 @@ export function SplineCameraRig() {
   return (
     <OrbitControls
       ref={controls}
-      enabled={!isControlRoomPov}
+    enabled={
+      !isControlRoomPov &&
+      viewStage !== 'PRELOADING' &&
+      viewStage !== 'LAUNCHING' &&
+      viewStage !== 'BODY_TRANSITION' &&
+      viewStage !== 'SURFACE_VIEW' &&
+      viewStage !== 'SURFACE_CESIUM'
+    }
       enableDamping
       dampingFactor={0.06}
       enablePan={false}

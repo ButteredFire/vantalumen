@@ -11,6 +11,7 @@ export const ImmersivePreloader: React.FC = () => {
     const startLaunchSequence = useCosmosStore((state) => state.startLaunchSequence);
     const selectBody = useCosmosStore((state) => state.selectBody);
     const activeBodyId = useCosmosStore((state) => state.activeBodyId);
+    const bodyTransition = useCosmosStore((state) => state.bodyTransition);
 
     const [selectedDestination, setSelectedDestination] = useState<BodyId>(activeBodyId || 'mars');
     const [displayPct, setDisplayPct] = useState(0);
@@ -183,6 +184,16 @@ export const ImmersivePreloader: React.FC = () => {
         return (
             <div className="alpha-jump-hud-notice" aria-live="polite">
                 <span className="telemetry-tag">ALPHA JUMP ENGAGED</span>
+                <strong>WARPING SPACE-TIME INTO {destLabel} ORBIT...</strong>
+            </div>
+        );
+    }
+
+    if (viewStage === 'BODY_TRANSITION' && bodyTransition) {
+        const destLabel = bodyTransition.targetBodyId === 'mars' ? 'MARS' : "THE MOON";
+        return (
+            <div className="alpha-jump-hud-notice" aria-live="polite">
+                <span className="telemetry-tag">INTERPLANETARY WARP ENGAGED</span>
                 <strong>WARPING SPACE-TIME INTO {destLabel} ORBIT...</strong>
             </div>
         );

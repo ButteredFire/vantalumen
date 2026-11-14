@@ -9,6 +9,7 @@ import { useCosmosStore } from '../../store/useCosmosStore';
 export function FloatingOriginManager({ children }: { children: ReactNode }) {
   useFrame(({ camera }) => {
     const state = useCosmosStore.getState();
+    if (state.viewStage === 'BODY_TRANSITION') return;
     const inspection = DEVICE_CATALOG.some((device) => device.id === state.activeDeviceId && device.status === 'available');
     if (inspection) return;
     const altitude = Math.max(0, Math.round(camera.position.length() - BODY_CATALOG[state.activeBodyId].radiusKm));

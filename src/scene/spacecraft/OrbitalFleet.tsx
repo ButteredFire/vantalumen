@@ -161,7 +161,12 @@ export const OrbitalFleet: React.FC = () => {
         [activeBodyId],
     );
 
-    if (!showOrbits || viewStage === 'PRELOADING' || viewStage === 'LAUNCHING') return null;
+    if (
+        !showOrbits ||
+        viewStage === 'PRELOADING' ||
+        viewStage === 'LAUNCHING' ||
+        viewStage === 'BODY_TRANSITION'
+    ) return null;
 
     return (
         <group>

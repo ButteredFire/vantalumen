@@ -4,7 +4,6 @@ import { Environment } from '@react-three/drei';
 import { BODY_CATALOG } from '../config/bodyCatalog';
 import { DEVICE_CATALOG } from '../config/deviceCatalog';
 import { useCosmosStore } from '../store/useCosmosStore';
-import { DeepSpaceStarfield } from './environment/DeepSpaceStarfield';
 import { SunLightSource } from './environment/SunLightSource';
 import { MarsPlanetGroup } from './mars/MarsPlanetGroup';
 import { PlanetaryOrbitContext } from './mars/PlanetaryOrbitContext';
@@ -89,7 +88,6 @@ export function CosmosSceneRoot({
         <ambientLight intensity={0.75} />
         <directionalLight position={[10, 14, 8]} intensity={2.1} color="#fff2e2" />
         <directionalLight position={[-8, 4, -8]} intensity={0.55} color="#7dd3fc" />
-        <DeepSpaceStarfield />
         <MarsTerrainPatch
           key={`${bodyId}-${activeTarget?.id ?? 'surface'}`}
           bodyId={bodyId}
@@ -123,7 +121,6 @@ export function CosmosSceneRoot({
   return (
     <group>
       <SunLightSource sunLightRef={sunLightRef} />
-      <DeepSpaceStarfield />
       <OpeningShipScene />
       <PlanetaryOrbitContext body={BODY_CATALOG[bodyId]} />
       <MarsPlanetGroup key={bodyId} body={BODY_CATALOG[bodyId]} />

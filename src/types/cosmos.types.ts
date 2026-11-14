@@ -24,6 +24,7 @@ export type ProceduralModelKind =
 export type ViewStage =
     | 'PRELOADING'
     | 'LAUNCHING'
+    | 'BODY_TRANSITION'
     | 'ORBITAL_OVERVIEW'
     | 'WARPING'
     | 'SUB_SCENE'
