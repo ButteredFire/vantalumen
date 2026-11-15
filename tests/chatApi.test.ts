@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
     createChatHandler,
     createSlidingWindowLimiter,
+    default as vercelFetchHandler,
     GET,
     OPTIONS,
 } from '../api/chat';
@@ -192,6 +193,11 @@ test('createChatHandler enforces HTTP method, same-origin, content-type, payload
     const getResp = await GET();
     assert.equal(getResp.status, 405);
     assert.equal(getResp.headers.get('allow'), 'POST');
+    const vercelGetResp = await vercelFetchHandler.fetch(
+        makeChatRequest(undefined, { method: 'GET' }),
+    );
+    assert.equal(vercelGetResp.status, 405);
+    assert.equal(vercelGetResp.headers.get('allow'), 'POST');
 
     const optResp = await OPTIONS();
     assert.equal(optResp.status, 405);

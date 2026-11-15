@@ -669,3 +669,9 @@ export async function PATCH(): Promise<Response> {
 export async function OPTIONS(): Promise<Response> {
     return methodNotAllowedResponse();
 }
+
+export default {
+    fetch(request: Request): Promise<Response> {
+        return defaultHandler(request);
+    },
+};
