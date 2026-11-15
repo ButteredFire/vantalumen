@@ -1,47 +1,63 @@
 # Mars–Moon Orbital Atlas
 
-Atlas 3D dùng chung cho Sao Hỏa và Mặt Trăng, xây dựng bằng React, TypeScript,
-Vite, React Three Fiber và Cesium.
+A shared 3D atlas for Mars and the Moon, built with React, TypeScript, Vite,
+React Three Fiber, and Cesium.
 
-- **Sao Hỏa:** 5 mô hình GLB được cung cấp (Sojourner, Spirit/Opportunity, Viking,
-  InSight, Ingenuity), 4 địa danh có nguồn IAU/USGS và 2 hồ sơ thiết bị chưa có mô hình.
-- **Mặt Trăng:** globe minh họa, 3 địa danh có nguồn và 6 hồ sơ thiết bị Apollo.
-  Không có GLB Mặt Trăng nào được cung cấp; các hồ sơ này không tải mô hình 3D.
+- **Mars:** Nine available GLB models associated with Mars or included as off-world references (`sojourner_rover`, `spirit_and_opportunity_rover`, `viking_lander`, `insight_lander`, `ingenuity_helicopter`, `curiosity_rover`, `perseverance_rover`, `mro_orbiter`, and `dawn_spacecraft`, shown in its flyby context), plus three separately scoped reference spacecraft (`near_shoemaker`, `pioneer_10`, `kepler_space_telescope` under `reference_spacecraft`), orbital actors and satellites (`phobos`, `deimos`, `mars_odyssey`, `maven_orbiter`, and `ares_station`, an ISS proxy), and four IAU/USGS features.
+- **Moon:** An illustrative globe and surface imagery/textures, two orbiters (`lro_orbiter`, `apollo_csm`), one verified NASA 3D Resources lander GLB (`apollo_lunar_module`, in static inspection mode), three reference features (`mare_tranquillitatis`, `tycho`, `south_pole_aitken`), and six Apollo equipment records from CSV that remain `unavailable` (with illustrative procedural geometry reconstructions).
 
-Globe và texture của cả hai thiên thể là minh họa, không phải ảnh hoặc địa hình
-đo đạc. Ảnh bề mặt, độ cao/địa hình và lớp nhiệt được hiển thị là chưa có.
+The globe, thermal/elevation maps, seeded synthesized terrain grid, and procedural reconstructions support educational visualization. They do not replace MOLA, THEMIS, LOLA, or Diviner measurement datasets; the original measured datasets are explicitly listed as not integrated.
 
-## Yêu cầu
+## Requirements
 
-- Node.js 20.19+ hoặc 22.12+
+- Node.js 20.19+ or 22.12+
 - npm
 
-## Khởi chạy
+## Run locally
 
 ```powershell
 npm install
 npm run dev
 ```
 
-Chọn Sao Hỏa hoặc Mặt Trăng bằng nút chuyển thiên thể ở thanh trên. Địa danh và
-hồ sơ thiết bị nằm trong danh mục bên trái; thông tin, nguồn và trạng thái mô
-hình nằm trong panel bên phải.
+To enable the **RISE assistant** (`/api/chat`, launched from the 3D button at
+`public/assets/mascot/rise_plushie.glb` through
+`src/scene/mascot/RiseMascot.tsx`), configure the server-side `GEMINI_API_KEY`
+environment variable in `.env.local` locally or in Vercel Environment
+Variables. Do not expose it to the client with the `VITE_` prefix. The backend
+uses the `@google/genai` Interactions API with the highest Free Tier model
+`gemini-3.8-flash`, falling back according to the time budget to
+`gemini-3.6-flash` and `gemini-3.5-flash-lite` under load (`store: false`). It
+uses the locally indexed project knowledge in `src/config/chatKnowledgeIndex.json`
+(`npm run build:chat-index`).
 
-## Kiểm tra và build
+Choose Mars or the Moon in the top navigation, follow the suggested journey
+(`Guided journey`) or switch to `Explore freely`, use `?v=1&body=...` for shared
+links, and view sources and model status in the right-hand information panel.
+
+## Test and build
 
 ```powershell
 npm test
 npm run typecheck
-npm run build
 npm run validate:assets
+npm run build
+npm run verify:dist
 npm run test:browser
 ```
 
-`validate:assets` kiểm tra cấu trúc, byte count và SHA-256 của các GLB Sao Hỏa
-đang dùng. `test:browser` chạy Playwright/Chrome với SwiftShader cho cả luồng Sao
-Hỏa và Mặt Trăng ở desktop lẫn viewport hẹp.
+`validate:assets` inventories all 28 `.glb` files in `public/assets/models/`
+(separating 22 catalog/orbital/terrain runtime GLBs from six non-catalog
+preload/LOD/legacy GLBs) and one UI mascot `.glb`
+(`public/assets/mascot/rise_plushie.glb`), verifying glTF `2.0`, byte counts,
+SHA-256, and six terrain-region manifest entries. `verify:dist` compares all
+asset files and SHA-256 checksums between `public/` and `dist/` after a build.
+`npm run build:chat-index` regenerates the locally sourced knowledge index at
+`src/config/chatKnowledgeIndex.json`. `test:browser` runs Playwright/Chrome
+with SwiftShader through both Mars and Moon journeys on desktop and narrow
+viewports.
 
-Cesium được phục vụ từ `/cesium/`; các shader GLSL và tài nguyên WASM được cấu
-hình trong Vite. Tài nguyên mô hình, texture, âm thanh và decoder được đặt dưới
-`public/assets/` và `public/decoders/`. Các mô hình nguồn chưa xử lý đặt dưới
-`raw_assets/`. Nguồn dữ liệu và giới hạn hiển thị được ghi tại `docs/SOURCES.md`.
+Cesium is served from `/cesium/`; GLSL shaders and WASM resources are configured
+in Vite. Model assets, textures, audio, and decoders are under `public/assets/`
+and `public/decoders/`. Unprocessed source models are under `raw_assets/`.
+Data sources and visualization limits are documented in `docs/SOURCES.md`.

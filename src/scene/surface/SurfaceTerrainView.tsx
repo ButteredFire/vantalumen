@@ -4,6 +4,8 @@ import { Environment, Loader } from '@react-three/drei';
 import * as THREE from 'three';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
+import { detectWebGLSupport, registerRenderer } from '../../core/canvas/rendererDiagnostics';
+import { CanvasErrorBoundary, CanvasFallbackPanel } from '../../core/canvas/CanvasErrorBoundary';
 import {
     getSurfaceEquipmentForBody,
     findSurfaceEquipmentByCoords,
@@ -97,11 +99,66 @@ export const SurfaceTerrainView: React.FC = () => {
         (state) => state.setInspectionTransitionTarget,
     );
     const audioMuted = useCosmosStore((state) => state.audioMuted);
+    const rendererFailure = useCosmosStore((state) => state.rendererFailure);
+    const rendererRetryTick = useCosmosStore((state) => state.rendererRetryTick);
+    const rendererBasicMode = useCosmosStore((state) => state.rendererBasicMode);
+    const reportRendererFailure = useCosmosStore((state) => state.reportRendererFailure);
+    const clearRendererFailure = useCosmosStore((state) => state.clearRendererFailure);
+    const retryRenderer = useCosmosStore((state) => state.retryRenderer);
+    const enableBasicRenderMode = useCosmosStore((state) => state.enableBasicRenderMode);
+
+    const rendererCleanupRef = useRef<(() => void) | null>(null);
+    const surfaceWrapperRef = useRef<HTMLDivElement | null>(null);
 
     const isMoon = activeBodyId === 'moon';
     const isSurfaceStage = viewStage === 'SURFACE_VIEW' || viewStage === 'SURFACE_CESIUM';
     const [isMounted, setIsMounted] = useState(isSurfaceStage);
     const [isExiting, setIsExiting] = useState(false);
+
+    const webglSupport = useMemo(() => {
+        void rendererRetryTick;
+        return detectWebGLSupport();
+    }, [rendererRetryTick]);
+
+    useEffect(() => {
+        if (isMounted && !webglSupport.available) {
+            reportRendererFailure({
+                kind: 'webgl-unavailable',
+                surface: 'surface_terrain',
+                message:
+                    webglSupport.reason ??
+                    'The browser or GPU did not provide a WebGL context for the 3D surface scene.',
+                detail: 'Return to the overview to view equipment records, coordinates, and source documents.',
+                recoverable: true,
+            });
+        }
+    }, [isMounted, webglSupport.available, webglSupport.reason, reportRendererFailure]);
+
+    useEffect(() => {
+        const el = surfaceWrapperRef.current;
+        if (!el) return;
+        const onContextCreationError = (event: Event) => {
+            const msg = (event as { statusMessage?: string }).statusMessage;
+            reportRendererFailure({
+                kind: 'webgl-unavailable',
+                surface: 'surface_terrain',
+                message: 'Unable to initialize a WebGL context for the 3D surface scene.',
+                detail: msg || 'The graphics driver refused to create a WebGL context.',
+                recoverable: true,
+            });
+        };
+        el.addEventListener('webglcontextcreationerror', onContextCreationError, true);
+        return () => {
+            el.removeEventListener('webglcontextcreationerror', onContextCreationError, true);
+        };
+    }, [isMounted, reportRendererFailure, rendererRetryTick]);
+
+    useEffect(() => {
+        return () => {
+            rendererCleanupRef.current?.();
+            rendererCleanupRef.current = null;
+        };
+    }, [isMounted, rendererRetryTick, rendererBasicMode]);
 
     const cameraTargetRef = useRef(new THREE.Vector3(0, 0, 0));
     const [focusRevision, setFocusRevision] = useState(0);
@@ -253,8 +310,40 @@ export const SurfaceTerrainView: React.FC = () => {
 
     if (!isMounted) return null;
 
+    const showSurfaceFallback =
+        !webglSupport.available ||
+        (rendererFailure?.surface === 'surface_terrain' &&
+            rendererFailure.kind !== 'postprocessing-error');
+
+    const surfaceFailure =
+        rendererFailure?.surface === 'surface_terrain'
+            ? rendererFailure
+            : !webglSupport.available
+              ? {
+                    kind: 'webgl-unavailable' as const,
+                    surface: 'surface_terrain' as const,
+                    message:
+                        webglSupport.reason ??
+                        'The browser or GPU did not provide a WebGL context for the 3D surface scene.',
+                    detail: 'Return to the overview to browse records, coordinates, and source documents.',
+                    recoverable: true,
+                    timestampMs: Date.now(),
+                }
+              : null;
+
+    const surfaceFallbackElement = surfaceFailure ? (
+        <CanvasFallbackPanel
+            failure={surfaceFailure}
+            surface="surface_terrain"
+            onRetry={retryRenderer}
+            onEnableBasicMode={enableBasicRenderMode}
+            onReturnToOrbit={handleReturnToOrbit}
+        />
+    ) : null;
+
     return (
         <div
+            ref={surfaceWrapperRef}
             className={`surface-terrain-experience ${isExiting ? 'is-exiting' : 'is-active'} ${isMoon ? 'is-lunar-view' : 'is-martian-view'}`}
             role="region"
             aria-label={isMoon ? '3D Lunar Surface Terrain View' : '3D Martian Surface Terrain View'}
@@ -293,59 +382,97 @@ export const SurfaceTerrainView: React.FC = () => {
             />
 
             {/* 3D Scene Canvas with Low FOV=12 for scale & telephoto depth */}
-            <Canvas
-                camera={{
-                    fov: 12,
-                    position: [0, 800, 1000],
-                    near: 0.1,
-                    far: 5000,
-                }}
-            >
-                {/* Atmospheric or space background */}
-                <color attach="background" args={[isMoon ? '#020205' : '#c7a47b']} />
+            {showSurfaceFallback ? (
+                surfaceFallbackElement
+            ) : (
+                <CanvasErrorBoundary
+                    resetKey={`surface-${rendererRetryTick}-${rendererBasicMode ? 'basic' : 'full'}`}
+                    surface="surface_terrain"
+                    fallback={surfaceFallbackElement}
+                    onCatchError={(error) => {
+                        reportRendererFailure({
+                            kind: 'render-error',
+                            surface: 'surface_terrain',
+                            message: 'The 3D surface scene encountered an initialization or rendering error.',
+                            detail: error.message,
+                            recoverable: true,
+                        });
+                    }}
+                >
+                    <Canvas
+                        key={`surface-canvas-${rendererRetryTick}-${rendererBasicMode ? 'basic' : 'full'}`}
+                        onCreated={({ gl }) => {
+                            rendererCleanupRef.current?.();
+                            rendererCleanupRef.current = registerRenderer(gl, {
+                                surface: 'surface_terrain',
+                                onFailure: (record) => {
+                                    reportRendererFailure({
+                                        kind: record.kind,
+                                        surface: record.surface,
+                                        message: record.message,
+                                        detail: record.detail,
+                                        recoverable: true,
+                                    });
+                                },
+                                onRestored: (surface) => {
+                                    clearRendererFailure(surface);
+                                },
+                            });
+                        }}
+                        camera={{
+                            fov: 12,
+                            position: [0, 800, 1000],
+                            near: 0.1,
+                            far: 5000,
+                        }}
+                    >
+                        {/* Atmospheric or space background */}
+                        <color attach="background" args={[isMoon ? '#020205' : '#c7a47b']} />
 
-                <Suspense fallback={null}>
-                    {/* 3D Surface Ground Mesh (generalized for Mars or Moon) */}
-                    <PlanetaryTerrainMesh key={activeBodyId} bodyId={activeBodyId} />
+                        <Suspense fallback={null}>
+                            {/* 3D Surface Ground Mesh (generalized for Mars or Moon) */}
+                            <PlanetaryTerrainMesh key={activeBodyId} bodyId={activeBodyId} />
 
-                    {/* Mars atmosphere features: dust particles & fog (skipped on airless Moon) */}
-                    {!isMoon && (
-                        <>
-                            <MartianDustParticles />
-                            <MartianAtmosphericFog />
-                        </>
-                    )}
+                            {/* Mars atmosphere features: dust particles & fog (skipped on airless Moon) */}
+                            {!isMoon && (
+                                <>
+                                    <MartianDustParticles />
+                                    <MartianAtmosphericFog />
+                                </>
+                            )}
 
-                    {/* Fixed-size Beacon Pins for Equipment & Landmarks */}
-                    {surfacePinList.map((eq) => (
-                        <SurfaceBeaconPin
-                            key={eq.id}
-                            equipment={eq}
-                            isSelected={selectedEquipment?.id === eq.id}
-                            onClick={() => handleSelectEquipment(eq)}
+                            {/* Fixed-size Beacon Pins for Equipment & Landmarks */}
+                            {surfacePinList.map((eq) => (
+                                <SurfaceBeaconPin
+                                    key={eq.id}
+                                    equipment={eq}
+                                    isSelected={selectedEquipment?.id === eq.id}
+                                    onClick={() => handleSelectEquipment(eq)}
+                                />
+                            ))}
+
+                            <Environment preset={isMoon ? 'night' : 'sunset'} environmentIntensity={isMoon ? 0.35 : 0.65} />
+                            <directionalLight
+                                position={isMoon ? [100, 120, 60] : [100, 80, 50]}
+                                intensity={isMoon ? 1.25 : 0.6}
+                                color={isMoon ? '#ffffff' : '#ffd4b8'}
+                            />
+                            <ambientLight
+                                intensity={isMoon ? 0.22 : 0.28}
+                                color={isMoon ? '#383844' : '#9a6e4d'}
+                            />
+
+                        </Suspense>
+
+                        {/* Buttery, sluggish inertia MapControls consistent across both views */}
+                        <SurfaceMapControls
+                            focusTarget={focusCoords}
+                            focusRevision={focusRevision}
+                            cameraTargetRef={cameraTargetRef}
                         />
-                    ))}
-
-                    <Environment preset={isMoon ? 'night' : 'sunset'} environmentIntensity={isMoon ? 0.35 : 0.65} />
-                    <directionalLight
-                        position={isMoon ? [100, 120, 60] : [100, 80, 50]}
-                        intensity={isMoon ? 1.25 : 0.6}
-                        color={isMoon ? '#ffffff' : '#ffd4b8'}
-                    />
-                    <ambientLight
-                        intensity={isMoon ? 0.22 : 0.28}
-                        color={isMoon ? '#383844' : '#9a6e4d'}
-                    />
-
-                </Suspense>
-
-                {/* Buttery, sluggish inertia MapControls consistent across both views */}
-                <SurfaceMapControls
-                    focusTarget={focusCoords}
-                    focusRevision={focusRevision}
-                    cameraTargetRef={cameraTargetRef}
-                />
-            </Canvas>
+                    </Canvas>
+                </CanvasErrorBoundary>
+            )}
 
             <Loader
                 dataInterpolation={(p) =>

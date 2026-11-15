@@ -1,77 +1,72 @@
 import fs from 'node:fs/promises';
-import { createHash } from 'node:crypto';
+import path from 'node:path';
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import draco3d from 'draco3dgltf';
+import { buildExpectedAssetInventory } from './assetInventoryLib.mjs';
 
-const records = JSON.parse(await fs.readFile(new URL('../src/config/deviceManifest.json', import.meta.url), 'utf8'));
-const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ 'draco3d.decoder': await draco3d.createDecoderModule() });
-async function validateGlbFile(id, modelPath, expectedBytes, expectedSha256) {
-  const file = new URL('../public' + modelPath, import.meta.url);
-  const bytes = await fs.readFile(file);
-  if (expectedBytes !== undefined && expectedSha256 !== undefined) {
-    if (bytes.length !== expectedBytes || createHash('sha256').update(bytes).digest('hex') !== expectedSha256) {
-      throw new Error('Asset integrity mismatch: ' + id);
-    }
-  }
+const ROOT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/i, '$1')), '..');
+const jsonFlag = process.argv.includes('--json');
+
+const inventory = await buildExpectedAssetInventory(ROOT_DIR);
+if (inventory.untrackedDiskGlbs.length > 0) {
+  throw new Error(
+    `Untracked GLB files found under public/assets/models/: ${inventory.untrackedDiskGlbs.join(', ')}`,
+  );
+}
+
+const io = new NodeIO()
+  .registerExtensions(ALL_EXTENSIONS)
+  .registerDependencies({ 'draco3d.decoder': await draco3d.createDecoderModule() });
+
+async function validateGlbFile(entry) {
+  const idList = entry.refs.map((r) => r.id).join('+');
+  const absPath = path.join(ROOT_DIR, 'public', entry.modelPath.replace(/^\//, ''));
+  const bytes = await fs.readFile(absPath);
+
   if (bytes.readUInt32LE(0) !== 0x46546c67 || bytes.readUInt32LE(4) !== 2 || bytes.readUInt32LE(8) !== bytes.length) {
-    throw new Error('Invalid GLB: ' + id);
+    throw new Error(`Invalid GLB header/length: ${idList} (${entry.modelPath})`);
   }
   const json = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
-  if ((json.scenes?.length ?? 0) !== 1) throw new Error('Review multi-scene resource ownership: ' + id);
-  if ([...(json.buffers ?? []), ...(json.images ?? [])].some((item) => item.uri)) {
-    throw new Error('Unexpected external resource: ' + id);
+  if ((json.scenes?.length ?? 0) !== 1) {
+    throw new Error(`Review multi-scene resource ownership: ${idList} (${entry.modelPath})`);
   }
-  const doc = await io.read(file.pathname.replace(/^\/([A-Z]:)/i, '$1'));
+  if ([...(json.buffers ?? []), ...(json.images ?? [])].some((item) => item.uri)) {
+    throw new Error(`Unexpected external resource URI inside GLB: ${idList} (${entry.modelPath})`);
+  }
+
+  const doc = await io.read(absPath);
   let vertices = 0;
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const primitive of mesh.listPrimitives()) {
       const position = primitive.getAttribute('POSITION');
-      if (!position) throw new Error('Missing vertex positions: ' + id);
+      if (!position) throw new Error(`Missing vertex positions: ${idList}`);
       const array = position.getArray();
-      if (!array?.every(Number.isFinite)) throw new Error('Non-finite geometry: ' + id);
+      if (!array?.every(Number.isFinite)) throw new Error(`Non-finite geometry: ${idList}`);
       vertices += position.getCount();
     }
   }
-  if (!vertices) throw new Error('Empty model: ' + id);
-  console.log(
-    id + ': valid GLB, ' + vertices + ' vertices, ' + doc.getRoot().listTextures().length + ' textures, ' + bytes.length + ' bytes' + (expectedSha256 ? ', SHA-256 verified' : '')
-  );
-}
+  if (!vertices) throw new Error(`Empty model: ${idList}`);
 
-let count = 0;
-for (const record of records) {
-  if (record.status !== 'available') {
-    if (record.modelPath) throw new Error('Unavailable device has a model URL: ' + record.id);
-    continue;
+  if (!jsonFlag) {
+    const manifestBacked = entry.refs.some(
+      (r) => r.role === 'selectable_device' || r.role === 'ui_mascot_glb',
+    );
+    console.log(
+      `${idList}: valid GLB (${entry.modelPath}), ${vertices} vertices, ${doc.getRoot().listTextures().length} textures, ${bytes.length} bytes${manifestBacked ? ', SHA-256 verified' : ''}`,
+    );
   }
-  if (!/^\/assets\/models\/mars\/[a-z0-9_]+\.glb$/.test(record.modelPath)) throw new Error('Unapproved path: ' + record.id);
-  await validateGlbFile(record.id, record.modelPath, record.bytes, record.sha256);
-  count++;
 }
 
-const orbitalAssets = [
-  ['mars_odyssey', '/assets/models/mars/mars_odyssey.glb'],
-  ['maven_orbiter', '/assets/models/mars/maven_orbiter.glb'],
-  ['mars_terrain', '/assets/models/mars/mars_terrain.glb'],
-  ['phobos', '/assets/models/moons/phobos.glb'],
-  ['deimos', '/assets/models/moons/deimos.glb'],
-  ['lro_orbiter', '/assets/models/moons/lro_orbiter.glb'],
-  ['apollo_csm', '/assets/models/moons/apollo_csm.glb'],
-  ['moon_terrain', '/assets/models/moons/moon_terrain.glb'],
-  ['ares_station', '/assets/models/stations/ares_orbital_station.glb'],
-];
-
-for (const [id, modelPath] of orbitalAssets) {
-  await validateGlbFile(id, modelPath);
-  count++;
+for (const entry of inventory.runtimeCatalogEntries) {
+  await validateGlbFile(entry);
 }
 
-const terrainManifestRaw = await fs.readFile(
-  new URL('../public/assets/terrain/manifest.json', import.meta.url),
-  'utf8',
-);
-const terrainManifest = JSON.parse(terrainManifestRaw);
+for (const entry of inventory.mascotGlbs) {
+  await validateGlbFile(entry);
+}
+
+const terrainManifest = inventory.terrainManifest;
 if (!Array.isArray(terrainManifest.regions) || terrainManifest.regions.length !== 6) {
   throw new Error('Invalid terrain manifest: expected 6 region entries (Mars & Moon x 2/16/64 km)');
 }
@@ -86,6 +81,33 @@ for (const entry of terrainManifest.regions) {
   }
 }
 
-console.log(
-  'Validated ' + count + ' loadable models and ' + terrainManifest.regions.length + ' terrain region manifests.',
-);
+if (jsonFlag) {
+  console.log(
+    JSON.stringify(
+      {
+        selectableDevicesCount: inventory.selectableDevices.length,
+        unavailableDevicesCount: inventory.unavailableDevices.length,
+        orbitalActorsCount: inventory.orbitalActors.length,
+        terrainGlbsCount: inventory.terrainGlbs.length,
+        uniqueRuntimeGlbsCount: inventory.runtimeCatalogEntries.length,
+        nonCatalogGlbsCount: inventory.nonCatalogEntries.length,
+        mascotGlbsCount: inventory.mascotGlbs.length,
+        totalDiskGlbCount: inventory.diskGlbCount,
+        totalRuntimeBytes: inventory.totalRuntimeBytes,
+        totalNonCatalogBytes: inventory.totalNonCatalogBytes,
+        totalAllGlbBytes: inventory.totalAllGlbBytes,
+        terrainRegionsCount: terrainManifest.regions.length,
+        runtimeCatalogEntries: inventory.runtimeCatalogEntries,
+        nonCatalogEntries: inventory.nonCatalogEntries,
+        mascotGlbs: inventory.mascotGlbs,
+        unavailableDevices: inventory.unavailableDevices,
+      },
+      null,
+      2,
+    ),
+  );
+} else {
+  console.log(
+    `Validated ${inventory.runtimeCatalogEntries.length} unique runtime catalog GLBs (${inventory.selectableDevices.length} selectable devices, ${inventory.orbitalActors.length} orbital actors, ${inventory.terrainGlbs.length} terrain meshes), ${inventory.mascotGlbs.length} UI mascot GLB, ${inventory.nonCatalogEntries.length} documented non-catalog GLBs (${inventory.diskGlbCount} total GLBs on disk, ${inventory.unavailableDevices.length} unavailable procedural/CSV records), and ${terrainManifest.regions.length} terrain region manifests.`,
+  );
+}

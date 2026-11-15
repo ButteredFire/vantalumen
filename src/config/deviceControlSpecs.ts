@@ -224,58 +224,58 @@ export const DEVICE_CONTROL_SPECS: Record<string, DeviceControlSpec> = {
     deviceId: 'ingenuity_helicopter',
     modelVersion: '1.0.0 (NASA/JPL-Caltech GLB · fit-longest-side-2)',
     generalDisclaimer:
-      'Góc nhìn và mô phỏng quay chậm là minh họa cấu trúc theo GLB chuẩn hóa 2 đơn vị; không mô phỏng khí động lực học hay telemetry bay thật.',
+      'Views and slow-rotation simulation illustrate the structure using a GLB normalized to 2 units; they do not simulate aerodynamics or real flight telemetry.',
     rotorControl: {
       upperNodeName: 'rotors_01',
       lowerNodeName: 'rotors_02',
       localAxis: [1, 0, 0],
-      documentedRpm: '~2.400 rpm (tốc độ thiết kế theo NASA Fact Sheet)',
-      documentedDiameter: '1,21 m (rotor đồng trục 4 lá sợi carbon)',
-      documentedFlightWindow: 'Tối đa ~90 giây/chuyến bay (NASA Rotor Geometry)',
+      documentedRpm: '~2,400 rpm (design speed per NASA Fact Sheet)',
+      documentedDiameter: '1.21 m (four-blade carbon-fiber coaxial rotor)',
+      documentedFlightWindow: 'Up to ~90 seconds per flight (NASA Rotor Geometry)',
       demoSpinRadPerSec: Math.PI, // 0.5 rev/s visual rate so counter-rotation stays legible on 60 Hz displays
-      demoRevPerSecLabel: '0,5 vòng/giây (chỉ để quan sát chiều quay ngược, không phải 2.400 rpm thật)',
+      demoRevPerSecLabel: '0.5 revolutions/second (for observing counter-rotation only; not the actual 2,400 rpm)',
       stepAnglesDeg: [0, 45, 90, 180],
       disclaimer:
-        'Hai node rotors_01 và rotors_02 có trục cục bộ [1, 0, 0] ngược dấu (+Y và -Y thế giới), nên quay ngược chiều quanh trục cột chính. Không giả lập góc pitch lá cánh (collective/cyclic) do GLB không tách thanh truyền pitch.',
+        'The rotors_01 and rotors_02 nodes have opposite-sign local [1, 0, 0] axes (+Y and -Y in world space), so they counter-rotate around the main mast. Blade pitch (collective/cyclic) is not simulated because the GLB does not separate the pitch links.',
     },
     cameraViews: [
       {
         id: 'overview',
-        label: 'Toàn cảnh 3/4',
+        label: 'Three-quarter overview',
         position: [2.4, 1.25, 2.4],
         target: [0, 0, 0],
         summary:
-          'Góc quan sát toàn bộ 11 node của trực thăng: solar_panel, 2 tầng rotor đồng trục, thân hộp bus (1,8 kg) và 4 chân đáp.',
+          'Overview of all 11 helicopter nodes: solar_panel, two coaxial rotor levels, the bus body (1.8 kg), and four landing legs.',
         sourceRef: 'NASA Ingenuity Fact Sheet & NASA 3D Resource GLB',
         isIllustrativeView: true,
       },
       {
         id: 'coaxial_mast',
-        label: 'Cụm Rotor & Pin mặt trời',
+        label: 'Rotor and solar panel assembly',
         position: [1.35, 0.42, 1.35],
         target: [0, 0.24, 0],
         summary:
-          'Cận cảnh mảng pin mặt trời trên đỉnh (solar_panel), rotor trên/dưới (rotors_01, rotors_02 · sải 1,21 m) và hai cụm trục (parts_01, parts_02).',
+          'Close-up of the top-mounted solar panel (solar_panel), upper/lower rotors (rotors_01, rotors_02 · 1.21 m span), and two mast assemblies (parts_01, parts_02).',
         sourceRef: 'NASA Ingenuity Rotor Geometry & Fact Sheet',
         isIllustrativeView: true,
       },
       {
         id: 'rte_horizon',
-        label: 'Camera màu RTE (13 MP · Ngang)',
+        label: 'RTE color camera (13 MP · forward-facing)',
         position: [0.68, -0.34, 0.22],
         target: [0.06, -0.22, 0],
         summary:
-          'Đặt thấp hơn mép dưới thân hộp (+X, giữa hai chân leg_03/leg_04) hướng vào cụm quang học cams mô tả camera màu 13 MP nhìn chân trời.',
+          'Positioned below the bus body (+X, between legs leg_03/leg_04), facing the cams optical assembly to represent the 13 MP color horizon camera.',
         sourceRef: 'NASA Ingenuity Landing Press Kit (RTE 13 MP camera)',
         isIllustrativeView: true,
       },
       {
         id: 'navcam_nadir',
-        label: 'Camera Navcam (0,5 MP · Xuống)',
+        label: 'Navcam (0.5 MP · downward-facing)',
         position: [0.08, -0.92, 0.38],
         target: [0.03, -0.24, 0],
         summary:
-          'Nhìn từ khoảng sáng gầm bên dưới (~13 cm thực tế) hướng lên cụm cảm biến cams và mặt đáy hộp bus chứa Navcam 0,5 MP đen trắng & laser altimeter.',
+          'View upward from below the ground clearance (~13 cm in reality) toward the cams sensor assembly and underside of the bus containing the 0.5 MP monochrome Navcam and laser altimeter.',
         sourceRef: 'NASA Ingenuity Landing Press Kit & Hover Modeling',
         isIllustrativeView: true,
       },
@@ -283,68 +283,68 @@ export const DEVICE_CONTROL_SPECS: Record<string, DeviceControlSpec> = {
     partGroups: [
       {
         id: 'all',
-        label: 'Tất cả cấu phần (11 node)',
+        label: 'All components (11 nodes)',
         nodeNames: [...INGENUITY_ALL_NODES],
         documentedSpec:
-          'Khối lượng 1,8 kg trên Trái Đất (~0,68 kg trên Sao Hỏa); cao 0,49 m; rotor đồng trục 1,21 m.',
+          'Mass 1.8 kg on Earth (~0.68 kg on Mars); height 0.49 m; coaxial rotor span 1.21 m.',
         sourceRef: 'NASA Ingenuity Fact Sheet · /assets/provenance/ingenuity.csv',
         limitationNote:
-          'Hiển thị toàn bộ 11 node theo tư thế tĩnh đã triển khai chân đáp; kích thước chuẩn hóa 2 đơn vị cảnh.',
+          'Displays all 11 nodes in a static configuration with landing legs deployed; normalized to 2 scene units.',
         isControlVerified: true,
       },
       {
         id: 'rotor_system',
-        label: 'Hệ Rotor đồng trục (rotors_01/02)',
+        label: 'Coaxial rotor system (rotors_01/02)',
         nodeNames: ['rotors_01', 'rotors_02', 'parts_01', 'parts_02'],
         documentedSpec:
-          '2 tầng rotor quay ngược chiều đường kính 1,21 m bằng sợi carbon, tốc độ thiết kế ~2.400 rpm (tương thích parts_01, parts_02).',
+          'Two counter-rotating, 1.21 m-diameter carbon-fiber rotor levels; design speed ~2,400 rpm (associated with parts_01 and parts_02).',
         sourceRef: 'NASA Ingenuity Fact Sheet & Rotor Geometry',
         limitationNote:
-          'Hỗ trợ xoay từng nấc 0°/45°/90°/180° và quay ngược chiều minh họa cho rotors_01 & rotors_02; khớp đĩa nghiêng (parts_01/02) giữ tĩnh.',
+          'Supports 0°/45°/90°/180° step rotation and illustrative counter-rotation for rotors_01 and rotors_02; the swashplate parts (parts_01/02) remain static.',
         isControlVerified: true,
       },
       {
         id: 'solar_power',
-        label: 'Pin mặt trời & Ăng-ten (solar_panel)',
+        label: 'Solar panel and antenna (solar_panel)',
         nodeNames: ['solar_panel'],
         documentedSpec:
-          'Mảng tế bào quang điện gắn trên đỉnh trục rotor để sạc 6 cell pin Li-ion, kèm cột ăng-ten liên lạc phía trên.',
+          'Photovoltaic array mounted atop the rotor mast to charge six Li-ion cells, with a communications antenna mast above.',
         sourceRef: 'NASA Ingenuity Rotor Geometry & Fact Sheet',
         limitationNote:
-          'Cụm cố định trong mô hình GLB; không giả lập dung lượng pin hay cường độ bức xạ theo giờ Sao Hỏa.',
+          'Fixed in the GLB model; battery capacity and time-varying Martian solar irradiance are not simulated.',
         isControlVerified: false,
       },
       {
         id: 'fuselage_avionics',
-        label: 'Thân hộp Avionics & Cảm biến (bus)',
+        label: 'Avionics and sensor bus',
         nodeNames: ['bus'],
         documentedSpec:
-          'Hộp thân giữ nhiệt kích thước 13,6 × 19,5 × 16,3 cm chứa máy tính bay, IMU, bộ xử lý tự chủ và cổng đo cao laser ở mặt đáy.',
+          'The thermally controlled 13.6 × 19.5 × 16.3 cm body houses the flight computer, IMU, autonomy processor, and underside laser altimeter port.',
         sourceRef: 'NASA Ingenuity Landing Press Kit & Hover Modeling',
         limitationNote:
-          'Khối hộp cố định (1 node gộp lớp vỏ bạc/carbon và đĩa đáy); không có telemetry nhiệt độ hay IMU thời gian thực.',
+          'Fixed body (one node combining the silver/carbon shell and base plate); no real-time temperature or IMU telemetry.',
         isControlVerified: false,
       },
       {
         id: 'cameras_optics',
-        label: 'Cụm Camera RTE & Navcam (cams)',
+        label: 'RTE and Navcam assembly (cams)',
         nodeNames: ['cams'],
         documentedSpec:
-          'Gồm camera dẫn đường hướng xuống (Navcam 0,5 MP đen trắng) và camera màu hướng chân trời (RTE 13 MP).',
+          'Includes a downward-facing navigation camera (0.5 MP monochrome Navcam) and a horizon-facing color camera (13 MP RTE).',
         sourceRef: 'NASA Ingenuity Landing Press Kit',
         limitationNote:
-          'Vị trí cụm ống kính cố định ở mép dưới trước thân hộp; không có góc xoay gimbal hay nguồn ảnh thực từ cảm biến.',
+          'The lens assembly is fixed at the lower front edge of the body; no gimbal rotation or live sensor imagery is available.',
         isControlVerified: false,
       },
       {
         id: 'landing_gear',
-        label: '4 Chân đáp Carbon (leg_01–04)',
+        label: 'Four carbon landing legs (leg_01–04)',
         nodeNames: ['leg_01', 'leg_02', 'leg_03', 'leg_04'],
         documentedSpec:
-          '4 chân đáp bằng vật liệu composite carbon, khoảng sáng gầm ~13 cm khi đứng trên bề mặt.',
+          'Four carbon-composite landing legs, with ~13 cm ground clearance when on the surface.',
         sourceRef: 'NASA Ingenuity Landing Press Kit & Hover Modeling',
         limitationNote:
-          'Giữ nguyên tư thế đã bung (deployed). Không tạo animation gập chân vì trục local của node không phải bản lề và thiếu góc gập có nguồn.',
+          'Remains in the deployed configuration. No leg-folding animation is provided because the node’s local axis is not a hinge and no sourced folding angle is available.',
         isControlVerified: false,
       },
     ],
@@ -367,45 +367,45 @@ export const DEVICE_CONTROL_SPECS: Record<string, DeviceControlSpec> = {
     deviceId: 'insight_lander',
     modelVersion: '1.0.0 (NASA/JPL-Caltech GLB · fit-longest-side-2 · 83 nodes)',
     generalDisclaimer:
-      'Góc nhìn và phân nhóm 83 node của InSight được đối chiếu trên hình học GLB chuẩn hóa; cánh tay IDA giữ tư thế tĩnh triển khai và không giả lập động lực học hay telemetry địa chấn thật.',
+      'InSight views and grouping of its 83 nodes are verified against the normalized GLB geometry; the IDA arm remains in its static deployed pose, with no simulation of dynamics or real seismic telemetry.',
     cameraViews: [
       {
         id: 'overview',
-        label: 'Toàn cảnh tàu đổ bộ',
+        label: 'Lander overview',
         position: [2.5, 1.35, 2.5],
         target: [0, 0, 0],
         summary:
-          'Góc nhìn bao quát toàn bộ 83 node của tàu InSight ở cấu hình đã bung hai cánh pin mặt trời Ultraflex tròn đường kính ~2,15 m.',
+          'Overview of all 83 InSight nodes with both circular Ultraflex solar arrays deployed (~2.15 m diameter each).',
         sourceRef: 'NASA InSight Launch Press Kit & NASA 3D Resource GLB',
         isIllustrativeView: true,
       },
       {
         id: 'arm_grapple',
-        label: 'Cánh tay IDA & Móc Grapple',
+        label: 'IDA arm and grapple',
         position: [1.15, 0.58, 1.32],
         target: [0.1, 0.05, 0.25],
         summary:
-          'Cận cảnh cánh tay robot Instrument Deployment Arm (arm_01–arm_03), camera IDC, gầu múc (shovel) và móc 5 ngón grapple (claw_01–05).',
+          'Close-up of the Instrument Deployment Arm (arm_01–arm_03), IDC camera, scoop (shovel), and five-finger grapple (claw_01–05).',
         sourceRef: 'NASA InSight Instrument Deployment System Fact Sheet',
         isIllustrativeView: true,
       },
       {
         id: 'solar_wings',
-        label: 'Hai cánh Pin Ultraflex (2,15 m)',
+        label: 'Two Ultraflex solar arrays (2.15 m)',
         position: [0.1, 1.9, 1.75],
         target: [0, 0, 0],
         summary:
-          'Góc nhìn từ trên xuống hai mảng pin hình quạt kép (panel_l_root / panel_r_root) gồm 68 node thanh giằng và cánh pin.',
+          'Top-down view of the two fan-shaped solar arrays (panel_l_root / panel_r_root), comprising 68 strut and panel nodes.',
         sourceRef: 'NASA InSight Spacecraft Overview (Lockheed Martin)',
         isIllustrativeView: true,
       },
       {
         id: 'deck_overview',
-        label: 'Boong tàu & Cảm biến SEIS/HP³',
+        label: 'Deck and SEIS/HP³ instruments',
         position: [-1.1, 0.72, 1.15],
         target: [0, -0.05, 0],
         summary:
-          'Soi thân chính InSight_Deployed nơi gắn khoang điện tử giữ nhiệt, ăng-ten UHF/X-band RISE và cụm khung thiết bị địa vật lý.',
+          'Inspect the InSight_Deployed main body, which carries the thermally controlled electronics bay, UHF/X-band RISE antenna, and geophysics instrument frame.',
         sourceRef: 'NASA InSight Mission Press Kit & GLB Mesh Inspection',
         isIllustrativeView: true,
       },
@@ -413,57 +413,57 @@ export const DEVICE_CONTROL_SPECS: Record<string, DeviceControlSpec> = {
     partGroups: [
       {
         id: 'all',
-        label: 'Toàn bộ cấu trúc (83 node)',
+        label: 'Full structure (83 nodes)',
         nodeNames: [...INSIGHT_ALL_NODES],
         documentedSpec:
-          'Khối lượng phóng ~358 kg (chỉ tàu đổ bộ); sải cánh ~6,0 m khi bung hai mảng pin Ultraflex trên mặt đất Elysium Planitia.',
+          'Launch mass ~358 kg (lander only); span ~6.0 m with both Ultraflex arrays deployed on Elysium Planitia.',
         sourceRef: 'NASA InSight Spacecraft Fact Sheet',
         limitationNote:
-          'Hiển thị toàn bộ 83 node theo cấu hình đã triển khai sau hạ cánh; tỉ lệ chuẩn hóa fit-longest-side-2.',
+          'Displays all 83 nodes in their post-landing deployed configuration; normalized with fit-longest-side-2.',
         isControlVerified: true,
       },
       {
         id: 'robotic_arm',
-        label: 'Cánh tay IDA & Camera IDC',
+        label: 'IDA arm and IDC camera',
         nodeNames: [...INSIGHT_ARM_NODES],
         documentedSpec:
-          'Cánh tay robot dài ~1,8 m (4 bậc tự do) mang camera màu IDC, nắp ống kính (lens_cap_IDC) và gầu đất (shovel).',
+          'The ~1.8 m robotic arm (4 degrees of freedom) carries the IDC color camera, lens cap (lens_cap_IDC), and soil scoop (shovel).',
         sourceRef: 'NASA JPL InSight Robotic Arm Overview',
         limitationNote:
-          'Tĩnh trong phiên bản GLB chuẩn hóa; chưa hiệu chuẩn tâm khớp vai/khuỷu từng segment nên không tạo animation xoay khớp tự ý.',
+          'Static in the normalized GLB version; shoulder and elbow pivots are not calibrated for each segment, so no arbitrary joint animation is added.',
         isControlVerified: false,
       },
       {
         id: 'grapple_claw',
-        label: 'Móc kẹp 5 ngón (Grapple)',
+        label: 'Five-finger grapple',
         nodeNames: [...INSIGHT_GRAPPLE_NODES],
         documentedSpec:
-          'Cơ cấu móc 5 ngón thụ động (grapple, claw_01–claw_05) dùng để nhấc máy đo địa chấn SEIS và mũi khoan nhiệt HP³ xuống bề mặt.',
+          'The passive five-finger grapple (grapple, claw_01–claw_05) was used to place the SEIS seismometer and HP³ heat probe on the surface.',
         sourceRef: 'NASA InSight Instrument Deployment System',
         limitationNote:
-          'Giữ nguyên tư thế tĩnh; cáp tời và độ giãn dây treo không tách riêng khỏi node grapple.',
+          'Remains static; the winch cable and tether extension are not separate from the grapple node.',
         isControlVerified: false,
       },
       {
         id: 'solar_wings',
-        label: 'Hai cánh Pin Ultraflex',
+        label: 'Two Ultraflex solar arrays',
         nodeNames: [...INSIGHT_PANEL_LEFT_NODES, ...INSIGHT_PANEL_RIGHT_NODES],
         documentedSpec:
-          'Hai cánh pin mặt trời bung xòe hình đĩa 10 cạnh đường kính ~2,15 m mỗi bên, tổng công suất thiết kế hàng trăm W lúc giữa trưa.',
+          'Two deployed, 10-sided disk-shaped solar arrays, each ~2.15 m in diameter, with a combined design output of hundreds of watts at midday.',
         sourceRef: 'NASA InSight Launch Press Kit (Solar Arrays)',
         limitationNote:
-          'Gồm 68 node nan quạt và thanh chống ở trạng thái đã bung hoàn toàn; không giả lập độ phủ bụi thực tế theo ngày Sol.',
+          'Consists of 68 fan-rib and strut nodes in the fully deployed state; actual dust accumulation over sols is not simulated.',
         isControlVerified: false,
       },
       {
         id: 'lander_deck',
-        label: 'Boong tàu & Ăng-ten chính',
+        label: 'Lander deck and main antenna',
         nodeNames: ['InSight_Deployed'],
         documentedSpec:
-          'Thân đổ bộ 3 chân dựa trên kiến trúc Phoenix mang bộ đo địa chấn SEIS, cảm biến khí tượng TWINS và hệ RISE.',
+          'The Phoenix-derived three-legged lander body carries the SEIS seismometer, TWINS weather sensors, and RISE system.',
         sourceRef: 'NASA InSight Spacecraft Design · Lockheed Martin',
         limitationNote:
-          'Toàn bộ boong, khung 3 chân và ăng-ten được gộp thành 1 node tĩnh InSight_Deployed trong GLB.',
+          'The entire deck, three-legged frame, and antenna are combined into one static InSight_Deployed node in the GLB.',
         isControlVerified: false,
       },
     ],
@@ -554,7 +554,7 @@ export const DEVICE_CONTROL_SPECS: Record<string, DeviceControlSpec> = {
           '2.1 m 5-axis robotic arm carrying a ~45 kg turret with rotary-percussive coring drill, PIXL, and WATSON, plus under-chassis sample/helicopter bay hardware.',
         sourceRef: 'NASA Mars 2020 Turret & Sample Caching System',
         limitationNote:
-          'Turret and arm nodes remain at nominal deployed pose in close-up mode; illustrative arm reach/scan previews live under Option 2 Control Room POV.',
+          'Turret and arm nodes remain at nominal deployed pose in close-up mode; illustrative arm reach/scan previews live under Explore viewpoints (Control Room POV).',
         isControlVerified: false,
       },
       {

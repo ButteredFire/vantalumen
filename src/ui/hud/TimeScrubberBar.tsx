@@ -19,8 +19,8 @@ export function TimeScrubberBar() {
 
   return (
     <footer className="hud-bottom-bar glass-panel" data-testid="time-scrubber-bar">
-      <span>Chuyển động quỹ đạo theo Kepler · tách biệt vật lý xe bề mặt</span>
-      <div className="time-preset-buttons" role="group" aria-label="Tốc độ quỹ đạo & xoay hành tinh">
+      <span>Keplerian orbital motion · independent of surface vehicle physics</span>
+      <div className="time-preset-buttons" role="group" aria-label="Orbital speed & planetary rotation">
         <button
           type="button"
           className={'time-preset-btn ' + (simulationPaused ? 'is-active' : '')}
@@ -28,7 +28,7 @@ export function TimeScrubberBar() {
           aria-pressed={simulationPaused}
           onClick={toggleSimulationPaused}
         >
-          {simulationPaused ? '▶ Tiếp tục' : '⏸ Tạm dừng'}
+          {simulationPaused ? '▶ Resume' : '⏸ Pause'}
         </button>
         {[1, 100, 1000, 5000].map((speed) => (
           <button

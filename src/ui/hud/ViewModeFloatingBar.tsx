@@ -5,7 +5,7 @@ import { useCosmosStore } from '../../store/useCosmosStore';
 
 /**
  * Prominent floating top-center view-mode selector whenever a device, moon, orbiter,
- * or surface destination is focused, exposing Option 1 (3D Close-Up) and Option 2 (Control Room POV).
+ * or surface destination is focused, exposing Inspect model and Explore viewpoints.
  */
 export const ViewModeFloatingBar: React.FC = () => {
   const bodyId = useCosmosStore((state) => state.activeBodyId);
@@ -44,7 +44,7 @@ export const ViewModeFloatingBar: React.FC = () => {
     (!rawTarget || rawTarget.category !== 'SURFACE_POI' || spectralMode === 'TERRAIN_MESH_3D') &&
     (!isOrbitalTargetWithoutDevice || orbitalCloseup);
 
-  const handleOption1 = () => {
+  const handleSelectInspectModel = () => {
     if (device) {
       setInspectionMode('MODEL_CLOSEUP');
       if (device.status === 'unavailable' && !device.proceduralModel) {
@@ -69,7 +69,7 @@ export const ViewModeFloatingBar: React.FC = () => {
     }
   };
 
-  const handleOption2 = () => {
+  const handleSelectExploreViewpoints = () => {
     setInspectionMode('CONTROL_ROOM_POV');
   };
 
@@ -86,20 +86,20 @@ export const ViewModeFloatingBar: React.FC = () => {
         className="floating-mode-btn"
         data-testid="floating-mode-closeup"
         aria-pressed={isCloseupPressed}
-        onClick={handleOption1}
+        onClick={handleSelectInspectModel}
       >
         {rawTarget?.category === 'SURFACE_POI'
-          ? 'Option 1 · 3D Terrain Close-Up'
-          : 'Option 1 · 3D Close-Up'}
+          ? 'Inspect model · 3D Terrain'
+          : 'Inspect model'}
       </button>
       <button
         type="button"
         className="floating-mode-btn"
         data-testid="floating-mode-pov"
         aria-pressed={inspectionMode === 'CONTROL_ROOM_POV'}
-        onClick={handleOption2}
+        onClick={handleSelectExploreViewpoints}
       >
-        Option 2 · Control Room POV
+        Explore viewpoints · Control Room
       </button>
       <button
         type="button"

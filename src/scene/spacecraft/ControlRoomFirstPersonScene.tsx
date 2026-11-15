@@ -12,6 +12,7 @@ import {
 } from '../../config/celestialCatalog';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
 import { getDeviceSimulationProfile } from '../../config/deviceSimulationProfiles';
+import { resolveDeviceBodyId } from '../../config/statusVocabulary';
 import {
   clampDevicePixelRatio,
   FramePacingMonitor,
@@ -840,7 +841,7 @@ function SurfaceSimulationScene({
       store.setSurfaceTelemetry(telemetry);
       const boundaryMsg =
         telemetry.stabilityWarning === 'boundary_limit'
-          ? `Đã chạm ranh giới vùng ${store.explorationRegionSizeKm}×${store.explorationRegionSizeKm} km — chọn vùng lớn hơn trong bảng thông tin.`
+          ? `Reached the ${store.explorationRegionSizeKm}×${store.explorationRegionSizeKm} km area boundary — select a larger area in the information panel.`
           : null;
       if (store.regionBoundaryMessage !== boundaryMsg) {
         store.setRegionBoundaryMessage(boundaryMsg);
@@ -1257,7 +1258,7 @@ export function ControlRoomFirstPersonScene() {
     [activeDeviceId],
   );
 
-  const bodyId: BodyId = device?.bodyId ?? activeTarget?.bodyId ?? activeBodyId;
+  const bodyId: BodyId = resolveDeviceBodyId(device, activeTarget?.bodyId ?? activeBodyId);
   const targetId = device?.id ?? activeTarget?.id ?? 'perseverance_rover';
   const profile = useMemo(
     () => getDeviceSimulationProfile(targetId, device),

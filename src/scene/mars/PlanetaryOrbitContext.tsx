@@ -4,7 +4,7 @@ import {
   MARS_AXIAL_TILT_RAD,
   MOON_AXIAL_TILT_RAD,
 } from '../../config/celestialCatalog';
-import { useCosmosStore } from '../../store/useCosmosStore';
+import { selectEffectiveOrbitsVisible, useCosmosStore } from '../../store/useCosmosStore';
 import type { BodyConfig } from '../../types/cosmos.types';
 import { NativeOrbitLine } from '../common/NativeOrbitLine';
 import { SUN_DIRECTION_VECTOR } from '../environment/SunLightSource';
@@ -16,7 +16,7 @@ import { SUN_DIRECTION_VECTOR } from '../environment/SunLightSource';
  * - Solar illumination direction vector pointing toward the directional Sun source
  */
 export function PlanetaryOrbitContext({ body }: { body: BodyConfig }) {
-  const showOrbits = useCosmosStore((state) => state.showOrbits);
+  const showOrbits = useCosmosStore(selectEffectiveOrbitsVisible);
   const viewStage = useCosmosStore((state) => state.viewStage);
 
   const tiltRad = body.id === 'mars' ? MARS_AXIAL_TILT_RAD : MOON_AXIAL_TILT_RAD;

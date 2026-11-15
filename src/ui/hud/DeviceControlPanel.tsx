@@ -27,17 +27,17 @@ export function DeviceControlPanel({ deviceId }: { deviceId: string }) {
     <section
       className="device-control-panel"
       data-testid="device-control-panel"
-      aria-label="Điều khiển và soi cấu phần thiết bị"
+      aria-label="Device component inspection and controls"
     >
       <div className="device-control-header">
-        <span className="dock-section-title">KIỂM TRA &amp; ĐIỀU KHIỂN (MVP)</span>
-        <span className="control-pill-badge">Minh họa trên GLB</span>
+        <span className="dock-section-title">INSPECTION &amp; CONTROLS (MVP)</span>
+        <span className="control-pill-badge">Illustrative GLB view</span>
       </div>
 
       <p className="control-disclaimer">{spec.generalDisclaimer}</p>
 
       <div className="control-section">
-        <span className="control-section-label">Góc nhìn theo tài liệu (Minh họa)</span>
+        <span className="control-section-label">Documented views (illustrative)</span>
         <div className="control-chip-grid">
           {spec.cameraViews.map((view) => (
             <button
@@ -55,7 +55,7 @@ export function DeviceControlPanel({ deviceId }: { deviceId: string }) {
         <div className="control-detail-card" data-testid="active-camera-details">
           <p>{activeView.summary}</p>
           <small>
-            Nguồn góc nhìn: {activeView.sourceRef} · Góc nhìn minh họa từ hình học GLB.
+            View source: {activeView.sourceRef} · Illustrative view from GLB geometry.
           </small>
         </div>
       </div>
@@ -63,16 +63,16 @@ export function DeviceControlPanel({ deviceId }: { deviceId: string }) {
       {spec.rotorControl && (
         <div className="control-section">
           <span className="control-section-label">
-            Cơ cấu Rotor đồng trục (Tài liệu vs Minh họa)
+            Coaxial rotor mechanism (documented vs. illustrative)
           </span>
           <div className="control-facts-box">
             <small>
-              <strong>Thông số NASA (đã đối chiếu):</strong> {spec.rotorControl.documentedDiameter} ·{' '}
+              <strong>NASA reference specifications:</strong> {spec.rotorControl.documentedDiameter} ·{' '}
               {spec.rotorControl.documentedRpm} · {spec.rotorControl.documentedFlightWindow}.
             </small>
           </div>
 
-          <span className="control-sub-label">Xoay từng nấc góc (rotors_01 / rotors_02)</span>
+          <span className="control-sub-label">Step rotation (rotors_01 / rotors_02)</span>
           <div className="control-step-grid">
             {spec.rotorControl.stepAnglesDeg.map((deg) => {
               const isActive = rotorSpinMode === 'stopped' && rotorStepDeg === deg;
@@ -101,19 +101,19 @@ export function DeviceControlPanel({ deviceId }: { deviceId: string }) {
             }
           >
             {rotorSpinMode === 'demo_slow'
-              ? 'Dừng quay minh họa'
-              : 'Quay ngược chiều minh họa (0,5 vòng/s)'}
+              ? 'Stop illustrative rotation'
+              : 'Illustrative counter-rotation (0.5 rev/s)'}
           </button>
 
           <p className="control-note">
-            <strong>Minh họa:</strong> {spec.rotorControl.demoRevPerSecLabel}.{' '}
+            <strong>Illustrative:</strong> {spec.rotorControl.demoRevPerSecLabel}.{' '}
             {spec.rotorControl.disclaimer}
           </p>
         </div>
       )}
 
       <div className="control-section">
-        <span className="control-section-label">Bản đồ cấu phần GLB ({spec.partGroups.length} nhóm)</span>
+        <span className="control-section-label">GLB component map ({spec.partGroups.length} groups)</span>
         <div className="control-chip-grid">
           {spec.partGroups.map((group) => (
             <button
@@ -137,16 +137,16 @@ export function DeviceControlPanel({ deviceId }: { deviceId: string }) {
                 : activeGroup.nodeNames.join(', ')}
             </code>
             <span className="control-status-tag">
-              {activeGroup.isControlVerified ? 'Có khớp quay' : 'Tĩnh · Chỉ quan sát'}
+              {activeGroup.isControlVerified ? 'Articulated mechanism' : 'Static · Inspection only'}
             </span>
           </div>
           <p>
-            <strong>Thông số tài liệu:</strong> {activeGroup.documentedSpec}
+            <strong>Documented specifications:</strong> {activeGroup.documentedSpec}
           </p>
           <p className="control-limit-note">
-            <strong>Giới hạn mô hình:</strong> {activeGroup.limitationNote}
+            <strong>Model limitations:</strong> {activeGroup.limitationNote}
           </p>
-          <small>Nguồn: {activeGroup.sourceRef}</small>
+          <small>Source: {activeGroup.sourceRef}</small>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export function DeviceControlPanel({ deviceId }: { deviceId: string }) {
         data-testid="device-control-reset"
         onClick={resetDeviceControl}
       >
-        Đặt lại góc nhìn &amp; cơ cấu
+        Reset view &amp; mechanism
       </button>
     </section>
   );

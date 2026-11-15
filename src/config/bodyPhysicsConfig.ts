@@ -22,10 +22,10 @@ export const BODY_PHYSICS_CONFIG: Record<BodyId, BodyPhysicsConfig> = {
     sunIntensity: 3.1,
     ambientColorHex: '#c88c66',
     ambientIntensity: 0.85,
-    regionCenterName: 'Ares Vallis — Vùng hạ cánh Pathfinder',
+    regionCenterName: 'Ares Vallis — Pathfinder landing region',
     regionCenterLatLon: { lat: 19.13, lon: 326.78 },
     terrainSourceSummary:
-      'Độ cao nền tham chiếu MOLA + chi tiết địa hình tổng hợp theo seed (mô phỏng)',
+      'MOLA reference baseline elevation + synthesized terrain detail from seed (simulation)',
   },
   moon: {
     bodyId: 'moon',
@@ -46,7 +46,7 @@ export const BODY_PHYSICS_CONFIG: Record<BodyId, BodyPhysicsConfig> = {
     regionCenterName: 'Hadley–Apennine — Apollo 15',
     regionCenterLatLon: { lat: 26.1322, lon: 3.6339 },
     terrainSourceSummary:
-      'Độ cao nền tham chiếu LOLA + rãnh Hadley & miệng hố tổng hợp theo seed (mô phỏng)',
+      'LOLA reference baseline elevation + synthesized Hadley rille and crater detail from seed (simulation)',
   },
 };
 

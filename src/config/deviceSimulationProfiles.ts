@@ -15,7 +15,7 @@ function makeOrbitalProfile(
     bodyId,
     mobilityKind: 'orbital',
     maxSpeedMs: 0,
-    documentedSpeedNote: 'Vận tốc quỹ đạo tính theo định luật Kepler quanh thiên thể chủ.',
+    documentedSpeedNote: 'Orbital velocity is calculated using Kepler’s laws around the parent body.',
     reverseSpeedMs: 0,
     maxClimbSlopeDeg: 0,
     eyeHeightM: 1.4,
@@ -68,7 +68,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_6w',
     maxSpeedMs: 1.4,
     documentedSpeedNote:
-      'Tốc độ thực ~0,01 m/s (Mars Pathfinder 1997); chế độ thám hiểm cho phép chạy tới 1,4 m/s.',
+      'Actual speed ~0.01 m/s (Mars Pathfinder 1997); exploration mode allows speeds up to 1.4 m/s.',
     reverseSpeedMs: 0.75,
     maxClimbSlopeDeg: 26,
     eyeHeightM: 0.42,
@@ -100,7 +100,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.11,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Kích thước vật lý quy đổi tham khảo Mars Pathfinder (~0,65 × 0,48 × 0,30 m); model GLB Sketchfab.',
+        'Reference physical dimensions from Mars Pathfinder (~0.65 × 0.48 × 0.30 m); Sketchfab GLB model.',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -111,7 +111,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA/Sketchfab GLB + địa hình tổng hợp từ tham số MOLA (Ares Vallis)',
+    provenanceLabel: 'NASA/Sketchfab GLB + synthesized terrain based on MOLA parameters (Ares Vallis)',
   },
 
   spirit_and_opportunity_rover: {
@@ -120,7 +120,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_6w',
     maxSpeedMs: 2.2,
     documentedSpeedNote:
-      'Tốc độ tối đa thiết kế 0,05 m/s (MER); chế độ thám hiểm hỗ trợ tới 2,2 m/s.',
+      'Designed maximum speed 0.05 m/s (MER); exploration mode supports up to 2.2 m/s.',
     reverseSpeedMs: 1.1,
     maxClimbSlopeDeg: 28,
     eyeHeightM: 1.48,
@@ -152,7 +152,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.28,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Khung MER ~2,3 m sải cánh pin × 1,6 m dài × 1,5 m cao (NASA/JPL GLB gốc 1 node gộp).',
+        'MER dimensions ~2.3 m solar-array span × 1.6 m long × 1.5 m high (original NASA/JPL GLB is a single merged node).',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -163,7 +163,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA/JPL-Caltech GLB + địa hình tổng hợp từ tham số MOLA',
+    provenanceLabel: 'NASA/JPL-Caltech GLB + synthesized terrain based on MOLA parameters',
   },
 
   curiosity_rover: {
@@ -172,7 +172,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_6w',
     maxSpeedMs: 2.8,
     documentedSpeedNote:
-      'Tốc độ thực ~0,04 m/s (MSL Gale Crater); chế độ thám hiểm mở rộng tới 2,8 m/s.',
+      'Actual speed ~0.04 m/s (MSL Gale Crater); exploration mode extends to 2.8 m/s.',
     reverseSpeedMs: 1.4,
     maxClimbSlopeDeg: 30,
     eyeHeightM: 2.05,
@@ -204,7 +204,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.56,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tỉ lệ mô phỏng tham khảo MSL ~3,0 m thân × 2,7 m rộng × 2,2 m cao (24584_Curiosity_static.glb).',
+        'Reference simulated MSL dimensions ~3.0 m long × 2.7 m wide × 2.2 m high (24584_Curiosity_static.glb).',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -215,7 +215,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA/JPL-Caltech GLB + địa hình tổng hợp từ tham số MOLA',
+    provenanceLabel: 'NASA/JPL-Caltech GLB + synthesized terrain based on MOLA parameters',
   },
 
   perseverance_rover: {
@@ -224,7 +224,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_6w',
     maxSpeedMs: 3.0,
     documentedSpeedNote:
-      'Tốc độ thực tối đa ~0,042 m/s (Mars 2020); chế độ thám hiểm hỗ trợ tới 3,0 m/s.',
+      'Actual maximum speed ~0.042 m/s (Mars 2020); exploration mode supports up to 3.0 m/s.',
     reverseSpeedMs: 1.5,
     maxClimbSlopeDeg: 30,
     eyeHeightM: 2.1,
@@ -256,7 +256,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.58,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tỉ lệ mô phỏng tham khảo Mars 2020 ~3,0 m thân × 2,7 m rộng × 2,2 m cao (25042_Perseverance.glb).',
+        'Reference simulated Mars 2020 dimensions ~3.0 m long × 2.7 m wide × 2.2 m high (25042_Perseverance.glb).',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -267,7 +267,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA/JPL-Caltech GLB (66 node) + địa hình tổng hợp từ tham số MOLA',
+    provenanceLabel: 'NASA/JPL-Caltech GLB (66 nodes) + synthesized terrain based on MOLA parameters',
   },
 
   ingenuity_helicopter: {
@@ -276,7 +276,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'helicopter',
     maxSpeedMs: 10.0,
     documentedSpeedNote:
-      'Tốc độ bay ngang tối đa kỷ lục 10 m/s; trần bay cao tới 24 m trong khí quyển loãng Sao Hỏa.',
+      'Record maximum horizontal speed of 10 m/s; flight ceiling up to 24 m in Mars’s thin atmosphere.',
     reverseSpeedMs: 5.5,
     maxClimbSlopeDeg: 35,
     eyeHeightM: 0.26,
@@ -310,7 +310,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.13,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Sải rotor đồng trục 1,21 m; chiều cao 0,49 m; khối lượng 1,8 kg (NASA Ingenuity GLB).',
+        'Coaxial rotor span 1.21 m; height 0.49 m; mass 1.8 kg (NASA Ingenuity GLB).',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -321,7 +321,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA/JPL Ingenuity GLB (11 node) + bay mô phỏng trong khí quyển Sao Hỏa',
+    provenanceLabel: 'NASA/JPL Ingenuity GLB (11 nodes) + simulated flight in the Martian atmosphere',
   },
 
   viking_lander: {
@@ -330,7 +330,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'lander_static',
     maxSpeedMs: 1.8,
     documentedSpeedNote:
-      'Thiết bị đổ bộ cố định ngoài đời thực; chỉ cho phép di chuyển khi bật "Di chuyển giả lập".',
+      'The real lander is stationary; movement is available only when "Simulated mobility" is enabled.',
     reverseSpeedMs: 1.0,
     maxClimbSlopeDeg: 22,
     eyeHeightM: 1.75,
@@ -362,7 +362,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.25,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tàu đổ bộ Viking 1976 (~3 m sải chân đáp); chuyển động trên bề mặt là mô phỏng khám phá.',
+        'Viking 1976 lander (~3 m landing-leg span); surface movement is an exploration simulation.',
     },
     capabilities: {
       supportsRealMobility: false,
@@ -373,7 +373,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA Viking GLB (đổ bộ cố định ngoài đời · hỗ trợ Di chuyển giả lập)',
+    provenanceLabel: 'NASA Viking GLB (stationary real lander · supports simulated mobility)',
   },
 
   insight_lander: {
@@ -382,7 +382,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'lander_static',
     maxSpeedMs: 1.8,
     documentedSpeedNote:
-      'Trạm địa chấn cố định (Elysium Planitia); hỗ trợ khảo sát vùng đất bằng chế độ "Di chuyển giả lập".',
+      'Stationary seismometer (Elysium Planitia); supports area exploration using "Simulated mobility" mode.',
     reverseSpeedMs: 1.0,
     maxClimbSlopeDeg: 20,
     eyeHeightM: 1.55,
@@ -414,7 +414,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.28,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Sải 2 đĩa pin mặt trời ~6,0 m (NASA InSight GLB 83 node); chuyển động bề mặt là giả lập.',
+        'Two solar arrays span ~6.0 m (NASA InSight GLB, 83 nodes); surface movement is simulated.',
     },
     capabilities: {
       supportsRealMobility: false,
@@ -425,7 +425,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: false,
     },
-    provenanceLabel: 'NASA InSight GLB (trạm cố định ngoài đời · hỗ trợ Di chuyển giả lập)',
+    provenanceLabel: 'NASA InSight GLB (stationary real lander · supports simulated mobility)',
   },
 
   apollo_lrv: {
@@ -434,7 +434,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_4w',
     maxSpeedMs: 4.5,
     documentedSpeedNote:
-      'Vận tốc thiết kế ~13 km/h (3,6 m/s); kỷ lục Apollo 17 đạt 18 km/h (5,0 m/s). Mô phỏng giới hạn 4,5 m/s.',
+      'Designed speed ~13 km/h (3.6 m/s); Apollo 17 record was 18 km/h (5.0 m/s). Simulation is capped at 4.5 m/s.',
     reverseSpeedMs: 2.0,
     maxClimbSlopeDeg: 25,
     eyeHeightM: 1.52,
@@ -466,7 +466,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.36,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Mô hình tái dựng hình học theo thông số NASA LRV (3,1 m × 2,06 m × 1,14 m), không phải GLB gốc NASA.',
+        'Geometric reconstruction based on NASA LRV specifications (3.1 m × 2.06 m × 1.14 m), not an original NASA GLB.',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -477,7 +477,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: true,
     },
-    provenanceLabel: 'Tái dựng hình học Apollo LRV + địa hình tổng hợp LOLA (Hadley–Apennine)',
+    provenanceLabel: 'Apollo LRV geometric reconstruction + synthesized LOLA terrain (Hadley–Apennine)',
   },
 
   apollo_15_lrv: {
@@ -486,7 +486,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_4w',
     maxSpeedMs: 4.5,
     documentedSpeedNote:
-      'Apollo 15 LRV-1 di chuyển tổng 27,9 km quanh Hadley Rille (~3,6 m/s danh định).',
+      'Apollo 15 LRV-1 traveled a total of 27.9 km around Hadley Rille (~3.6 m/s nominal).',
     reverseSpeedMs: 2.0,
     maxClimbSlopeDeg: 25,
     eyeHeightM: 1.52,
@@ -518,7 +518,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.36,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tái dựng hình học Apollo 15 LRV-1 (3,1 m dài, bánh lưới kẽm 0,81 m).',
+        'Apollo 15 LRV-1 geometric reconstruction (3.1 m long, 0.81 m wire-mesh wheels).',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -529,7 +529,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: true,
     },
-    provenanceLabel: 'Tái dựng hình học Apollo 15 LRV-1 + địa hình tổng hợp LOLA',
+    provenanceLabel: 'Apollo 15 LRV-1 geometric reconstruction + synthesized LOLA terrain',
   },
 
   apollo_17_lrv: {
@@ -538,7 +538,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'rover_4w',
     maxSpeedMs: 4.8,
     documentedSpeedNote:
-      'Apollo 17 LRV-3 đi được 35,9 km (Taurus–Littrow), kỷ lục tốc độ 18 km/h (5,0 m/s).',
+      'Apollo 17 LRV-3 traveled 35.9 km (Taurus–Littrow), with a speed record of 18 km/h (5.0 m/s).',
     reverseSpeedMs: 2.2,
     maxClimbSlopeDeg: 26,
     eyeHeightM: 1.52,
@@ -570,7 +570,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.36,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tái dựng hình học Apollo 17 LRV-3 (3,1 m dài, không có GLB gốc trong gói tài nguyên).',
+        'Apollo 17 LRV-3 geometric reconstruction (3.1 m long; no original GLB in the asset package).',
     },
     capabilities: {
       supportsRealMobility: true,
@@ -581,7 +581,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: true,
     },
-    provenanceLabel: 'Tái dựng hình học Apollo 17 LRV-3 + địa hình tổng hợp LOLA',
+    provenanceLabel: 'Apollo 17 LRV-3 geometric reconstruction + synthesized LOLA terrain',
   },
 
   apollo_lrv_deployment: {
@@ -590,7 +590,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'lander_static',
     maxSpeedMs: 2.4,
     documentedSpeedNote:
-      'Cơ cấu hạ LRV từ khoang Quadrant 1 của Lunar Module; bật "Di chuyển giả lập" để lái thử quanh khu vực hạ cánh.',
+      'Mechanism for lowering the LRV from Lunar Module Quadrant 1; enable "Simulated mobility" to drive around the landing area.',
     reverseSpeedMs: 1.2,
     maxClimbSlopeDeg: 22,
     eyeHeightM: 1.65,
@@ -622,7 +622,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.22,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Mô hình tái dựng hình học cơ cấu triển khai LRV; di chuyển bề mặt là chế độ giả lập.',
+        'Geometric reconstruction of the LRV deployment mechanism; surface movement is simulated.',
     },
     capabilities: {
       supportsRealMobility: false,
@@ -633,7 +633,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: true,
     },
-    provenanceLabel: 'Tái dựng cơ cấu triển khai Apollo LRV (cố định · hỗ trợ Di chuyển giả lập)',
+    provenanceLabel: 'Apollo LRV deployment mechanism reconstruction (stationary · supports simulated mobility)',
   },
 
   apollo_surface_equipment: {
@@ -642,7 +642,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'lander_static',
     maxSpeedMs: 1.8,
     documentedSpeedNote:
-      'Cụm thiết bị khoa học ALSEP cố định trên bề mặt Mặt Trăng; có thể bật "Di chuyển giả lập" để khảo sát.',
+      'ALSEP science equipment is stationary on the lunar surface; enable "Simulated mobility" to explore the area.',
     reverseSpeedMs: 1.0,
     maxClimbSlopeDeg: 20,
     eyeHeightM: 1.35,
@@ -674,7 +674,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.12,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tái dựng hình học cụm thiết bị ALSEP; chuyển động trên bề mặt là chế độ giả lập.',
+        'Geometric reconstruction of ALSEP equipment; surface movement is simulated.',
     },
     capabilities: {
       supportsRealMobility: false,
@@ -685,7 +685,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: true,
     },
-    provenanceLabel: 'Tái dựng hình học ALSEP (cố định ngoài đời · hỗ trợ Di chuyển giả lập)',
+    provenanceLabel: 'ALSEP geometric reconstruction (stationary in reality · supports simulated mobility)',
   },
 
   apollo_lm_equipment: {
@@ -694,7 +694,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
     mobilityKind: 'lander_static',
     maxSpeedMs: 2.0,
     documentedSpeedNote:
-      'Khoang thiết bị MESA / bệ hạ cánh Lunar Module cố định; hỗ trợ bật "Di chuyển giả lập".',
+      'The MESA equipment bay / Lunar Module landing platform is stationary; "Simulated mobility" can be enabled.',
     reverseSpeedMs: 1.0,
     maxClimbSlopeDeg: 20,
     eyeHeightM: 2.1,
@@ -726,7 +726,7 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       groundClearanceM: 0.25,
       physicalScaleVerified: false,
       dimensionsDisclaimer:
-        'Tái dựng hình học khoang Lunar Module & MESA; di chuyển bề mặt là chế độ giả lập.',
+        'Geometric reconstruction of the Lunar Module and MESA equipment bay; surface movement is simulated.',
     },
     capabilities: {
       supportsRealMobility: false,
@@ -737,25 +737,77 @@ export const DEVICE_SIMULATION_PROFILES: Record<string, DeviceSimulationProfile>
       supportsHorizonStabilization: true,
       isProceduralModel: true,
     },
-    provenanceLabel: 'Tái dựng khoang MESA / Lunar Module (cố định · hỗ trợ Di chuyển giả lập)',
+    provenanceLabel: 'MESA / Lunar Module equipment bay reconstruction (stationary · supports simulated mobility)',
+  },
+
+  apollo_lunar_module: {
+    id: 'apollo_lunar_module',
+    bodyId: 'moon',
+    mobilityKind: 'lander_static',
+    maxSpeedMs: 0,
+    documentedSpeedNote:
+      'The lunar lander is stationary (NASA 3D Resources GLB is not rigged or scale-verified — static inspection only, with no driving or real-scale collisions).',
+    reverseSpeedMs: 0,
+    maxClimbSlopeDeg: 0,
+    eyeHeightM: 3.4,
+    eyeForwardOffsetM: 0.9,
+    chaseDistanceM: 12.5,
+    chaseHeightM: 4.8,
+    defaultFovDeg: 58,
+    wheelRig: {
+      layout: 'skid_static',
+      wheelCount: 0,
+      wheelRadiusM: 0.45,
+      wheelWidthM: 0.45,
+      trackHalfWidthM: 3.2,
+      wheelZPositionsM: [-3.2, 3.2],
+      steerableAxles: [],
+      suspensionRestLengthM: 0.2,
+      suspensionStiffness: 0,
+      suspensionDamping: 0,
+      maxSteerAngleRad: 0,
+      chassisMassKg: 4920,
+      chassisBoxHalfExtentsM: [3.2, 2.5, 3.2],
+      centerOfMassOffsetM: [0, -0.4, 0],
+    },
+    physicalTransform: {
+      targetLongestSideM: 9.4,
+      dimensionsM: [9.4, 7.0, 9.4],
+      forwardAxis: [0, 0, -1],
+      yawOffsetRad: 0,
+      groundClearanceM: 0.2,
+      physicalScaleVerified: false,
+      dimensionsDisclaimer:
+        'NASA / Michael D. Carbajal GLB (~9.4 m reference landing-leg span); the model is not rigged or CAD-scale verified, so it is for static inspection only, with no controls or real-scale collisions.',
+    },
+    capabilities: {
+      supportsRealMobility: false,
+      supportsSimulatedSurfaceDrive: false,
+      supportsFlight: false,
+      supportsArmDeploy: false,
+      supportsSpectrometerScan: false,
+      supportsHorizonStabilization: true,
+      isProceduralModel: false,
+    },
+    provenanceLabel: 'NASA 3D Resources Apollo LM GLB (static inspection · not rigged or scale-verified)',
   },
 
   // Orbital spacecraft & actors (Catalog devices + OrbitalFleet actors)
-  mars: makeOrbitalProfile('mars', 'mars', 6779000, 'Sao Hỏa · Góc nhìn toàn cảnh quỹ đạo'),
-  moon: makeOrbitalProfile('moon', 'moon', 3474000, 'Mặt Trăng · Góc nhìn toàn cảnh quỹ đạo'),
-  mro_orbiter: makeOrbitalProfile('mro_orbiter', 'mars', 6.5, 'NASA MRO GLB · chế độ quỹ đạo'),
-  dawn_spacecraft: makeOrbitalProfile('dawn_spacecraft', 'mars', 19.7, 'NASA Dawn GLB · bay ngang Sao Hỏa'),
-  near_shoemaker: makeOrbitalProfile('near_shoemaker', 'mars', 2.75, 'NASA NEAR Shoemaker GLB · quỹ đạo/khảo sát'),
-  pioneer_10: makeOrbitalProfile('pioneer_10', 'mars', 2.9, 'NASA Pioneer 10 GLB · quỹ đạo'),
-  kepler_space_telescope: makeOrbitalProfile('kepler_space_telescope', 'mars', 4.7, 'NASA Kepler GLB · quỹ đạo'),
-  mars_odyssey: makeOrbitalProfile('mars_odyssey', 'mars', 5.7, 'NASA Mars Odyssey GLB · quỹ đạo cực'),
-  maven_orbiter: makeOrbitalProfile('maven_orbiter', 'mars', 11.4, 'NASA MAVEN GLB · tầng điện ly Sao Hỏa'),
-  dawn_flyby: makeOrbitalProfile('dawn_flyby', 'mars', 19.7, 'NASA Dawn Flyby GLB · trợ lực hấp dẫn'),
-  ares_station: makeOrbitalProfile('ares_station', 'mars', 28.0, 'Trạm quỹ đạo Ares Station (minh họa) · quỹ đạo Sao Hỏa'),
-  lro_orbiter: makeOrbitalProfile('lro_orbiter', 'moon', 2.7, 'NASA LRO GLB · quỹ đạo cực Mặt Trăng'),
-  apollo_csm: makeOrbitalProfile('apollo_csm', 'moon', 11.0, 'Apollo CSM GLB · quỹ đạo Mặt Trăng'),
-  phobos: makeOrbitalProfile('phobos', 'mars', 22.2, 'Vệ tinh Phobos · quỹ đạo Kepler quanh Sao Hỏa'),
-  deimos: makeOrbitalProfile('deimos', 'mars', 12.4, 'Vệ tinh Deimos · quỹ đạo Kepler quanh Sao Hỏa'),
+  mars: makeOrbitalProfile('mars', 'mars', 6779000, 'Mars · Orbital overview'),
+  moon: makeOrbitalProfile('moon', 'moon', 3474000, 'Moon · Orbital overview'),
+  mro_orbiter: makeOrbitalProfile('mro_orbiter', 'mars', 6.5, 'NASA/JPL-Caltech MRO GLB · Active Mars orbiter (illustrative camera view)'),
+  dawn_spacecraft: makeOrbitalProfile('dawn_spacecraft', 'mars', 19.7, 'NASA/JPL-Caltech Dawn GLB · Feb 17, 2009 Mars flyby context (not in a current orbit / not surface-deployed)'),
+  near_shoemaker: makeOrbitalProfile('near_shoemaker', undefined, 2.75, 'NASA NEAR Shoemaker GLB · Non-Mars reference spacecraft (asteroid 433 Eros)'),
+  pioneer_10: makeOrbitalProfile('pioneer_10', undefined, 2.9, 'NASA Pioneer 10 GLB · Non-Mars reference spacecraft (Jupiter encounter)'),
+  kepler_space_telescope: makeOrbitalProfile('kepler_space_telescope', undefined, 4.7, 'NASA Kepler GLB · Non-Mars reference telescope (heliocentric orbit)'),
+  mars_odyssey: makeOrbitalProfile('mars_odyssey', 'mars', 5.7, 'NASA Mars Odyssey GLB · Active Mars polar orbiter'),
+  maven_orbiter: makeOrbitalProfile('maven_orbiter', 'mars', 11.4, 'NASA MAVEN GLB · Active Mars atmospheric orbiter'),
+  dawn_flyby: makeOrbitalProfile('dawn_flyby', 'mars', 19.7, 'NASA/JPL-Caltech Dawn GLB · Feb 17, 2009 gravity-assist flyby context'),
+  ares_station: makeOrbitalProfile('ares_station', 'mars', 28.0, 'Illustrative Ares Station concept · Structural proxy based on NASA ISS GLB (not a historical spacecraft)'),
+  lro_orbiter: makeOrbitalProfile('lro_orbiter', 'moon', 2.7, 'NASA LRO GLB · Lunar polar orbit'),
+  apollo_csm: makeOrbitalProfile('apollo_csm', 'moon', 11.0, 'Apollo CSM GLB · Lunar orbit'),
+  phobos: makeOrbitalProfile('phobos', 'mars', 22.2, 'Phobos · Keplerian orbit around Mars'),
+  deimos: makeOrbitalProfile('deimos', 'mars', 12.4, 'Deimos · Keplerian orbit around Mars'),
 };
 
 export function getDeviceSimulationProfile(

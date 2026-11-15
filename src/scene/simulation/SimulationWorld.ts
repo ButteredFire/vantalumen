@@ -376,6 +376,9 @@ export class SimulationWorld {
       );
     }
 
+    const allowSimulatedDrive =
+      simulatedMobilityEnabled && this.profile.capabilities.supportsSimulatedSurfaceDrive;
+
     if (this.controller instanceof RoverController) {
       this.controller.step(dt, input, this.originOffset, this.streamingColliderHold);
     } else if (this.controller instanceof FlightController) {
@@ -385,7 +388,7 @@ export class SimulationWorld {
         dt,
         input,
         this.originOffset,
-        simulatedMobilityEnabled,
+        allowSimulatedDrive,
         this.streamingColliderHold,
       );
     }
@@ -578,7 +581,9 @@ export class SimulationWorld {
         : this.controller.pose.stabilityWarning,
       isStreamingColliderHold: this.streamingColliderHold,
       isSimulatedMobilityActive:
-        this.profile.mobilityKind === 'lander_static' ? simulatedMobilityEnabled : true,
+        this.profile.mobilityKind === 'lander_static'
+          ? this.profile.capabilities.supportsSimulatedSurfaceDrive && simulatedMobilityEnabled
+          : true,
       isFlightAirborne: airborne,
       activeCameraMount: cameraMount,
       pointerLocked,

@@ -22,19 +22,42 @@ export function landmark(
   lat: number,
   lon: number,
   source: SourceReference,
-  options: LandmarkOptions = {},
+  options: LandmarkOptions & {
+    credit?: string;
+    missionRelationshipLabel?: string;
+  } = {},
 ): CelestialTarget {
   const body = BODY_CATALOG[bodyId];
   return {
-    id, bodyId, name, subtitle: options.subtitle ?? 'Tâm địa danh · IAU / USGS', category: 'SURFACE_POI',
-    position: latLonToBodyVector(lat, lon, body.radiusKm + 18), radius: 100,
-    safeViewDistance: body.radiusKm * 0.8, isSurfaceLanding: false,
+    id,
+    bodyId,
+    name,
+    subtitle: options.subtitle ?? 'Feature center · IAU / USGS',
+    category: 'SURFACE_POI',
+    position: latLonToBodyVector(lat, lon, body.radiusKm + 18),
+    radius: 100,
+    safeViewDistance: body.radiusKm * 0.8,
+    isSurfaceLanding: false,
     // Height is a camera offset, not measured terrain. No elevation is supplied.
     coordinates: { lat, lon, height: 0 },
     source,
-    telemetry: { ...UNKNOWN_TELEMETRY, classification: 'Địa danh',
-      missionSummary: options.summary ?? 'Tọa độ tâm địa danh từ Gazetteer of Planetary Nomenclature. Không phải tọa độ chính xác của thiết bị hoặc bãi đáp.',
-      keyHighlights: options.highlights ?? ['Vĩ độ hành tinh tâm; kinh độ đông 0–360°.', 'Độ cao, ảnh và địa hình tại đây chưa được tích hợp.'],
+    credit: options.credit ?? 'IAU / USGS Gazetteer of Planetary Nomenclature',
+    missionRelationship: 'surface_feature',
+    missionRelationshipLabel:
+      options.missionRelationshipLabel ?? 'Reference feature center (IAU/USGS)',
+    representation: 'record_only',
+    evidenceKind: 'reported',
+    telemetry: {
+      ...UNKNOWN_TELEMETRY,
+      classification: 'Feature',
+      missionSummary:
+        options.summary ??
+        'Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.',
+      keyHighlights:
+        options.highlights ?? [
+          'Planetocentric latitude; east longitude 0–360°.',
+          'Elevation, imagery, and terrain have not been integrated here.',
+        ],
     },
   };
 }
@@ -51,8 +74,8 @@ function iauFeature(bodyId: 'mars' | 'moon', name: string, feature: number): Sou
 }
 
 const moonFeatureHighlights = [
-  'Vĩ độ/kinh độ từ trang Gazetteer (planetographic +East); Mặt Trăng gần cầu nên dùng cho hiển thị.',
-  'Độ cao, ảnh và địa hình tại đây chưa được tích hợp.',
+  'Latitude/longitude from the Gazetteer page (planetographic +East); the Moon is nearly spherical, so these coordinates are used for display.',
+  'Elevation, imagery, and terrain have not been integrated here.',
 ];
 
 export const ATLAS_POIS: CelestialTarget[] = [
@@ -75,8 +98,10 @@ export const ATLAS_POIS: CelestialTarget[] = [
     checked: '2026-11-14',
     version: 'Orthographic view centered 53°S, 191°E; basin boundary not defined by IAU',
   }, {
-    subtitle: 'Vùng lõm · NASA (tâm khung nhìn)',
-    summary: 'Tâm khung nhìn của bản đồ NASA cho vùng lõm South Pole–Aitken. Đây không phải tâm địa danh do IAU xác lập; ranh giới vùng lõm không được định nghĩa trong Gazetteer.',
-    highlights: ['Tâm khung nhìn 53°S, 191°E; không phải tọa độ bãi đáp.', 'Độ cao, ảnh và địa hình tại đây chưa được tích hợp.'],
+    subtitle: 'Basin · NASA (view center)',
+    credit: 'NASA Science (Orthographic view center)',
+    missionRelationshipLabel: 'NASA orthographic view center (no IAU boundary)',
+    summary: 'The center of NASA’s map view for the South Pole–Aitken basin. This is not an IAU-defined feature center; the basin boundary is not defined in the Gazetteer.',
+    highlights: ['View center at 53°S, 191°E; not a landing-site coordinate.', 'Elevation, imagery, and terrain have not been integrated here.'],
   }),
 ];

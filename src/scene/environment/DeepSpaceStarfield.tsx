@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useCosmosStore } from '../../store/useCosmosStore';
-import warpTunnelFrag from '../../shaders/warp/warpTunnel.frag.glsl';
+import warpTunnelFrag from '../../shaders/warp/warpTunnel.frag.glsl?raw';
 
 const warpTunnelVert = `
 #include <common>

@@ -6,8 +6,9 @@ import { ATLAS_POIS, latLonToBodyVector } from '../../config/atlasPOIs';
 import { BODY_CATALOG } from '../../config/bodyCatalog';
 import { MARS_AXIAL_TILT_RAD, MOON_AXIAL_TILT_RAD } from '../../config/celestialCatalog';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
+import { isDeviceSurfaceDeployable, resolveDeviceBodyId } from '../../config/statusVocabulary';
 import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
-import { useCosmosStore } from '../../store/useCosmosStore';
+import { selectEffectiveOrbitsVisible, useCosmosStore } from '../../store/useCosmosStore';
 import type { BodyConfig, CelestialTarget, DeviceRecord } from '../../types/cosmos.types';
 import { PhobosOrbit } from '../moons/PhobosOrbit';
 import { DeimosOrbit } from '../moons/DeimosOrbit';
@@ -44,10 +45,11 @@ const SurfaceDevicePinNode: React.FC<SurfaceDevicePinNodeProps> = ({
     const dotColor = device.status === 'available' ? '#38bdf8' : '#f59e0b';
     const selectSurfaceDevice = () => {
         if (controlsLocked || !device.coordinates) return;
-        const body = BODY_CATALOG[device.bodyId];
+        const parentBodyId = resolveDeviceBodyId(device, 'mars');
+        const body = BODY_CATALOG[parentBodyId];
         const target: CelestialTarget = {
             id: `surface_device_${device.id}`,
-            bodyId: device.bodyId,
+            bodyId: parentBodyId,
             name: device.name,
             subtitle: `${device.kind} · Surface equipment`,
             category: 'SURFACE_POI',
@@ -59,6 +61,9 @@ const SurfaceDevicePinNode: React.FC<SurfaceDevicePinNodeProps> = ({
             radius: 100,
             safeViewDistance: body.radiusKm * 0.8,
             coordinates: { ...device.coordinates, height: 0 },
+            credit: device.credit,
+            missionRelationship: device.missionRelationship,
+            missionRelationshipLabel: device.missionRelationshipLabel,
             telemetry: {
                 ...body.target.telemetry,
                 classification: device.kind,
@@ -138,7 +143,7 @@ export function MarsPlanetGroup({ body }: { body: BodyConfig }) {
     const spinGroupRef = useRef<Group>(null);
     const planetCenter = useMemo(() => new Vector3(0, 0, 0), []);
     const showPOIs = useCosmosStore((state) => state.showPOIs);
-    const showOrbits = useCosmosStore((state) => state.showOrbits);
+    const showOrbits = useCosmosStore(selectEffectiveOrbitsVisible);
     const viewStage = useCosmosStore((state) => state.viewStage);
     const showSurfaceMarkers =
         showPOIs &&
@@ -154,7 +159,8 @@ export function MarsPlanetGroup({ body }: { body: BodyConfig }) {
     const surfaceDevices = useMemo(
         () =>
             DEVICE_CATALOG.filter(
-                (device) => device.bodyId === body.id && Boolean(device.coordinates),
+                (device) =>
+                    device.bodyId === body.id && isDeviceSurfaceDeployable(device),
             ).map((device) => ({
                 device,
                 localPos: latLonToBodyVector(

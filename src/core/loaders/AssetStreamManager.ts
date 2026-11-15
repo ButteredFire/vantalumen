@@ -43,7 +43,7 @@ export class AssetStreamManager {
     try { response = await fetch(url, { signal }); }
     catch (error) {
       if (signal.aborted) throw error;
-      throw new AssetLoadError('network', 'Không thể kết nối để tải mô hình.');
+      throw new AssetLoadError('network', 'Unable to connect to download the model.');
     }
     if (!response.ok) throw new AssetLoadError(response.status === 404 ? 'missing-file' : 'network', `HTTP ${response.status}: ${url}`);
     const total = Number(response.headers.get('content-length'));
@@ -64,13 +64,13 @@ export class AssetStreamManager {
       }
     } catch (error) {
       if (signal.aborted) throw error;
-      throw new AssetLoadError('network', 'Tải mô hình bị gián đoạn.');
+      throw new AssetLoadError('network', 'Model download was interrupted.');
     }
     const bytes = new Uint8Array(received);
     let offset = 0;
     chunks.forEach((chunk) => { bytes.set(chunk, offset); offset += chunk.length; });
     if (received < 20 || new DataView(bytes.buffer).getUint32(0, true) !== 0x46546c67) {
-      throw new AssetLoadError('parse', 'Tệp trả về không phải GLB hợp lệ.');
+      throw new AssetLoadError('parse', 'The response is not a valid GLB file.');
     }
     signal.throwIfAborted();
     const manager = new THREE.LoadingManager();
@@ -84,7 +84,7 @@ export class AssetStreamManager {
       if (signal.aborted || textureFailure) {
         gltf.scenes.forEach(disposeModel);
         signal.throwIfAborted();
-        throw new AssetLoadError('texture', `Không tải được texture: ${textureFailure}`);
+        throw new AssetLoadError('texture', `Unable to load texture: ${textureFailure}`);
       }
       // Imported assets have one scene. Dispose any unused scenes separately.
       gltf.scenes.filter((scene) => scene !== gltf.scene).forEach(disposeModel);

@@ -1,8 +1,12 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import * as THREE from 'three';
+import { ATLAS_POIS } from '../config/atlasPOIs';
 import { BODY_CATALOG } from '../config/bodyCatalog';
+import { ORBITAL_ACTORS_CATALOG } from '../config/celestialCatalog';
 import { DEVICE_CATALOG } from '../config/deviceCatalog';
+import { getDefaultMissionForBody, getMissionById, getStopById } from '../config/missions';
+import { detectWebGLSupport } from '../core/canvas/rendererDiagnostics';
 import type {
     BodyId,
     CameraMountMode,
@@ -10,13 +14,17 @@ import type {
     CelestialTargetId,
     DeviceCameraViewId,
     DevicePartGroupId,
+    ExplorationMode,
     ExplorationRegionSizeKm,
     InspectionViewMode,
+    ParsedUrlState,
     QualityRuntimeStats,
     QualityTier,
+    RendererFailureState,
     ResolvedQualityTier,
     RotorSpinMode,
     RotorStepDeg,
+    RuntimeLoadStatus,
     SensorFilterMode,
     SimulationCheckpoint,
     SpectralMode,
@@ -139,8 +147,12 @@ interface CosmosState {
   activeBodyId: BodyId;
   bodyTransition: BodyTransition | null;
   activeDeviceId: string | null;
-  assetLoad: { status: 'idle' | 'loading' | 'ready' | 'error' | 'unavailable'; progress?: number; message?: string };
+  assetLoad: { status: RuntimeLoadStatus; progress?: number; message?: string };
   assetRetryTick: number;
+  rendererFailure: RendererFailureState | null;
+  rendererRetryTick: number;
+  rendererBasicMode: boolean;
+  rendererAlertDismissed: boolean;
   deviceCameraViewId: DeviceCameraViewId;
   deviceCameraTick: number;
   activePartGroupId: DevicePartGroupId;
@@ -170,7 +182,12 @@ interface CosmosState {
   regionBoundaryMessage: string | null;
   simulationRecoverTick: number;
   showOrbits: boolean;
+  guidedOrbitsVisible: boolean;
   showPOIs: boolean;
+  explorationMode: ExplorationMode;
+  activeMissionId: string;
+  activeStopId: string;
+  urlNotice: string | null;
   selectBody: (bodyId: BodyId, options?: { animate?: boolean }) => void;
   beginBodyTransitionLoad: () => void;
   beginBodyTransitionArrival: (bodyId: BodyId) => void;
@@ -178,6 +195,13 @@ interface CosmosState {
   selectDevice: (id: string) => void;
   retryAsset: () => void;
   setAssetLoad: (id: string, load: CosmosState['assetLoad']) => void;
+  reportRendererFailure: (
+    failure: Omit<RendererFailureState, 'timestampMs'> & { timestampMs?: number },
+  ) => void;
+  clearRendererFailure: (surface?: RendererFailureState['surface']) => void;
+  retryRenderer: () => void;
+  enableBasicRenderMode: () => void;
+  dismissRendererAlert: () => void;
   setDeviceCameraView: (viewId: DeviceCameraViewId) => void;
   setActivePartGroup: (groupId: DevicePartGroupId) => void;
   setRotorSpinMode: (mode: RotorSpinMode) => void;
@@ -211,6 +235,14 @@ interface CosmosState {
   setRegionBoundaryMessage: (message: string | null) => void;
     toggleOrbits: () => void;
     togglePOIs: () => void;
+    setExplorationMode: (mode: ExplorationMode) => void;
+    selectMissionStop: (
+      missionId: string,
+      stopId: string,
+      options?: { openSuggestedView?: boolean },
+    ) => void;
+    dismissUrlNotice: () => void;
+    applyUrlState: (parsed: ParsedUrlState, options?: { skipPreloader?: boolean }) => void;
     viewStage: ViewStage;
     activeTarget: CelestialTarget | null;
     selectedSurfaceEquipment: SurfaceEquipmentItem | null;
@@ -253,6 +285,13 @@ interface CosmosState {
     updateDynamicPosition: (id: CelestialTargetId, position: THREE.Vector3) => void;
 }
 
+function isThreeRenderLoopUnavailable(state: Pick<CosmosState, 'rendererFailure'>): boolean {
+  if (state.rendererFailure && state.rendererFailure.kind !== 'postprocessing-error') {
+    return true;
+  }
+  return !detectWebGLSupport().available;
+}
+
 const REQUIRED_LOADING_TASKS = [
   'mars_surface_maps',
   'decoders_and_models',
@@ -267,13 +306,29 @@ const INITIAL_SIMULATION_UI_STATE = {
   surfaceTelemetry: { ...INITIAL_SURFACE_TELEMETRY },
 };
 
+const INITIAL_DEFAULT_MISSION = getDefaultMissionForBody('mars');
+
+export function selectEffectiveOrbitsVisible(
+  state: Pick<CosmosState, 'explorationMode' | 'showOrbits' | 'guidedOrbitsVisible'>,
+): boolean {
+  return state.explorationMode === 'free' ? state.showOrbits : state.guidedOrbitsVisible;
+}
+
 export const useCosmosStore = create<CosmosState>()(
   subscribeWithSelector((set, get) => ({
     activeBodyId: 'mars',
+    explorationMode: 'guided',
+    activeMissionId: INITIAL_DEFAULT_MISSION.id,
+    activeStopId: INITIAL_DEFAULT_MISSION.defaultStopId,
+    urlNotice: null,
     bodyTransition: null,
     activeDeviceId: null,
     assetLoad: { status: 'idle' },
     assetRetryTick: 0,
+    rendererFailure: null,
+    rendererRetryTick: 0,
+    rendererBasicMode: false,
+    rendererAlertDismissed: false,
     ...INITIAL_DEVICE_CONTROL_STATE,
     ...INITIAL_POV_STATE,
     ...INITIAL_SIMULATION_UI_STATE,
@@ -288,22 +343,33 @@ export const useCosmosStore = create<CosmosState>()(
     deviceCameraTick: 0,
     rotorStepTick: 0,
     showOrbits: true,
+    guidedOrbitsVisible: false,
     showPOIs: true,
         selectBody: (bodyId, options) => {
             if (!BODY_CATALOG[bodyId]) return;
             const current = get();
+            const bodyDefaultMission = getDefaultMissionForBody(bodyId);
+            const missionSync =
+                bodyId !== current.activeBodyId
+                    ? {
+                          activeMissionId: bodyDefaultMission.id,
+                          activeStopId: bodyDefaultMission.defaultStopId,
+                      }
+                    : {};
             const currentStage = current.viewStage;
             const keepPreloading = currentStage === 'PRELOADING' || currentStage === 'LAUNCHING';
             const isSurfaceView =
                 currentStage === 'SURFACE_VIEW' || currentStage === 'SURFACE_CESIUM';
             if (
                 options?.animate === true &&
+                !isThreeRenderLoopUnavailable(current) &&
                 bodyId !== current.activeBodyId &&
                 !keepPreloading &&
                 !isSurfaceView &&
                 !current.bodyTransition
             ) {
                 set((state) => ({
+                    ...missionSync,
                     bodyTransition: {
                         fromBodyId: current.activeBodyId,
                         targetBodyId: bodyId,
@@ -326,6 +392,7 @@ export const useCosmosStore = create<CosmosState>()(
                 return;
             }
             set((state) => ({
+                ...missionSync,
                 activeBodyId: bodyId,
                 bodyTransition: null,
                 activeTarget: null,
@@ -349,8 +416,11 @@ export const useCosmosStore = create<CosmosState>()(
       set((state) => {
         const transition = state.bodyTransition;
         if (!transition || transition.phase !== 'departing') return state;
+        const bodyDefaultMission = getDefaultMissionForBody(transition.targetBodyId);
         return {
           activeBodyId: transition.targetBodyId,
+          activeMissionId: bodyDefaultMission.id,
+          activeStopId: bodyDefaultMission.defaultStopId,
           bodyTransition: { ...transition, phase: 'loading' },
           activeTarget: null,
           activeDeviceId: null,
@@ -386,7 +456,12 @@ export const useCosmosStore = create<CosmosState>()(
           : state,
       ),
     selectDevice: (id) => {
-      const device = DEVICE_CATALOG.find((item) => item.id === id && item.bodyId === get().activeBodyId);
+      const currentBodyId = get().activeBodyId;
+      const device = DEVICE_CATALOG.find(
+        (item) =>
+          item.id === id &&
+          (item.bodyId === currentBodyId || item.bodyId === 'reference'),
+      );
       if (!device) return;
       const available = device.status === 'available';
       const current = get();
@@ -396,7 +471,7 @@ export const useCosmosStore = create<CosmosState>()(
         activeTarget: null,
         viewStage: available ? 'SUB_SCENE' : 'ORBITAL_OVERVIEW',
         controlsLocked: false,
-        assetLoad: keepReady ? current.assetLoad : { status: available ? 'loading' : 'unavailable' },
+        assetLoad: keepReady ? current.assetLoad : { status: available ? 'loading' : 'idle' },
         ...(state.spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
         ...INITIAL_DEVICE_CONTROL_STATE,
         ...INITIAL_POV_STATE,
@@ -407,6 +482,35 @@ export const useCosmosStore = create<CosmosState>()(
     },
     retryAsset: () => set((state) => ({ assetRetryTick: state.assetRetryTick + 1 })),
     setAssetLoad: (id, assetLoad) => { if (get().activeDeviceId === id) set({ assetLoad }); },
+    reportRendererFailure: (failure) =>
+      set({
+        rendererFailure: {
+          ...failure,
+          timestampMs: failure.timestampMs ?? Date.now(),
+        },
+        rendererAlertDismissed: false,
+      }),
+    clearRendererFailure: (surface) =>
+      set((state) => {
+        if (!state.rendererFailure) return state;
+        if (surface && state.rendererFailure.surface !== surface) return state;
+        return { rendererFailure: null, rendererAlertDismissed: false };
+      }),
+    retryRenderer: () =>
+      set((state) => ({
+        rendererFailure: null,
+        rendererAlertDismissed: false,
+        rendererRetryTick: state.rendererRetryTick + 1,
+      })),
+    enableBasicRenderMode: () =>
+      set((state) => ({
+        rendererBasicMode: true,
+        rendererFailure:
+          state.rendererFailure?.kind === 'webgl-unavailable' ? state.rendererFailure : null,
+        rendererAlertDismissed: false,
+        rendererRetryTick: state.rendererRetryTick + 1,
+      })),
+    dismissRendererAlert: () => set({ rendererAlertDismissed: true }),
     setDeviceCameraView: (viewId) =>
       set((state) => ({
         deviceCameraViewId: viewId,
@@ -567,8 +671,243 @@ export const useCosmosStore = create<CosmosState>()(
       set((state) =>
         state.regionBoundaryMessage === message ? state : { regionBoundaryMessage: message },
       ),
-    toggleOrbits: () => set((state) => ({ showOrbits: !state.showOrbits })),
+    toggleOrbits: () =>
+      set((state) =>
+        state.explorationMode === 'free'
+          ? { showOrbits: !state.showOrbits }
+          : { guidedOrbitsVisible: !state.guidedOrbitsVisible },
+      ),
     togglePOIs: () => set((state) => ({ showPOIs: !state.showPOIs })),
+    setExplorationMode: (mode) =>
+      set((state) => {
+        const currentMission = getMissionById(state.activeMissionId);
+        const bodyMission =
+          currentMission && currentMission.bodyId === state.activeBodyId
+            ? currentMission
+            : getDefaultMissionForBody(state.activeBodyId);
+        const validStop =
+          getStopById(bodyMission, state.activeStopId) ?? bodyMission.stops[0];
+        return {
+          explorationMode: mode,
+          activeMissionId: bodyMission.id,
+          activeStopId: validStop.id,
+          ...(mode === 'guided' ? { guidedOrbitsVisible: false } : {}),
+        };
+      }),
+    selectMissionStop: (missionId, stopId, options) => {
+      const mission = getMissionById(missionId);
+      if (!mission) return;
+      const stop = getStopById(mission, stopId);
+      if (!stop) return;
+      const state = get();
+      const bodyChanged = state.activeBodyId !== mission.bodyId;
+      const openSuggested = options?.openSuggestedView !== false;
+
+      if (stop.targetKind === 'body') {
+        set((prev) => ({
+          activeBodyId: mission.bodyId,
+          bodyTransition: null,
+          explorationMode: 'guided',
+          guidedOrbitsVisible: false,
+          activeMissionId: mission.id,
+          activeStopId: stop.id,
+          activeTarget: null,
+          activeDeviceId: null,
+          selectedSurfaceEquipment: null,
+          inspectionTransitionTarget: null,
+          assetLoad: { status: 'idle' },
+          ...INITIAL_DEVICE_CONTROL_STATE,
+          ...INITIAL_POV_STATE,
+          ...INITIAL_SIMULATION_UI_STATE,
+          ...(bodyChanged ? { dynamicPositions: {} } : {}),
+          spectralMode: stop.recommendedLayerMode ?? 'VISUAL_RGB',
+          viewStage:
+            openSuggested && stop.recommendedLayerMode === 'TERRAIN_MESH_3D'
+              ? 'SUB_SCENE'
+              : 'ORBITAL_OVERVIEW',
+          controlsLocked: false,
+          cameraResetTick: prev.cameraResetTick + 1,
+          floatingOriginOffset: new THREE.Vector3(),
+        }));
+        return;
+      }
+
+      if (stop.targetKind === 'poi' || stop.targetKind === 'orbital') {
+        const catalogTarget =
+          stop.targetKind === 'poi'
+            ? ATLAS_POIS.find((item) => item.id === stop.targetId)
+            : ORBITAL_ACTORS_CATALOG.find((item) => item.id === stop.targetId);
+        if (!catalogTarget || catalogTarget.bodyId !== mission.bodyId) return;
+        const dynamicPos = bodyChanged ? undefined : state.dynamicPositions[catalogTarget.id];
+        const syncedTarget: CelestialTarget = dynamicPos
+          ? { ...catalogTarget, position: dynamicPos.clone() }
+          : { ...catalogTarget, position: catalogTarget.position.clone() };
+        const useTerrainBlock =
+          openSuggested && stop.recommendedLayerMode === 'TERRAIN_MESH_3D';
+        const skipWarp = useTerrainBlock || isThreeRenderLoopUnavailable(state);
+        set((prev) => ({
+          activeBodyId: mission.bodyId,
+          bodyTransition: null,
+          explorationMode: 'guided',
+          guidedOrbitsVisible: false,
+          activeMissionId: mission.id,
+          activeStopId: stop.id,
+          activeTarget: syncedTarget,
+          activeDeviceId: null,
+          selectedSurfaceEquipment: null,
+          inspectionTransitionTarget: null,
+          assetLoad: { status: 'idle' },
+          ...INITIAL_DEVICE_CONTROL_STATE,
+          ...INITIAL_POV_STATE,
+          inspectionMode: stop.suggestedView === 'viewpoints' ? 'CONTROL_ROOM_POV' : 'MODEL_CLOSEUP',
+          ...INITIAL_SIMULATION_UI_STATE,
+          ...(bodyChanged ? { dynamicPositions: {} } : {}),
+          spectralMode: stop.recommendedLayerMode ?? 'VISUAL_RGB',
+          viewStage: useTerrainBlock
+            ? 'SUB_SCENE'
+            : stop.suggestedView === 'surface'
+              ? 'SURFACE_VIEW'
+              : skipWarp
+                ? 'SUB_SCENE'
+                : 'WARPING',
+          controlsLocked:
+            useTerrainBlock || stop.suggestedView === 'surface' ? false : !skipWarp,
+          cameraResetTick: prev.cameraResetTick + 1,
+          floatingOriginOffset: new THREE.Vector3(),
+        }));
+        return;
+      }
+
+      if (stop.targetKind === 'device') {
+        const device = DEVICE_CATALOG.find(
+          (item) =>
+            item.id === stop.targetId &&
+            (item.bodyId === mission.bodyId || item.bodyId === 'reference'),
+        );
+        if (!device) return;
+        const available = device.status === 'available';
+        const keepReady =
+          state.activeDeviceId === device.id && state.assetLoad.status === 'ready';
+        set((prev) => ({
+          activeBodyId: mission.bodyId,
+          bodyTransition: null,
+          explorationMode: 'guided',
+          guidedOrbitsVisible: false,
+          activeMissionId: mission.id,
+          activeStopId: stop.id,
+          activeDeviceId: device.id,
+          activeTarget: null,
+          selectedSurfaceEquipment: null,
+          inspectionTransitionTarget: null,
+          assetLoad: keepReady
+            ? state.assetLoad
+            : { status: available ? 'loading' : 'idle' },
+          ...INITIAL_DEVICE_CONTROL_STATE,
+          ...INITIAL_POV_STATE,
+          inspectionMode:
+            stop.suggestedView === 'viewpoints' ? 'CONTROL_ROOM_POV' : 'MODEL_CLOSEUP',
+          ...INITIAL_SIMULATION_UI_STATE,
+          ...(bodyChanged ? { dynamicPositions: {} } : {}),
+          spectralMode: stop.recommendedLayerMode ?? 'VISUAL_RGB',
+          viewStage:
+            stop.suggestedView === 'surface'
+              ? 'SURFACE_VIEW'
+              : available
+                ? 'SUB_SCENE'
+                : 'ORBITAL_OVERVIEW',
+          controlsLocked: false,
+          deviceCameraTick: prev.deviceCameraTick + 1,
+          rotorStepTick: prev.rotorStepTick + 1,
+          floatingOriginOffset: new THREE.Vector3(),
+        }));
+      }
+    },
+    dismissUrlNotice: () => set({ urlNotice: null }),
+    applyUrlState: (parsed, options) => {
+      const state = get();
+      const bodyChanged = state.activeBodyId !== parsed.bodyId;
+      const keepPreloading =
+        !options?.skipPreloader &&
+        (state.viewStage === 'PRELOADING' || state.viewStage === 'LAUNCHING');
+
+      let resolvedTarget: CelestialTarget | null = null;
+      let resolvedDeviceId: string | null = null;
+      let resolvedViewStage: ViewStage = keepPreloading ? state.viewStage : 'ORBITAL_OVERVIEW';
+      let resolvedInspection: InspectionViewMode = 'MODEL_CLOSEUP';
+      let assetLoad: CosmosState['assetLoad'] = { status: 'idle' };
+
+      if (parsed.targetKind === 'poi') {
+        const poi = ATLAS_POIS.find((item) => item.id === parsed.targetId) ?? null;
+        resolvedTarget = poi ? { ...poi, position: poi.position.clone() } : null;
+      } else if (parsed.targetKind === 'orbital') {
+        const orbital =
+          ORBITAL_ACTORS_CATALOG.find((item) => item.id === parsed.targetId) ?? null;
+        resolvedTarget = orbital ? { ...orbital, position: orbital.position.clone() } : null;
+      } else if (parsed.targetKind === 'device' && parsed.targetId) {
+        const device = DEVICE_CATALOG.find((item) => item.id === parsed.targetId);
+        if (device) {
+          resolvedDeviceId = device.id;
+          const keepReady =
+            state.activeDeviceId === device.id && state.assetLoad.status === 'ready';
+          assetLoad = keepReady
+            ? state.assetLoad
+            : { status: device.status === 'available' ? 'loading' : 'idle' };
+        }
+      }
+
+      if (!keepPreloading) {
+        if (parsed.view === 'surface') {
+          resolvedViewStage = 'SURFACE_VIEW';
+        } else if (parsed.view === 'viewpoints') {
+          resolvedInspection = 'CONTROL_ROOM_POV';
+          if (resolvedDeviceId) {
+            const dev = DEVICE_CATALOG.find((item) => item.id === resolvedDeviceId);
+            resolvedViewStage = dev?.status === 'available' ? 'SUB_SCENE' : 'ORBITAL_OVERVIEW';
+          } else {
+            resolvedViewStage = 'SUB_SCENE';
+          }
+        } else if (parsed.view === 'inspect') {
+          resolvedInspection = 'MODEL_CLOSEUP';
+          if (parsed.spectralMode === 'TERRAIN_MESH_3D') {
+            resolvedViewStage = 'SUB_SCENE';
+          } else if (resolvedDeviceId) {
+            const dev = DEVICE_CATALOG.find((item) => item.id === resolvedDeviceId);
+            resolvedViewStage = dev?.status === 'available' ? 'SUB_SCENE' : 'ORBITAL_OVERVIEW';
+          } else if (resolvedTarget) {
+            resolvedViewStage = 'SUB_SCENE';
+          }
+        } else {
+          resolvedViewStage = 'ORBITAL_OVERVIEW';
+        }
+      }
+
+      set((prev) => ({
+        activeBodyId: parsed.bodyId,
+        bodyTransition: null,
+        explorationMode: parsed.mode,
+        ...(parsed.mode === 'guided' ? { guidedOrbitsVisible: false } : {}),
+        activeMissionId: parsed.missionId,
+        activeStopId: parsed.stopId,
+        urlNotice: parsed.notice,
+        activeTarget: resolvedTarget,
+        activeDeviceId: resolvedDeviceId,
+        selectedSurfaceEquipment: null,
+        inspectionTransitionTarget: null,
+        assetLoad,
+        ...INITIAL_DEVICE_CONTROL_STATE,
+        ...INITIAL_POV_STATE,
+        inspectionMode: resolvedInspection,
+        ...INITIAL_SIMULATION_UI_STATE,
+        ...(bodyChanged ? { dynamicPositions: {} } : {}),
+        spectralMode: parsed.spectralMode,
+        viewStage: resolvedViewStage,
+        controlsLocked: keepPreloading,
+        cameraResetTick: prev.cameraResetTick + 1,
+        deviceCameraTick: prev.deviceCameraTick + 1,
+        rotorStepTick: prev.rotorStepTick + 1,
+        floatingOriginOffset: new THREE.Vector3(),
+      }));
+    },
         viewStage: 'PRELOADING',
         activeTarget: null,
         selectedSurfaceEquipment: null,
@@ -580,7 +919,7 @@ export const useCosmosStore = create<CosmosState>()(
         controlsLocked: true,
         loadingProgress: 0,
         requiredAssetsReady: false,
-        loadingStatusLabel: 'Đang khởi tạo hệ thống quang học & bộ giải mã...',
+        loadingStatusLabel: 'Initializing optical systems & decoders...',
         loadingTasks: {
             mars_surface_maps: 0,
             decoders_and_models: 0,
@@ -606,7 +945,7 @@ export const useCosmosStore = create<CosmosState>()(
                     loadingProgress: avgProgress,
                     requiredAssetsReady: allDone,
                     loadingStatusLabel: allDone
-                        ? 'Tài nguyên lõi đã sẵn sàng • Chờ lệnh nhảy Alpha'
+                        ? 'Core assets ready • Awaiting Alpha Jump'
                         : (label ?? state.loadingStatusLabel),
                 };
             }),
@@ -661,6 +1000,7 @@ export const useCosmosStore = create<CosmosState>()(
                 ? { ...target, position: dynamicPos.clone() }
                 : { ...target, position: target.position.clone() };
 
+            const skipWarp = isThreeRenderLoopUnavailable(get());
             set({
                 activeTarget: syncedTarget,
                 activeDeviceId: null,
@@ -670,8 +1010,8 @@ export const useCosmosStore = create<CosmosState>()(
                 ...INITIAL_POV_STATE,
                 ...INITIAL_SIMULATION_UI_STATE,
                 ...(get().spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
-                viewStage: 'WARPING',
-                controlsLocked: true,
+                viewStage: skipWarp ? 'SUB_SCENE' : 'WARPING',
+                controlsLocked: !skipWarp,
             });
         },
 

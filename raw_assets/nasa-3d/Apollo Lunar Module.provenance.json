@@ -1,0 +1,43 @@
+{
+  "assetId": "apollo_lunar_module",
+  "sourcePageTitle": "Apollo Lunar Module - NASA Science",
+  "sourcePageUrl": "https://science.nasa.gov/3d-resources/apollo-lunar-module/",
+  "directDownloadUrl": "https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/apollo-lunar-module/Apollo%20Lunar%20Module.glb",
+  "credit": "NASA / Michael D. Carbajal",
+  "license": "NASA Images and Media Usage Guidelines",
+  "licenseUrl": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+  "nasaDatePublished": "2025-03-20T21:41:08Z",
+  "nasaDateModified": "2025-06-09T17:18:25-04:00",
+  "checkedDate": "2026-11-15",
+  "rawFile": "raw_assets/nasa-3d/Apollo Lunar Module.glb",
+  "runtimeFile": "public/assets/models/moons/apollo_lunar_module.glb",
+  "bytes": 716840,
+  "sourceSha256": "379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e",
+  "runtimeSha256": "379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e",
+  "reencoded": false,
+  "gltfAudit": {
+    "generator": "glTF-Transform v4.5.1",
+    "version": "2.0",
+    "extensionsUsed": [
+      "EXT_texture_webp",
+      "KHR_draco_mesh_compression",
+      "KHR_materials_specular"
+    ],
+    "scenes": 1,
+    "meshes": 134,
+    "materials": 12,
+    "textures": 6,
+    "animations": 135,
+    "vertices": 64787,
+    "triangles": 97588,
+    "localBoundsMin": [-3.2145049571990967, 0.10263100266456604, -3.21567702293396],
+    "localBoundsMax": [3.2128899097442627, 5.115423202514648, 3.2109334468841553],
+    "localBoundsSize": [6.427394866943359, 5.012792199850082, 6.426610469818115]
+  },
+  "limitations": [
+    "Represents general two-stage Apollo Lunar Module geometry rather than an Apollo 11 or Apollo 15 flight-specific CAD scan.",
+    "No calibrated wheel/joint/hatch rigging or verified real-world scale table attached (`physicalScaleVerified: false`).",
+    "Registered strictly as a view-only static lander (`supportsRealMobility: false`, `supportsSimulatedSurfaceDrive: false`).",
+    "Does not replace the procedural/unavailable `apollo_lm_equipment` (Quadrant 4 MESA) or Apollo LRV catalog entries."
+  ]
+}

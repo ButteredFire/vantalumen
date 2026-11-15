@@ -7,7 +7,11 @@ import {
     getOrbitalActorsForBody,
 } from '../../config/celestialCatalog';
 import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
-import { useCosmosStore, type CelestialTarget } from '../../store/useCosmosStore';
+import {
+    selectEffectiveOrbitsVisible,
+    useCosmosStore,
+    type CelestialTarget,
+} from '../../store/useCosmosStore';
 import { NativeOrbitLine } from '../common/NativeOrbitLine';
 import { OrbitalGlbModel } from '../common/OrbitalGlbModel';
 import { AssetCalloutBox } from '../../ui/hud/AssetCalloutBox';
@@ -151,7 +155,7 @@ const SpacecraftNode: React.FC<{ target: CelestialTarget }> = ({ target }) => {
 
 export const OrbitalFleet: React.FC = () => {
     const activeBodyId = useCosmosStore((state) => state.activeBodyId);
-    const showOrbits = useCosmosStore((state) => state.showOrbits);
+    const showOrbits = useCosmosStore(selectEffectiveOrbitsVisible);
     const viewStage = useCosmosStore((state) => state.viewStage);
     const spacecraftList = useMemo(
         () =>

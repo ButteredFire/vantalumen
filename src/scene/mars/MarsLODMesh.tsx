@@ -90,7 +90,7 @@ function MarsTextureLODMesh({ body }: { body: BodyConfig }) {
           useCosmosStore.getState().reportAssetTaskProgress(
             'mars_surface_maps',
             100,
-            'Đã tải bản đồ Sao Hỏa & các lớp quang phổ',
+            'Mars surface map & spectral layers loaded',
           );
           useCosmosStore.getState().beginBodyTransitionArrival(body.id);
         })
@@ -100,7 +100,7 @@ function MarsTextureLODMesh({ body }: { body: BodyConfig }) {
           useCosmosStore.getState().reportAssetTaskProgress(
             'mars_surface_maps',
             100,
-            'Dùng texture minh họa dự phòng; không tải được bản đồ Sao Hỏa',
+            'Using fallback illustrative texture; unable to load the Mars surface map',
           );
           useCosmosStore.getState().beginBodyTransitionArrival(body.id);
         });

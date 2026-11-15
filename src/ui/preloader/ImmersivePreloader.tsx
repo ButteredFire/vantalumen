@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { detectWebGLSupport } from '../../core/canvas/rendererDiagnostics';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import { spatialAudio } from '../../core/audio/SpatialAudioEngine';
 import type { BodyId } from '../../types/cosmos.types';
@@ -9,9 +10,20 @@ export const ImmersivePreloader: React.FC = () => {
     const requiredAssetsReady = useCosmosStore((state) => state.requiredAssetsReady);
     const loadingStatusLabel = useCosmosStore((state) => state.loadingStatusLabel);
     const startLaunchSequence = useCosmosStore((state) => state.startLaunchSequence);
+    const completePreloader = useCosmosStore((state) => state.completePreloader);
     const selectBody = useCosmosStore((state) => state.selectBody);
     const activeBodyId = useCosmosStore((state) => state.activeBodyId);
     const bodyTransition = useCosmosStore((state) => state.bodyTransition);
+    const rendererFailure = useCosmosStore((state) => state.rendererFailure);
+    const rendererRetryTick = useCosmosStore((state) => state.rendererRetryTick);
+
+    const webglSupport = useMemo(() => {
+        void rendererRetryTick;
+        return detectWebGLSupport();
+    }, [rendererRetryTick]);
+    const hasWebglBlocker =
+        !webglSupport.available ||
+        Boolean(rendererFailure && rendererFailure.kind !== 'postprocessing-error');
 
     const [selectedDestination, setSelectedDestination] = useState<BodyId>(activeBodyId || 'mars');
     const [displayPct, setDisplayPct] = useState(0);
@@ -179,6 +191,11 @@ export const ImmersivePreloader: React.FC = () => {
         startLaunchSequence();
     };
 
+    const handleEnterTextMode = () => {
+        selectBody(selectedDestination);
+        completePreloader();
+    };
+
     if (viewStage === 'LAUNCHING') {
         const destLabel = selectedDestination === 'mars' ? 'MARS' : "THE MOON";
         return (
@@ -300,20 +317,41 @@ export const ImmersivePreloader: React.FC = () => {
                         <div className="preloader-diagnostics">
                             <span>[OK] Logarithmic Depth Buffer (0.1m – 10⁷ km)</span>
                             <span>[OK] Draco WASM &amp; KTX2 Worker Pool</span>
-                            <span>{loadingStatusLabel}</span>
-                            <span>{displayPct}% SYSTEM ASSETS INITIALIZED</span>
+                            {hasWebglBlocker ? (
+                                <span role="alert" data-testid="preloader-webgl-warning">
+                                    [TEXT MODE] {rendererFailure?.message ?? webglSupport.reason}
+                                </span>
+                            ) : (
+                                <span>{loadingStatusLabel}</span>
+                            )}
+                            <span>
+                                {hasWebglBlocker
+                                    ? 'EQUIPMENT RECORDS & SOURCE DATA READY'
+                                    : `${displayPct}% SYSTEM ASSETS INITIALIZED`}
+                            </span>
                         </div>
 
-                        <button
-                            type="button"
-                            disabled={!isReady}
-                            onClick={handleLaunch}
-                            className="preloader-launch-btn"
-                        >
-                            {isReady
-                                ? `ENGAGE ORBITAL INSERTION (ALPHA JUMP TO ${isMoon ? 'THE MOON' : 'MARS'})`
-                                : `INITIALIZING SHIP & TELEMETRY... ${displayPct}%`}
-                        </button>
+                        {hasWebglBlocker ? (
+                            <button
+                                type="button"
+                                onClick={handleEnterTextMode}
+                                className="preloader-launch-btn is-text-fallback"
+                                data-testid="preloader-text-mode-btn"
+                            >
+                                {`OPEN TEXT & RECORDS MODE (${isMoon ? 'MOON' : 'MARS'})`}
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                disabled={!isReady}
+                                onClick={handleLaunch}
+                                className="preloader-launch-btn"
+                            >
+                                {isReady
+                                    ? `ENGAGE ORBITAL INSERTION (ALPHA JUMP TO ${isMoon ? 'THE MOON' : 'MARS'})`
+                                    : `INITIALIZING SHIP & TELEMETRY... ${displayPct}%`}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

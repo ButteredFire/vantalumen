@@ -225,7 +225,7 @@ test('Ingenuity helicopter takes off, spins coaxial rotors, translates forward, 
   }
 });
 
-test('Stationary lander Viking stays locked by default and only moves when "Di chuyển giả lập" is enabled', async () => {
+test('Stationary lander Viking stays locked by default and only moves when simulated mobility is enabled', async () => {
   const device = DEVICE_CATALOG.find((d) => d.id === 'viking_lander')!;
   const profile = getDeviceSimulationProfile('viking_lander', device);
   const sim = await SimulationWorld.create({

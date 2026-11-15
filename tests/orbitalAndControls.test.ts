@@ -75,7 +75,7 @@ test('surfaceInputBridge releases all held keys & joystick axes safely on lifecy
   assert.deepEqual(released, { throttle: 0, steer: 0, brake: false, ascend: 0 });
 });
 
-test('All 18 catalog devices and orbital actors resolve complete simulation profiles & store body switch resets cleanly', () => {
+test('All 19 catalog devices and orbital actors resolve complete simulation profiles & store body switch resets cleanly', () => {
   for (const record of DEVICE_CATALOG) {
     const profile = getDeviceSimulationProfile(record.id, record);
     assert.ok(profile.id, `Missing profile for device ${record.id}`);

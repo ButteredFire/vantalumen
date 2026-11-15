@@ -38,7 +38,7 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Validated lightweight airbag EDL and laser-stripe hazard detection for later MER and MSL rovers.',
     ],
     modelDisclaimer:
-      'Displays the verified NASA 3D GLB geometry; runtime rover motion and POV telemetry in this app are illustrative.',
+      'Displays the verified third-party GLB model credited to Dan (danthemodeler) / Ngee Ann Polytechnic under CC BY 4.0 (not an official NASA-authored CAD mesh); runtime rover motion and POV telemetry in this app are illustrative.',
   },
 
   spirit_and_opportunity_rover: {
@@ -147,10 +147,10 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
 
   dawn_spacecraft: {
     id: 'dawn_spacecraft',
-    agencyAndProgram: 'NASA / JPL & UCLA · Discovery Mission 9',
-    era: 'Launched Sep 27, 2007 · Mars Gravity Assist Feb 17, 2009 (~549 km)',
+    agencyAndProgram: 'NASA / JPL & UCLA · Discovery Mission 9 (Mars Flyby Context Only)',
+    era: 'Launched Sep 27, 2007 · Mars Gravity Assist Flyby Feb 17, 2009 (~549 km) on route to Vesta & Ceres',
     biography:
-      'The first spacecraft to orbit two extraterrestrial Solar System bodies (protoplanet Vesta and dwarf planet Ceres), executing an unpowered precision Mars slingshot in 2009.',
+      'The first spacecraft to orbit two extraterrestrial Solar System bodies (protoplanet Vesta and dwarf planet Ceres). Dawn executed a single unpowered gravity-assist flyby past Mars on Feb 17, 2009 (~549 km altitude) and never orbited or landed on Mars.',
     technicalSpecs: [
       { label: 'Dry / Launch Mass', value: '747 kg dry · 1,217 kg launch (incl. 425 kg Xenon propellant)' },
       { label: 'Propulsion', value: '3× NSTAR xenon ion thrusters (specific impulse ~3,100 s)' },
@@ -158,25 +158,25 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       { label: 'Science Suite', value: 'Framing Cameras, VIR imaging spectrometer, GRaND neutron detector' },
     ],
     measuredData: [
-      { label: 'Mars Flyby Periapsis', value: '549 km altitude · +9,330 km/h delta-v equivalent assist' },
-      { label: 'Total Ion Delta-V', value: '11.5 km/s achieved over 11-year deep-space mission' },
-      { label: 'VIR Checkouts', value: 'Infrared thermal/surface calibration passes across Mars during 2009 flyby' },
+      { label: 'Mars Flyby Periapsis', value: '549 km altitude on Feb 17, 2009 · +9,330 km/h gravity-assist trajectory turn' },
+      { label: 'Total Ion Delta-V', value: '11.5 km/s achieved over 11-year deep-space mission (Vesta & Ceres)' },
+      { label: 'VIR Checkouts', value: 'Infrared/camera calibration pass during the 2009 Mars encounter' },
     ],
     contributions: [
-      'Used Mars’s gravity well to incline its heliocentric orbit by ~5 degrees toward the Main Asteroid Belt.',
-      'Captured multi-band framing camera and VIR spectrometer calibration spectra of southern Martian highlands.',
-      'Demonstrated long-duration xenon ion cruising later adapted for Psyche and planetary defense probes.',
+      'Used Mars’s gravity well once in Feb 2009 to incline its heliocentric orbit by ~5 degrees toward the Main Asteroid Belt.',
+      'Captured multi-band framing camera and VIR spectrometer calibration spectra during the brief flyby.',
+      'Demonstrated long-duration xenon ion cruising around Vesta and Ceres rather than Mars orbit.',
     ],
     modelDisclaimer:
-      'Displays the verified NASA Dawn GLB asset; orbital flyby track rendered in scene is scaled for legibility.',
+      'Official NASA/JPL-Caltech Dawn GLB (`dawn_spacecraft.glb`). Shown strictly as historical Feb 2009 Mars gravity-assist encounter context — not a Mars surface deployment and not a present-day Mars orbiter.',
   },
 
   near_shoemaker: {
     id: 'near_shoemaker',
-    agencyAndProgram: 'NASA / APL · Near Earth Asteroid Rendezvous (Discovery 1)',
-    era: 'Launched Feb 17, 1996 · Reference Deep-Space Spacecraft in Atlas',
+    agencyAndProgram: 'NASA / APL · Discovery 1 · Non-Mars Deep-Space Reference (Asteroid 433 Eros)',
+    era: 'Launched Feb 17, 1996 · Asteroid 433 Eros Mission (Excluded from Mars Catalog)',
     biography:
-      'The first spacecraft to orbit and softly touch down on an asteroid (433 Eros). Included here as a verified NASA APL deep-space spacecraft geometry reference.',
+      'The first spacecraft to orbit and softly touch down on asteroid 433 Eros. Preserved here solely as an off-planet NASA APL spacecraft reference model from the local asset archive; NEAR Shoemaker never visited Mars.',
     technicalSpecs: [
       { label: 'Dry Mass', value: '487 kg · octagonal aluminum bus' },
       { label: 'Power System', value: '4 GaAs fixed solar paddles (~400 W at 2.2 AU)' },
@@ -191,15 +191,15 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Confirmed primitive chondritic elemental ratios directly linking S-type asteroids to ordinary chondrite meteorites.',
     ],
     modelDisclaimer:
-      'Included as a verified NASA reference 3D GLB from the local spacecraft archive; NEAR did not land on Mars.',
+      'Non-Mars reference asset (`near_shoemaker.glb`, NASA/JPL-Caltech / APL archive). Excluded from the Mars surface catalog; asteroid 433 Eros spacecraft only.',
   },
 
   pioneer_10: {
     id: 'pioneer_10',
-    agencyAndProgram: 'NASA / Ames Research Center · Outer Planets Pioneer Program',
-    era: 'Launched Mar 3, 1972 · Deep-Space Cruise Reference Model',
+    agencyAndProgram: 'NASA / Ames Research Center · Outer Planets Reference (Non-Mars)',
+    era: 'Launched Mar 3, 1972 · Jupiter Flyby & Deep-Space Cruise Reference Model',
     biography:
-      'Humanity’s first spacecraft to cross the Asteroid Belt and fly past Jupiter; carried the famous anodized gold-aluminum Pioneer plaque into the outer heliosphere.',
+      'Humanity’s first spacecraft to cross the Asteroid Belt and fly past Jupiter; carried the Pioneer plaque toward the outer heliosphere. Included strictly in the non-Mars engineering reference section — Pioneer 10 is not part of the Mars surface or orbital catalog.',
     technicalSpecs: [
       { label: 'Launch Mass', value: '258 kg · spin-stabilized at 4.8 RPM' },
       { label: 'High-Gain Dish', value: '2.74 m parabolic reflector' },
@@ -214,15 +214,15 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Provided outer Solar System solar-wind, cosmic-ray, and Doppler anomalous-acceleration tracking baselines.',
     ],
     modelDisclaimer:
-      'Included as a verified NASA deep-space GLB reference in the Atlas collection; Pioneer 10 is an outer-planet flyby probe.',
+      'Non-Mars outer-planet reference asset (`pioneer_10.glb`, NASA/JPL-Caltech / Ames). Excluded from the Mars surface catalog; never orbited or landed on Mars.',
   },
 
   kepler_space_telescope: {
     id: 'kepler_space_telescope',
-    agencyAndProgram: 'NASA / Ames & Ball Aerospace · Discovery Mission 10',
+    agencyAndProgram: 'NASA / Ames & Ball Aerospace · Discovery 10 · Non-Mars Reference Telescope',
     era: 'Launched Mar 7, 2009 · Retired Nov 2018 (Heliocentric Earth-trailing orbit)',
     biography:
-      'Space photometer observatory built to determine the occurrence rate of Earth-sized exoplanets inside or near stellar habitable zones via high-precision transit photometry.',
+      'Space photometer observatory built to measure Earth-sized exoplanet occurrence in a heliocentric Earth-trailing orbit. Preserved strictly in the separate deep-space reference archive — Kepler never orbited or observed Mars as a planetary surface mission.',
     technicalSpecs: [
       { label: 'Launch Mass', value: '1,052 kg · 0.95 m aperture Schmidt photometer (1.4 m mirror)' },
       { label: 'Focal Plane', value: '42 CCD mosaic · 95-megapixel curved focal surface' },
@@ -237,7 +237,7 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Uncovered ultra-compact multi-planet resonant systems, circumbinary worlds, and sub-Neptune radius valley physics.',
     ],
     modelDisclaimer:
-      'Displays the verified NASA Kepler GLB file as an engineering reference asset alongside planetary missions.',
+      'Non-Mars heliocentric space telescope reference asset (`kepler_space_telescope.glb`, NASA/JPL-Caltech / Ames). Excluded from the Mars surface catalog.',
   },
 
   mro_orbiter: {
@@ -526,7 +526,7 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Provided essential UHF data relay for Spirit, Opportunity, Phoenix, and early Curiosity operations.',
     ],
     modelDisclaimer:
-      'Renders the official NASA 3D Resources 2001 Mars Odyssey GLB (`24885_Odyssey.glb`) directly along its Keplerian orbital track and in Option 1 3D Close-Up.',
+      'Renders the official NASA 3D Resources 2001 Mars Odyssey GLB (`24885_Odyssey.glb`) directly along its Keplerian orbital track and in Inspect model.',
   },
 
   maven_orbiter: {
@@ -549,27 +549,27 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Discovered global diffuse proton auroras, dust-storm lifted water vapor escaping high into the exosphere, and UHF relay redundancy.',
     ],
     modelDisclaimer:
-      'Renders the official NASA 3D Resources MAVEN GLB (`24882_Maven.glb`) along its elliptical upper-atmosphere orbit and in Option 1 3D Close-Up.',
+      'Renders the official NASA 3D Resources MAVEN GLB (`24882_Maven.glb`) along its elliptical upper-atmosphere orbit and in Inspect model.',
   },
 
   dawn_flyby: {
     id: 'dawn_flyby',
-    agencyAndProgram: 'NASA / JPL · Discovery 9 (2009 Gravity Assist Trajectory)',
-    era: 'Mars Closest Approach Feb 17, 2009 at ~549 km altitude',
+    agencyAndProgram: 'NASA / JPL · Discovery 9 (Feb 17, 2009 Gravity Assist Context Only)',
+    era: 'Mars Closest Approach Feb 17, 2009 at ~549 km altitude · Primary Targets: Vesta & Ceres',
     biography:
-      'Orbital trajectory node commemorating Dawn’s precision unpowered Mars flyby in February 2009 on its journey from Earth to Vesta and Ceres.',
+      'Historical Mars encounter marker for Dawn’s single unpowered gravity-assist slingshot in February 2009 on its route to Vesta and Ceres. Dawn did not deploy surface hardware and is not a present-day Mars orbiter; the scene loop is an illustrative trajectory representation.',
     technicalSpecs: [
-      { label: 'Flyby Altitude', value: '549 km above Mars surface' },
-      { label: 'Heliocentric Turn', value: '~5.0° orbital inclination change + Vesta transfer boost' },
+      { label: 'Flyby Altitude', value: '549 km above Mars surface (Feb 17, 2009)' },
+      { label: 'Heliocentric Turn', value: '~5.0° orbital inclination change + Vesta/Ceres transfer boost' },
     ],
     measuredData: [
-      { label: 'Checkouts', value: 'Framing Camera, VIR IR & GRaND radiation sensors calibrated on Mars' },
+      { label: 'Checkouts', value: 'Framing Camera, VIR IR & GRaND radiation sensors calibrated on Mars during 2009 flyby' },
     ],
     contributions: [
-      'Proved low-thrust xenon ion interplanetary transfers can seamlessly pair with planetary gravity assists.',
+      'Proved low-thrust xenon ion interplanetary transfers can pair cleanly with planetary gravity assists.',
     ],
     modelDisclaimer:
-      'Renders the official NASA `dawn_spacecraft.glb` model directly along its illustrative orbital flyby loop and in Option 1 3D Close-Up.',
+      'Renders the official NASA/JPL-Caltech `dawn_spacecraft.glb` model on an illustrative flyby visualization loop representing the Feb 2009 gravity assist only — not a present-day Mars orbit or surface asset.',
   },
 
   ares_station: {
@@ -612,7 +612,32 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Delivered the global 3D topographic and hydrogen-neutron baseline guiding Artemis III lunar south pole site selection.',
     ],
     modelDisclaimer:
-      'Renders the official NASA 3D Resources Lunar Reconnaissance Orbiter GLB (`Lunar Reconnaissance Orbiter (B).glb`) in polar lunar orbit and Option 1 3D Close-Up (surface Apollo hardware remains separate and unmodeled).',
+      'Renders the official NASA 3D Resources Lunar Reconnaissance Orbiter GLB (`Lunar Reconnaissance Orbiter (B).glb`) in polar lunar orbit and Inspect model (surface Apollo hardware remains separate and unmodeled).',
+  },
+
+  apollo_lunar_module: {
+    id: 'apollo_lunar_module',
+    agencyAndProgram: 'NASA MSC / Grumman Aircraft · Apollo Lunar Module (LM-5 Eagle Reference)',
+    era: 'Crewed Lunar Landings Apollo 11, 12, 14–17 (1969–1972)',
+    biography:
+      'Two-stage crewed spacecraft built exclusively to operate in the lunar vacuum, carrying two astronauts from lunar orbit down to the surface using its lower Descent Stage and returning them in the upper Ascent Stage.',
+    technicalSpecs: [
+      { label: 'Two-Stage Layout', value: 'Octagonal Descent Stage (4 landing gear struts) + pressurized Ascent Stage' },
+      { label: 'Nominal Reference Dimensions', value: '~9.4 m diagonal footpad span · ~7.0 m total height (per NASA reference sheets)' },
+      { label: 'Propulsion', value: 'Descent Engine (DPS, 45 kN throttleable) · Ascent Engine (APS, 15.6 kN hypergolic)' },
+      { label: 'Surface Crew', value: '2 astronauts standing side-by-side at triangular forward observation windows' },
+    ],
+    measuredData: [
+      { label: 'Loaded Mission Mass', value: '~15,100 kg (Apollo 11 LM-5) up to ~16,430 kg (J-mission LM-10+)' },
+      { label: 'First Touchdown Site', value: 'Mare Tranquillitatis (Tranquility Base · 0.6741°N, 23.4730°E · Jul 20, 1969)' },
+      { label: 'Longest Surface Stay', value: '~75 hours on the lunar surface (Apollo 17 Challenger, Dec 1972)' },
+    ],
+    contributions: [
+      'Enabled six crewed lunar landings and safe rendezvous returns with the orbiting Command/Service Module.',
+      'Provided life-support basecamp, lunar surface science stowage (MESA/ALSEP), and Apollo 13 orbital lifeboat survival capacity.',
+    ],
+    modelDisclaimer:
+      'Displays the official NASA Science 3D Resources GLB (`Apollo Lunar Module.glb`, credit NASA / Michael D. Carbajal) downloaded unmodified (`SHA-256: 379101df...585c4e`). Serves as a general unrigged structural reference model in view-only mode; physical scale (`physicalScaleVerified: false`), flight-specific mission differences, and mechanical deployment remain unverified.',
   },
 
   apollo_csm: {
@@ -635,7 +660,7 @@ export const DEVICE_DOSSIERS: Record<string, DeviceDossier> = {
       'Conducted the first comprehensive geochemical orbital mapping of highlands vs maria thorium, KREEP, and aluminum/silicon ratios.',
     ],
     modelDisclaimer:
-      'Uses the official NASA 3D Resources Apollo-Soyuz orbital spacecraft GLB (`Apollo Soyuz.glb`, Block II CSM + docking module) as the orbital CSM structural reference on orbit and in Option 1 Close-Up; surface Apollo LM/LRV hardware remains unavailable.',
+      'Uses the official NASA 3D Resources Apollo-Soyuz orbital spacecraft GLB (`Apollo Soyuz.glb`, Block II CSM + docking module) as the orbital CSM structural reference on orbit and in Inspect model; surface Apollo Lunar Module GLB is available separately via Apollo Lunar Module, while LRV and MESA equipment entries remain procedural/unavailable.',
   },
 };
 

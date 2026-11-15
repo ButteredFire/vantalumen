@@ -1,6 +1,6 @@
 import React from 'react';
 import { getOrbitalActorsForBody } from '../../config/celestialCatalog';
-import { useCosmosStore } from '../../store/useCosmosStore';
+import { selectEffectiveOrbitsVisible, useCosmosStore } from '../../store/useCosmosStore';
 
 /**
  * Pure React DOM quick-badge strip for orbital moons and spacecraft.
@@ -8,7 +8,7 @@ import { useCosmosStore } from '../../store/useCosmosStore';
  */
 export const OrbitalCalloutOverlay: React.FC = () => {
   const activeBodyId = useCosmosStore((state) => state.activeBodyId);
-  const showOrbits = useCosmosStore((state) => state.showOrbits);
+  const showOrbits = useCosmosStore(selectEffectiveOrbitsVisible);
   const viewStage = useCosmosStore((state) => state.viewStage);
   const activeDeviceId = useCosmosStore((state) => state.activeDeviceId);
   const activeTarget = useCosmosStore((state) => state.activeTarget);

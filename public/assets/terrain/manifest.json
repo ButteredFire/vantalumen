@@ -5,7 +5,7 @@
   "regions": [
     {
       "bodyId": "mars",
-      "regionName": "Ares Vallis — Vùng hạ cánh Pathfinder",
+      "regionName": "Ares Vallis — Pathfinder landing region",
       "regionSizeKm": 2,
       "tileSizeM": 256,
       "baseGridResolution": 97,
@@ -29,7 +29,7 @@
     },
     {
       "bodyId": "mars",
-      "regionName": "Ares Vallis — Vùng hạ cánh Pathfinder",
+      "regionName": "Ares Vallis — Pathfinder landing region",
       "regionSizeKm": 16,
       "tileSizeM": 256,
       "baseGridResolution": 97,
@@ -53,7 +53,7 @@
     },
     {
       "bodyId": "mars",
-      "regionName": "Ares Vallis — Vùng hạ cánh Pathfinder",
+      "regionName": "Ares Vallis — Pathfinder landing region",
       "regionSizeKm": 64,
       "tileSizeM": 256,
       "baseGridResolution": 97,
@@ -77,7 +77,7 @@
     },
     {
       "bodyId": "moon",
-      "regionName": "Hadley–Apennine — Apollo 15",
+      "regionName": "Hadley–Apennine — Apollo 15 landing region",
       "regionSizeKm": 2,
       "tileSizeM": 256,
       "baseGridResolution": 97,
@@ -101,7 +101,7 @@
     },
     {
       "bodyId": "moon",
-      "regionName": "Hadley–Apennine — Apollo 15",
+      "regionName": "Hadley–Apennine — Apollo 15 landing region",
       "regionSizeKm": 16,
       "tileSizeM": 256,
       "baseGridResolution": 97,
@@ -125,7 +125,7 @@
     },
     {
       "bodyId": "moon",
-      "regionName": "Hadley–Apennine — Apollo 15",
+      "regionName": "Hadley–Apennine — Apollo 15 landing region",
       "regionSizeKm": 64,
       "tileSizeM": 256,
       "baseGridResolution": 97,

@@ -2,15 +2,16 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getBodyPhysicsConfig } from '../../config/bodyPhysicsConfig';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
 import { getDeviceSimulationProfile } from '../../config/deviceSimulationProfiles';
+import { resolveDeviceBodyId } from '../../config/statusVocabulary';
 import { surfaceInputBridge } from '../../scene/simulation/surfaceInputBridge';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import type { StabilityWarningKind } from '../../types/cosmos.types';
 
 const WARNING_LABELS: Record<Exclude<StabilityWarningKind, 'none'>, string> = {
-  steep_slope: 'Cảnh báo độ dốc lớn — giảm ga hoặc đánh lái nhẹ',
-  high_center: 'Gầm xe chạm địa hình — nhấn R để đặt lại vị trí ổn định',
-  tip_over: 'Cảnh báo nghiêng lật khung xe — nhấn R để khôi phục tư thế',
-  boundary_limit: 'Đã chạm ranh giới vùng khám phá hiện tại',
+  steep_slope: 'Steep slope warning — reduce throttle or steer gently',
+  high_center: 'Vehicle chassis is touching the terrain — press R to reset to a stable position',
+  tip_over: 'Vehicle is tipping — press R to restore its orientation',
+  boundary_limit: 'Reached the current exploration area boundary',
 };
 
 function formatDistanceLabel(meters: number): string {
@@ -77,7 +78,7 @@ const VirtualDrivePad: React.FC<VirtualDrivePadProps> = ({ isHelicopter }) => {
         className="pov-joystick-pad"
         data-testid="pov-virtual-joystick"
         role="application"
-        aria-label="Cần lái ảo"
+        aria-label="Virtual steering control"
         onPointerDown={(e) => {
           e.stopPropagation();
           e.preventDefault();
@@ -122,7 +123,7 @@ const VirtualDrivePad: React.FC<VirtualDrivePadProps> = ({ isHelicopter }) => {
               onPointerLeave={() => surfaceInputBridge.setVirtualAscend(0)}
               onPointerCancel={() => surfaceInputBridge.setVirtualAscend(0)}
             >
-              ▲ Bay lên
+              ▲ Ascend
             </button>
             <button
               type="button"
@@ -136,7 +137,7 @@ const VirtualDrivePad: React.FC<VirtualDrivePadProps> = ({ isHelicopter }) => {
               onPointerLeave={() => surfaceInputBridge.setVirtualAscend(0)}
               onPointerCancel={() => surfaceInputBridge.setVirtualAscend(0)}
             >
-              ▼ Hạ xuống
+              ▼ Descend
             </button>
           </>
         ) : (
@@ -198,7 +199,7 @@ const SurfaceMinimap: React.FC<SurfaceMinimapProps> = ({
 
   return (
     <div className="pov-minimap-card" data-testid="pov-minimap">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label="Bản đồ mini hành trình">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label="Journey minimap">
         <circle cx={half} cy={half} r={half - 4} fill="rgba(4,12,24,0.86)" stroke="rgba(56,220,255,0.45)" />
         <circle cx={half} cy={half} r={(half - 4) * 0.5} fill="none" stroke="rgba(56,220,255,0.18)" strokeDasharray="3 3" />
         <line x1={half} y1={4} x2={half} y2={size - 4} stroke="rgba(148,163,184,0.2)" />
@@ -212,7 +213,7 @@ const SurfaceMinimap: React.FC<SurfaceMinimapProps> = ({
         </g>
       </svg>
       <div className="pov-minimap-caption">
-        ±{Math.round(maxOffset)}m · Vùng {regionSizeKm}×{regionSizeKm}km
+        ±{Math.round(maxOffset)}m · {regionSizeKm}×{regionSizeKm} km area
       </div>
     </div>
   );
@@ -260,7 +261,7 @@ export function ControlRoomHudOverlay() {
     [activeDeviceId],
   );
   const targetId = device?.id ?? activeTarget?.id ?? null;
-  const bodyId = device?.bodyId ?? activeTarget?.bodyId ?? activeBodyId;
+  const bodyId = resolveDeviceBodyId(device, activeTarget?.bodyId ?? activeBodyId);
   const profile = useMemo(() => getDeviceSimulationProfile(targetId, device), [device, targetId]);
   const bodyPhysics = useMemo(() => getBodyPhysicsConfig(bodyId), [bodyId]);
 
@@ -282,12 +283,12 @@ export function ControlRoomHudOverlay() {
 
   const sensorLabel =
     povSensorMode === 'OPTICAL_RGB'
-      ? 'QUANG HỌC RGB'
+      ? 'RGB OPTICAL'
       : povSensorMode === 'NAVCAM_MONO'
-        ? 'NAVCAM ĐƠN SẮC'
+        ? 'MONOCHROME NAVCAM'
         : povSensorMode === 'ELEVATION_GRID'
-          ? 'LƯỚI ĐỘ CAO'
-          : 'NHIỆT HỒNG NGOẠI';
+          ? 'ELEVATION GRID'
+          : 'THERMAL INFRARED';
 
   const warningText =
     telemetry.stabilityWarning === 'boundary_limit' && regionBoundaryMessage
@@ -311,17 +312,17 @@ export function ControlRoomHudOverlay() {
                 V: {telemetry.speedMs.toFixed(2)} m/s
               </span>
               <span className="pov-pill" data-testid="pov-odometer-readout">
-                QUÃNG ĐƯỜNG: {formatDistanceLabel(telemetry.distanceTraveledM)}
+                DISTANCE: {formatDistanceLabel(telemetry.distanceTraveledM)}
               </span>
               <span className="pov-pill">
-                HƯỚNG: {telemetry.headingDeg}° · P/R: {telemetry.pitchDeg.toFixed(1)}°/{telemetry.rollDeg.toFixed(1)}°
+                HEADING: {telemetry.headingDeg}° · P/R: {telemetry.pitchDeg.toFixed(1)}°/{telemetry.rollDeg.toFixed(1)}°
               </span>
               <span className="pov-pill">
-                ĐỘ CAO: {telemetry.elevationM.toFixed(1)} m · AGL: {telemetry.altitudeAboveGroundM.toFixed(2)} m
+                ELEVATION: {telemetry.elevationM.toFixed(1)} m · AGL: {telemetry.altitudeAboveGroundM.toFixed(2)} m
               </span>
               {telemetry.totalWheels > 0 && (
                 <span className="pov-pill" data-testid="pov-wheel-contact-readout">
-                  BÁNH TIẾP ĐẤT: {telemetry.wheelsGroundedCount}/{telemetry.totalWheels} · TRƯỢT:{' '}
+                  WHEELS ON GROUND: {telemetry.wheelsGroundedCount}/{telemetry.totalWheels} · SLIP:{' '}
                   {Math.round(telemetry.slipRatio * 100)}%
                 </span>
               )}
@@ -329,10 +330,10 @@ export function ControlRoomHudOverlay() {
           ) : (
             <>
               <span className="pov-pill" data-testid="pov-orbital-altitude">
-                QUỸ ĐẠO: ~{telemetry.elevationM.toFixed(0)} km
+                ORBIT: ~{telemetry.elevationM.toFixed(0)} km
               </span>
               <span className="pov-pill">
-                TUA THỜI GIAN: {simulationPaused ? 'ĐÃ TẠM DỪNG' : `${timeScale}×`}
+                TIME WARP: {simulationPaused ? 'PAUSED' : `${timeScale}×`}
               </span>
             </>
           )}
@@ -353,7 +354,7 @@ export function ControlRoomHudOverlay() {
           data-testid="pov-hud-collapse-toggle"
           onClick={() => setHudCompact((prev) => !prev)}
         >
-          {hudCompact ? 'Mở HUD' : 'Thu gọn'}
+          {hudCompact ? 'Open HUD' : 'Collapse'}
         </button>
       </div>
 
@@ -365,7 +366,7 @@ export function ControlRoomHudOverlay() {
 
         {telemetry.isStreamingColliderHold && (
           <div className="pov-alert-banner is-warning" role="status" data-testid="pov-streaming-brake-badge">
-            Đang tải vùng tiếp theo — phanh an toàn đang kích hoạt
+            Loading next area — safety brakes are engaged
           </div>
         )}
 
@@ -373,7 +374,7 @@ export function ControlRoomHudOverlay() {
           <div className="pov-alert-banner is-danger" role="alert" data-testid="pov-stability-warning">
             <span>{warningText}</span>
             <button type="button" className="pov-alert-action" onClick={triggerSimulationRecovery}>
-              Khôi phục (R)
+              Restore (R)
             </button>
           </div>
         )}
@@ -381,18 +382,22 @@ export function ControlRoomHudOverlay() {
         {isStaticLander && (
           <div className="pov-alert-banner is-info" data-testid="pov-static-lander-banner">
             <span>
-              {simulatedMobilityEnabled
-                ? 'Chế độ Di chuyển giả lập đang bật (thiết bị thực tế đứng cố định)'
-                : 'Trạm cố định — bật Di chuyển giả lập để khảo sát quanh bãi đáp'}
+              {!profile.capabilities.supportsSimulatedSurfaceDrive
+                ? 'Static inspection mode (reference GLB is not rigged or scale-verified — no driving or real-scale collisions)'
+                : simulatedMobilityEnabled
+                  ? 'Simulated mobility is enabled (the real equipment is stationary)'
+                  : 'Stationary lander — enable simulated mobility to explore around the landing site'}
             </span>
-            <button
-              type="button"
-              className="pov-alert-action"
-              data-testid="pov-toggle-simulated-mobility"
-              onClick={toggleSimulatedMobilityEnabled}
-            >
-              {simulatedMobilityEnabled ? 'Tắt giả lập' : 'Di chuyển giả lập'}
-            </button>
+            {profile.capabilities.supportsSimulatedSurfaceDrive && (
+              <button
+                type="button"
+                className="pov-alert-action"
+                data-testid="pov-toggle-simulated-mobility"
+                onClick={toggleSimulatedMobilityEnabled}
+              >
+                {simulatedMobilityEnabled ? 'Disable simulation' : 'Simulated mobility'}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -414,7 +419,7 @@ export function ControlRoomHudOverlay() {
               data-testid="pov-camera-mount-btn"
               onClick={toggleCameraMountMode}
             >
-              {cameraMountMode === 'first_person' ? 'Góc nhìn: Mắt/Mastcam (C)' : 'Góc nhìn: Theo sau Chase (C)'}
+              {cameraMountMode === 'first_person' ? 'View: Eye/Mastcam (C)' : 'View: Chase camera (C)'}
             </button>
 
             {!isOrbital ? (
@@ -425,7 +430,7 @@ export function ControlRoomHudOverlay() {
                   data-testid="pov-horizon-btn"
                   onClick={toggleHorizonStabilized}
                 >
-                  Chân trời ổn định: {horizonStabilized ? 'Bật' : 'Tắt'}
+                  Horizon stabilization: {horizonStabilized ? 'On' : 'Off'}
                 </button>
                 <button
                   type="button"
@@ -441,7 +446,7 @@ export function ControlRoomHudOverlay() {
                     }
                   }}
                 >
-                  {pointerLocked ? 'Thoát khóa chuột (Esc)' : 'Khóa chuột (L)'}
+                  {pointerLocked ? 'Unlock pointer (Esc)' : 'Lock pointer (L)'}
                 </button>
                 <button
                   type="button"
@@ -449,7 +454,7 @@ export function ControlRoomHudOverlay() {
                   data-testid="pov-recover-btn"
                   onClick={triggerSimulationRecovery}
                 >
-                  Đặt lại tư thế (R)
+                  Reset orientation (R)
                 </button>
               </>
             ) : (
@@ -460,7 +465,7 @@ export function ControlRoomHudOverlay() {
                   data-testid="pov-orbital-pause-btn"
                   onClick={toggleSimulationPaused}
                 >
-                  {simulationPaused ? '▶ Tiếp tục quỹ đạo (Space)' : '⏸ Tạm dừng quỹ đạo (Space)'}
+                  {simulationPaused ? '▶ Resume orbit (Space)' : '⏸ Pause orbit (Space)'}
                 </button>
                 {[1, 100, 1000, 5000].map((mult) => (
                   <button
@@ -492,10 +497,10 @@ export function ControlRoomHudOverlay() {
 
           <div className="pov-bottom-hint">
             {isOrbital
-              ? 'Kéo chuột xoay cửa sổ cupola · Lăn chuột zoom 1×/2×/4× · Phím C đổi góc nhìn · Space tạm dừng quỹ đạo'
+              ? 'Drag to rotate the cupola view · Scroll to zoom 1×/2×/4× · Press C to change view · Space to pause orbit'
               : isHelicopter
-                ? 'WASD/Mũi tên bay tiến-lùi-xoay · Space/E bay lên · Q/F hạ cánh · C đổi Chase/RTE · R đặt lại · L khóa chuột'
-                : 'WASD/Mũi tên lái · Space phanh · Kéo chuột xoay nhìn · C đổi Chase/Mastcam · R đặt lại tư thế an toàn · L khóa chuột'}
+                ? 'WASD/Arrow keys to move and turn · Space/E to ascend · Q/F to descend · C to switch Chase/RTE · R to reset · L to lock pointer'
+                : 'WASD/Arrow keys to drive · Space to brake · Drag to look around · C to switch Chase/Mastcam · R to reset safely · L to lock pointer'}
           </div>
         </div>
       )}

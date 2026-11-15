@@ -10,10 +10,13 @@
     "preview": "vite preview",
     "test": "tsx --test tests/*.test.ts",
     "test:browser": "playwright test",
-    "validate:assets": "node scripts/validate-assets.mjs"
+    "validate:assets": "node scripts/validate-assets.mjs",
+    "verify:dist": "node scripts/verify-dist-assets.mjs",
+    "build:chat-index": "tsx scripts/build-chat-index.mjs"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",
+    "@google/genai": "^3.3.0",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@react-three/postprocessing": "^3.0.4",

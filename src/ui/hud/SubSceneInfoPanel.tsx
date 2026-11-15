@@ -4,6 +4,12 @@ import { getBodyPhysicsConfig } from '../../config/bodyPhysicsConfig';
 import { LINKED_ORBITAL_DEVICE_IDS } from '../../config/celestialCatalog';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
 import { getDeviceSimulationProfile } from '../../config/deviceSimulationProfiles';
+import {
+  classifyDeviceStatus,
+  classifyTargetStatus,
+  isDeviceSurfaceDeployable,
+  resolveDeviceBodyId,
+} from '../../config/statusVocabulary';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import type {
   DevicePartGroupId,
@@ -16,18 +22,18 @@ import { DeviceControlPanel } from './DeviceControlPanel';
 import { DeviceDossierPanel } from './DeviceDossierPanel';
 
 const PROCEDURAL_PART_GROUPS: Array<{ id: DevicePartGroupId; label: string }> = [
-  { id: 'all', label: 'Toàn bộ' },
-  { id: 'optics_mast', label: 'Cột quang học / Camera' },
-  { id: 'mobility_chassis', label: 'Khung & Bánh xe' },
-  { id: 'power_thermal', label: 'Nguồn RTG / Pin & Nhiệt' },
-  { id: 'payload_science', label: 'Tay máy & Khoa học' },
+  { id: 'all', label: 'All' },
+  { id: 'optics_mast', label: 'Optics mast / cameras' },
+  { id: 'mobility_chassis', label: 'Chassis & wheels' },
+  { id: 'power_thermal', label: 'Power (RTG / batteries) & thermal' },
+  { id: 'payload_science', label: 'Robotic arm & science' },
 ];
 
 const SENSOR_OPTIONS: Array<{ id: SensorFilterMode; label: string }> = [
-  { id: 'OPTICAL_RGB', label: 'Quang học (WebP/Màu)' },
-  { id: 'NAVCAM_MONO', label: 'Navcam Đen trắng' },
-  { id: 'ELEVATION_GRID', label: 'Lưới Độ cao 3D' },
-  { id: 'THERMAL_FALSE', label: 'Hồng ngoại Nhiệt' },
+  { id: 'OPTICAL_RGB', label: 'Optical (WebP/color)' },
+  { id: 'NAVCAM_MONO', label: 'Navcam monochrome' },
+  { id: 'ELEVATION_GRID', label: '3D elevation grid' },
+  { id: 'THERMAL_FALSE', label: 'Thermal infrared' },
 ];
 
 function Source({ source }: { source: SourceReference }) {
@@ -37,7 +43,7 @@ function Source({ source }: { source: SourceReference }) {
         {source.title}
       </a>
       <small>
-        Phiên bản: {source.version} · Kiểm tra: {source.checked}
+        Version: {source.version} · Checked: {source.checked}
       </small>
     </div>
   );
@@ -116,7 +122,7 @@ export function SubSceneInfoPanel() {
     (!rawTarget || rawTarget.category !== 'SURFACE_POI' || spectralMode === 'TERRAIN_MESH_3D') &&
     (!isOrbitalTargetWithoutDevice || orbitalCloseup);
 
-  const handleSelectOption1 = () => {
+  const handleSelectInspectModel = () => {
     if (device) {
       setInspectionMode('MODEL_CLOSEUP');
       if (device.status === 'unavailable' && !device.proceduralModel) {
@@ -141,20 +147,29 @@ export function SubSceneInfoPanel() {
     }
   };
 
-  const handleSelectOption2 = () => {
+  const handleSelectExploreViewpoints = () => {
     setInspectionMode('CONTROL_ROOM_POV');
   };
 
+  const showDeviceSimControls = Boolean(device) || isNonPlanetTarget || spectralMode === 'TERRAIN_MESH_3D';
+
   const profile = getDeviceSimulationProfile(device?.id ?? rawTarget?.id ?? null, device);
-  const bodyPhysics = getBodyPhysicsConfig(device?.bodyId ?? rawTarget?.bodyId ?? bodyId);
-  const isSurfaceProfile = profile.mobilityKind !== 'orbital';
+  const resolvedBodyId = resolveDeviceBodyId(device, rawTarget?.bodyId ?? bodyId);
+  const bodyPhysics = getBodyPhysicsConfig(resolvedBodyId);
+  const isSurfaceProfile = showDeviceSimControls && profile.mobilityKind !== 'orbital';
+  const entryStatus = device
+    ? classifyDeviceStatus(device, load)
+    : classifyTargetStatus(target, load);
+  const canExploreSurface = device
+    ? isDeviceSurfaceDeployable(device)
+    : rawTarget?.category === 'SURFACE_POI' || spectralMode === 'TERRAIN_MESH_3D';
   const formatMb = (bytes: number) => `${(bytes / 1_048_576).toFixed(1)} MB`;
 
   return (
     <aside
       className={`hud-right-panel glass-panel ${panelCollapsed ? 'is-collapsed' : ''}`}
       data-testid="subscene-info-panel"
-      aria-label="Thông tin và nguồn"
+      aria-label="Information and sources"
     >
       <div className="sim-drawer-head">
         <h2 className="info-panel-title" style={{ margin: 0 }}>{device?.name ?? target.name}</h2>
@@ -164,16 +179,28 @@ export function SubSceneInfoPanel() {
           data-testid="subscene-drawer-toggle"
           onClick={() => setPanelCollapsed((prev) => !prev)}
         >
-          {panelCollapsed ? 'Mở' : 'Thu gọn'}
+          {panelCollapsed ? 'Open' : 'Collapse'}
         </button>
       </div>
 
       {!panelCollapsed && (
         <>
+          <div className="status-vocabulary-badges" data-testid="status-vocabulary-badges">
+            <span className="status-badge status-badge-relationship">
+              {entryStatus.missionRelationshipLabel}
+            </span>
+            <span className="status-badge status-badge-representation">
+              {entryStatus.representationLabel}
+            </span>
+            <span className="status-badge status-badge-evidence">
+              {entryStatus.evidenceLabel}
+            </span>
+          </div>
+
           <div className="control-facts-box sim-settings-box" data-testid="simulation-settings-card">
             {isSurfaceProfile && (
               <div className="sim-setting-group">
-                <div className="device-control-label">VÙNG KHÁM PHÁ</div>
+                <div className="device-control-label">EXPLORATION AREA</div>
                 <div className="sim-chip-row">
                   {([2, 16, 64] as ExplorationRegionSizeKm[]).map((sizeKm) => (
                     <button
@@ -195,8 +222,8 @@ export function SubSceneInfoPanel() {
 
             <div className="sim-setting-group">
               <div className="device-control-label">
-                CHẤT LƯỢNG ĐỒ HỌA ({resolvedQualityTier.toUpperCase()}
-                {reducedMotion ? ' · GIẢM CHUYỂN ĐỘNG' : ''})
+                GRAPHICS QUALITY ({resolvedQualityTier.toUpperCase()}
+                {reducedMotion ? ' · REDUCED MOTION' : ''})
               </div>
               <div className="sim-chip-row">
                 {(['auto', 'low', 'medium', 'high'] as QualityTier[]).map((tier) => (
@@ -208,11 +235,11 @@ export function SubSceneInfoPanel() {
                     onClick={() => setQualityTier(tier)}
                   >
                     {tier === 'auto'
-                      ? 'Tự động'
+                      ? 'Auto'
                       : tier === 'low'
-                        ? 'Thấp'
+                        ? 'Low'
                         : tier === 'medium'
-                          ? 'Vừa'
+                          ? 'Medium'
                           : 'Cao'}
                   </button>
                 ))}
@@ -226,13 +253,15 @@ export function SubSceneInfoPanel() {
               )}
             </div>
 
-            <div className="sim-provenance-note" data-testid="device-provenance-disclosure">
-              <div>{profile.provenanceLabel}</div>
-              <div>{profile.documentedSpeedNote}</div>
-              {!profile.physicalTransform.physicalScaleVerified && (
-                <div>{profile.physicalTransform.dimensionsDisclaimer}</div>
-              )}
-            </div>
+            {showDeviceSimControls && (
+              <div className="sim-provenance-note" data-testid="device-provenance-disclosure">
+                <div>{profile.provenanceLabel}</div>
+                <div>{profile.documentedSpeedNote}</div>
+                {!profile.physicalTransform.physicalScaleVerified && (
+                  <div>{profile.physicalTransform.dimensionsDisclaimer}</div>
+                )}
+              </div>
+            )}
           </div>
 
       {showDualModeSwitcher && (
@@ -240,20 +269,21 @@ export function SubSceneInfoPanel() {
           className="dual-mode-switcher"
           data-testid="dual-view-mode-switcher"
           role="group"
-          aria-label="Chế độ quan sát"
+          aria-label="Viewing mode"
         >
           <button
             type="button"
             className="dual-mode-btn"
             data-testid="view-mode-closeup"
             aria-pressed={isCloseupPressed}
-            onClick={handleSelectOption1}
+            onClick={handleSelectInspectModel}
           >
-            <strong>Lựa chọn 1</strong>
+            <strong>Inspect model</strong>
             <span>
+              Inspect model ·{' '}
               {rawTarget?.category === 'SURFACE_POI'
-                ? 'Soi địa hình 3D'
-                : 'Quan sát mô hình 3D'}
+                ? 'Inspect 3D terrain'
+                : 'Rotate to inspect the 3D model'}
             </span>
           </button>
 
@@ -262,10 +292,10 @@ export function SubSceneInfoPanel() {
             className="dual-mode-btn"
             data-testid="view-mode-pov"
             aria-pressed={inspectionMode === 'CONTROL_ROOM_POV'}
-            onClick={handleSelectOption2}
+            onClick={handleSelectExploreViewpoints}
           >
-            <strong>Lựa chọn 2</strong>
-            <span>Buồng điều khiển / Góc nhìn thứ nhất</span>
+            <strong>Explore viewpoints</strong>
+            <span>Control room &amp; first-person views</span>
           </button>
         </div>
       )}
@@ -274,19 +304,19 @@ export function SubSceneInfoPanel() {
         <section
           className="pov-control-deck"
           data-testid="pov-control-deck"
-          aria-label="Điều khiển buồng lái / góc nhìn thứ nhất"
+          aria-label="Cockpit / first-person controls"
         >
           <div className="device-control-header">
-            <span className="dock-section-title">BUỒNG ĐIỀU KHIỂN · GÓC NHÌN THỨ NHẤT</span>
-            <span className="control-pill-badge">Mô phỏng trực quan</span>
+            <span className="dock-section-title">CONTROL ROOM · FIRST-PERSON VIEW</span>
+            <span className="control-pill-badge">Illustrative simulation</span>
           </div>
           <p className="control-disclaimer">
-            Góc nhìn thứ nhất minh họa trên {bodyId === 'mars' ? 'mảnh địa hình 3D baked 8K' : 'địa hình hố va chạm giả lập'}. Không phải ảnh chụp thời gian thực từ sứ mệnh.
+            Illustrative first-person view on {bodyId === 'mars' ? 'a baked 8K 3D terrain patch' : 'simulated crater terrain'}. Not real-time mission imagery.
           </p>
 
           <div className="control-section">
             <span className="control-section-label">
-              Hướng nhìn (Yaw {Math.round(povYawDeg)}° · Pitch {Math.round(povPitchDeg)}°)
+              View direction (yaw {Math.round(povYawDeg)}° · pitch {Math.round(povPitchDeg)}°)
             </span>
             <div className="control-chip-grid">
               <button
@@ -295,7 +325,7 @@ export function SubSceneInfoPanel() {
                 data-testid="pov-yaw-left"
                 onClick={() => setPovOrientation(povYawDeg - 15, povPitchDeg)}
               >
-                ← Quay trái 15°
+                ← Turn left 15°
               </button>
               <button
                 type="button"
@@ -303,7 +333,7 @@ export function SubSceneInfoPanel() {
                 data-testid="pov-yaw-right"
                 onClick={() => setPovOrientation(povYawDeg + 15, povPitchDeg)}
               >
-                Quay phải 15° →
+                Turn right 15° →
               </button>
               <button
                 type="button"
@@ -311,7 +341,7 @@ export function SubSceneInfoPanel() {
                 data-testid="pov-pitch-up"
                 onClick={() => setPovOrientation(povYawDeg, povPitchDeg + 8)}
               >
-                ↑ Ngước lên 8°
+                ↑ Look up 8°
               </button>
               <button
                 type="button"
@@ -319,13 +349,13 @@ export function SubSceneInfoPanel() {
                 data-testid="pov-pitch-down"
                 onClick={() => setPovOrientation(povYawDeg, povPitchDeg - 8)}
               >
-                ↓ Cúi xuống 8°
+                ↓ Look down 8°
               </button>
             </div>
           </div>
 
           <div className="control-section">
-            <span className="control-section-label">Thu phóng quang học</span>
+            <span className="control-section-label">Optical zoom</span>
             <div className="control-step-grid">
               {([1, 2, 4] as const).map((zoom) => (
                 <button
@@ -345,13 +375,13 @@ export function SubSceneInfoPanel() {
                 data-testid="pov-reset"
                 onClick={resetPovCamera}
               >
-                Đặt lại
+                Reset
               </button>
             </div>
           </div>
 
           <div className="control-section">
-            <span className="control-section-label">Kênh cảm biến quan sát</span>
+            <span className="control-section-label">Viewing sensor channel</span>
             <div className="control-chip-grid">
               {SENSOR_OPTIONS.map((sensor) => (
                 <button
@@ -398,32 +428,33 @@ export function SubSceneInfoPanel() {
         <>
           <p>{device.summary}</p>
           <div role="status" aria-live="polite" data-testid="model-status">
-            {load.status === 'loading' &&
-              'Đang tải / giải mã' + (load.progress === undefined ? '…' : ' · tệp ' + load.progress + '%')}
-            {load.status === 'ready' && 'Đã tải mô hình'}
-            {load.status === 'unavailable' && 'Chưa có mô hình 3D được xác minh'}
-            {load.status === 'error' && (
+            {load.status === 'error' ? (
               <>
                 <p role="alert">
-                  Không tải được {device.name}. {load.message}
+                  Could not load {device.name}. {load.message} (Showing as{' '}
+                  {entryStatus.representationShortTag}).
                 </p>
                 <button className="hud-action-btn" onClick={retry}>
-                  Thử lại
+                  Try again
                 </button>
               </>
+            ) : (
+              <span>
+                {entryStatus.representationLabel} · {entryStatus.runtimeLabel}
+              </span>
             )}
           </div>
 
           {device.status === 'available' ? (
             <>
               <p className="coverage-note">
-                Xem mô hình riêng, chuẩn hóa kích thước để quan sát. Tỉ lệ vật lý và vị trí triển khai chưa được xác minh. Kéo để xoay; cuộn để thu phóng.
+                View the model independently at normalized scale. Physical scale and deployment location are unverified. Drag to rotate; scroll to zoom.
               </p>
               {load.status === 'ready' && inspectionMode === 'MODEL_CLOSEUP' && (
                 <DeviceControlPanel deviceId={device.id} />
               )}
               <p>
-                <strong>Ghi công:</strong> {device.credit}
+                <strong>Credit:</strong> {device.credit}
               </p>
               <p>
                 {device.license.url ? (
@@ -435,26 +466,28 @@ export function SubSceneInfoPanel() {
                 )}
               </p>
               <p className="source-note">
-                Phiên bản model: {device.version}. Tệp gốc không chỉnh sửa; chỉ căn giữa và đổi tỉ lệ khi xem.
+                Model version: {device.version}. The source file is unmodified; only centered and scaled for viewing.
               </p>
             </>
           ) : (
             <>
               <p className="coverage-note">
-                Hồ sơ thiết bị từ tài liệu cung cấp; không có tệp mô hình 3D NASA gốc nào được tải.
+                {device.proceduralModel
+                  ? 'Illustrative reconstruction from supplied documentation; no original NASA 3D model file is available.'
+                  : 'Documentation record only; no 3D model file is loaded.'}
               </p>
               {Boolean(device.proceduralModel) && inspectionMode === 'MODEL_CLOSEUP' && (
                 <section
                   className="device-control-panel"
                   data-testid="procedural-device-controls"
-                  aria-label="Mô hình tái dựng minh họa"
+                  aria-label="Illustrative reconstruction model"
                 >
                   <div className="device-control-header">
-                    <span className="dock-section-title">TÁI DỰNG 3D MINH HỌA</span>
-                    <span className="control-pill-badge">Procedural 3D</span>
+                    <span className="dock-section-title">ILLUSTRATIVE RECONSTRUCTION</span>
+                    <span className="control-pill-badge">Illustrative reconstruction</span>
                   </div>
                   <p className="control-disclaimer">
-                    Hình khối tái dựng nhằm minh họa bố cục cấu phần khi chưa có tệp NASA GLB chính thức.
+                    Reconstructed geometry illustrates the component layout when no official NASA GLB is available.
                   </p>
                   <div className="control-chip-grid">
                     {PROCEDURAL_PART_GROUPS.map((group) => (
@@ -478,28 +511,28 @@ export function SubSceneInfoPanel() {
                     }
                   >
                     {rotorSpinMode === 'demo_slow'
-                      ? 'Dừng xoay trục minh họa'
-                      : 'Xoay chậm cụm quang học (Minh họa)'}
+                      ? 'Stop illustrative axis rotation'
+                      : 'Slowly rotate optics assembly (illustrative)'}
                   </button>
                 </section>
               )}
               <p>
-                <strong>Ghi công:</strong> {device.credit}
+                <strong>Credit:</strong> {device.credit}
               </p>
               <p>{device.license.label}</p>
               <p className="source-note">
-                Phiên bản hồ sơ: {device.version}. Không có tệp gốc hoặc tỉ lệ hình học để xác minh.
+                Record version: {device.version}. No source file or geometry scale is available to verify.
               </p>
             </>
           )}
 
           <Source source={device.source} />
           <details>
-            <summary>Nguồn cung cấp</summary>
+            <summary>Source material</summary>
             <p>{device.evidence}</p>
             {device.attributionPath && (
               <a href={device.attributionPath} target="_blank" rel="noreferrer">
-                Tệp ghi công gốc
+                Original attribution file
               </a>
             )}
           </details>
@@ -510,10 +543,10 @@ export function SubSceneInfoPanel() {
           <p>{target.telemetry.missionSummary}</p>
           {target.coordinates && (
             <p className="coordinates-strip">
-              Vĩ độ {target.coordinates.lat.toFixed(2)}° · Kinh độ {target.coordinates.lon.toFixed(2)}°Đ
+              Latitude {target.coordinates.lat.toFixed(2)}° · Longitude {target.coordinates.lon.toFixed(2)}°E
             </p>
           )}
-          {!target.coordinates && <p>Trọng lực: {target.telemetry.surfaceGravityMs2}</p>}
+          {!target.coordinates && <p>Gravity: {target.telemetry.surfaceGravityMs2}</p>}
           <ul className="highlights-list">
             {target.telemetry.keyHighlights.map((item) => (
               <li key={item}>{item}</li>
@@ -523,14 +556,25 @@ export function SubSceneInfoPanel() {
             <div className="control-facts-box" data-testid="terrain-mesh-banner">
               <small>
                 {bodyId === 'moon'
-                  ? 'Đang hiển thị khối địa hình 3D Mặt Trăng (`moon_terrain.glb` + bộ texture WebP baked 8K: Albedo, Normals, Roughness). Kéo để xoay quanh khối địa hình.'
-                  : 'Đang hiển thị khối địa hình 3D Sao Hỏa (`mars_terrain.glb` + bộ texture WebP baked 8K: Albedo, Normals, Roughness). Kéo để xoay quanh khối địa hình.'}
+                  ? 'Showing the lunar 3D terrain mesh (`moon_terrain.glb` + baked 8K WebP textures: Albedo, Normals, Roughness). Drag to rotate the terrain mesh.'
+                  : 'Showing the Mars 3D terrain mesh (`mars_terrain.glb` + baked 8K WebP textures: Albedo, Normals, Roughness). Drag to rotate the terrain mesh.'}
               </small>
             </div>
           )}
           {target.source && <Source source={target.source} />}
+          {!rawTarget && !device && BODY_CATALOG[bodyId].unavailableDatasets.length > 0 && (
+            <div className="unavailable-datasets-box" data-testid="overview-unavailable-datasets">
+              <div className="unavailable-datasets-title">Measurement data not integrated</div>
+              {BODY_CATALOG[bodyId].unavailableDatasets.map((ds) => (
+                <div key={ds.id} className="unavailable-dataset-item">
+                  <strong>{ds.label}</strong>
+                  <span>{ds.instrumentReference} · {ds.detail}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <p className="coverage-note">
-            Chưa có ảnh / địa hình đo đạc định lượng theo độ phân giải thực. Các lớp địa hình và POV mang tính trực quan minh họa.
+            Quantitative imagery / terrain at its actual resolution is not available. Terrain layers and POV are illustrative.
           </p>
         </>
       )}
@@ -542,19 +586,19 @@ export function SubSceneInfoPanel() {
         />
       )}
 
-            {(Boolean(device?.coordinates) || rawTarget?.category === 'SURFACE_POI' || spectralMode === 'TERRAIN_MESH_3D') && (
+            {canExploreSurface && (
                 <button
                     type="button"
                     className="hud-action-btn primary-btn"
                     onClick={() => enterSurfaceLanding()}
                     style={{ marginBottom: '0.5rem' }}
                 >
-                    Khám phá Bề mặt 3D (Surface Terrain)
+                    Explore 3D Surface Terrain
                 </button>
             )}
 
             <button className="hud-action-btn secondary-btn" onClick={returnToOrbit}>
-                Trở về toàn cảnh
+                Return to overview
             </button>
         </>
       )}

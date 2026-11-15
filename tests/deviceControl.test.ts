@@ -105,7 +105,7 @@ test('Perseverance and Curiosity GLB binary nodes match documented control spec 
   assert.equal(curiositySpec.partGroups[0].id, 'all');
 });
 
-test('Control Room POV and Option 1/Option 2 mode state clamps orientation and resets across transitions', () => {
+test('Control Room POV and Inspect model / Explore viewpoints mode state clamps orientation and resets across transitions', () => {
   const store = useCosmosStore.getState();
   store.selectBody('mars');
   store.selectDevice('curiosity_rover');
@@ -129,10 +129,12 @@ test('Control Room POV and Option 1/Option 2 mode state clamps orientation and r
   assert.equal(useCosmosStore.getState().povPitchDeg, -8);
   assert.equal(useCosmosStore.getState().povFovZoom, 1);
 
+  store.setExplorationMode('free');
   store.toggleOrbits();
   assert.equal(useCosmosStore.getState().showOrbits, false);
   store.toggleOrbits();
   assert.equal(useCosmosStore.getState().showOrbits, true);
+  store.setExplorationMode('guided');
 
   store.returnToOrbit();
   assert.equal(useCosmosStore.getState().inspectionMode, 'MODEL_CLOSEUP');
@@ -335,8 +337,8 @@ test('runtime helpers isolate shared materials and apply opposite-sense coaxial 
   });
 });
 
-test('DEVICE_DOSSIERS covers all 18 catalog devices and all orbital actors with complete mission data', () => {
-  assert.equal(DEVICE_CATALOG.length, 18);
+test('DEVICE_DOSSIERS covers all 19 catalog devices and all orbital actors with complete mission data', () => {
+  assert.equal(DEVICE_CATALOG.length, 19);
   for (const device of DEVICE_CATALOG) {
     const dossier = getDossierById(device.id);
     assert.ok(dossier, `Missing dossier for device ${device.id}`);
@@ -356,7 +358,7 @@ test('DEVICE_DOSSIERS covers all 18 catalog devices and all orbital actors with 
     assert.ok(dossier.contributions.length >= 1, `Expected contributions for ${actor.id}`);
   }
 
-  assert.ok(Object.keys(DEVICE_DOSSIERS).length >= 26);
+  assert.ok(Object.keys(DEVICE_DOSSIERS).length >= 27);
 });
 
 test('Control Room POV arm deployment and spectrometer scan toggle and reset cleanly', () => {

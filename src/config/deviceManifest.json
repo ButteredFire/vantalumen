@@ -2,9 +2,12 @@
   {
     "id": "sojourner_rover",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment · Mars Pathfinder (Ares Vallis, 1997)",
     "name": "Sojourner",
     "kind": "Rover",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "summary": "Illustrative reference model (Dan / danthemodeler · Ngee Ann Polytechnic, CC BY 4.0); not official NASA CAD and does not simulate physical operations.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Sojourner",
@@ -57,9 +60,12 @@
   {
     "id": "spirit_and_opportunity_rover",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment · Mars Exploration Rovers (2004–2018)",
     "name": "Spirit / Opportunity",
     "kind": "Rover",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "summary": "NASA/JPL-Caltech reference model for the Spirit (Gusev) and Opportunity (Meridiani Planum) rover pair; does not simulate actual operations or verify CAD scale.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Spirit / Opportunity",
@@ -112,9 +118,12 @@
   {
     "id": "viking_lander",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment · Viking 1 & 2 Landers (1976)",
     "name": "Viking landers",
     "kind": "Lander",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "summary": "Viking lander reference model (NASA/Michael D. Carbajal · JPL-Caltech); stationary on the surface by default.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Viking landers",
@@ -167,9 +176,12 @@
   {
     "id": "insight_lander",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment · InSight (Elysium Planitia, 2018–2022)",
     "name": "InSight",
     "kind": "Lander",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "summary": "NASA/JPL-Caltech InSight seismometer model (stationary on the surface by default); simulated movement is illustrative.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "InSight",
@@ -222,9 +234,12 @@
   {
     "id": "ingenuity_helicopter",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment & low-altitude flights · Jezero Crater (2021–2024)",
     "name": "Ingenuity",
     "kind": "Helicopter",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "summary": "NASA 3D Resources Ingenuity helicopter model (NASA/Brian E. Kumanchik · JPL-Caltech); aerodynamics and rotor speed in the 3D scene are illustrative.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Ingenuity",
@@ -277,9 +292,12 @@
   {
     "id": "dawn_spacecraft",
     "bodyId": "mars",
-    "name": "Dawn Spacecraft",
-    "kind": "Orbiter / Probe",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "catalogScope": "encounter_context",
+    "missionRelationship": "flyby_encounter",
+    "missionRelationshipLabel": "Feb 17, 2009 flyby context · Not deployed on the surface / Not in a current orbit",
+    "name": "Dawn Spacecraft (Bay ngang 2009)",
+    "kind": "Flyby Encounter",
+    "summary": "NASA/JPL-Caltech Dawn spacecraft model; performed only a gravity-assist Mars flyby on Feb 17, 2009 (~549 km) en route to Vesta and Ceres, never landing or entering a current Mars orbit.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Dawn Spacecraft",
@@ -327,10 +345,13 @@
   },
   {
     "id": "near_shoemaker",
-    "bodyId": "mars",
+    "bodyId": "reference",
+    "catalogScope": "reference_spacecraft",
+    "missionRelationship": "reference_archive",
+    "missionRelationshipLabel": "Non-Mars reference spacecraft · Orbit and landing at asteroid 433 Eros",
     "name": "NEAR Shoemaker",
-    "kind": "Orbiter / Probe",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "kind": "Reference Spacecraft",
+    "summary": "NASA/APL reference model (asteroid 433 Eros); not part of the Mars or Moon catalogs.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "NEAR Shoemaker",
@@ -378,10 +399,13 @@
   },
   {
     "id": "pioneer_10",
-    "bodyId": "mars",
+    "bodyId": "reference",
+    "catalogScope": "reference_spacecraft",
+    "missionRelationship": "reference_archive",
+    "missionRelationshipLabel": "Non-Mars reference spacecraft · Jupiter encounter and deep-space exploration",
     "name": "Pioneer 10",
-    "kind": "Spacecraft",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "kind": "Reference Spacecraft",
+    "summary": "NASA/Ames reference model; spacecraft flew by Jupiter and is not part of the Mars surface or orbital catalogs.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Pioneer 10",
@@ -429,10 +453,13 @@
   },
   {
     "id": "kepler_space_telescope",
-    "bodyId": "mars",
+    "bodyId": "reference",
+    "catalogScope": "reference_spacecraft",
+    "missionRelationship": "reference_archive",
+    "missionRelationshipLabel": "Non-Mars reference telescope · Heliocentric Earth-trailing orbit",
     "name": "Kepler Space Telescope",
-    "kind": "Space Telescope",
-    "summary": "Mô hình tham khảo hình dáng; không mô phỏng vận hành hay xác nhận tỉ lệ vật lý.",
+    "kind": "Reference Telescope",
+    "summary": "NASA/Ames reference model of an exoplanet-hunting telescope; it did not operate at Mars or the Moon.",
     "evidence": "Mars-20261114T010556Z-1-001.zip / Mars/Attributions.txt",
     "source": {
       "title": "Kepler Space Telescope",
@@ -481,6 +508,9 @@
   {
     "id": "mro_orbiter",
     "bodyId": "mars",
+    "catalogScope": "body_orbit",
+    "missionRelationship": "active_orbiter",
+    "missionRelationshipLabel": "Active orbiter · Mars Reconnaissance Orbiter",
     "name": "Mars Reconnaissance Orbiter (MRO)",
     "kind": "Orbiter",
     "summary": "Official NASA 3D Resources reference GLB for MRO; shape reference only — no operational telemetry or physical scale simulation.",
@@ -531,6 +561,9 @@
   {
     "id": "curiosity_rover",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment · Mars Science Laboratory (Gale Crater, 2012–present)",
     "name": "Curiosity",
     "kind": "Rover",
     "summary": "Official NASA/JPL-Caltech Curiosity (MSL) 3D model; single static glTF mesh at nominal surface configuration (Gale Crater, Aeolis Palus).",
@@ -585,6 +618,9 @@
   {
     "id": "perseverance_rover",
     "bodyId": "mars",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment · Mars 2020 (Jezero Crater, 2021–present)",
     "name": "Perseverance",
     "kind": "Rover",
     "summary": "Official NASA/JPL-Caltech Perseverance (Mars 2020) 3D model with 66 named hardware nodes across mobility, Mastcam-Z/SuperCam mast, robotic arm/PIXL turret, and MMRTG/RIMFAX subsystems.",
@@ -639,9 +675,12 @@
   {
     "id": "apollo_lrv",
     "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment (illustrative reconstruction) · Apollo 15–17",
     "name": "Lunar Roving Vehicle (LRV)",
     "kind": "Rover",
-    "summary": "Có trong tài liệu; không có GLB Mặt Trăng được cung cấp và xác minh. Sổ tay vận hành, hệ thống, sơ đồ bố trí thiết bị, camera TV, ăng-ten, tay điều khiển và hệ thống dẫn đường của LRV.",
+    "summary": "Documented, but no Moon GLB has been supplied and verified. LRV operating and systems manuals cover equipment layouts, TV cameras, antennas, controllers, and navigation systems.",
     "evidence": "Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv",
     "source": {
       "title": "Apollo equipment notes (supplied CSV)",
@@ -655,7 +694,7 @@
       "url": "",
       "checked": "2026-11-14"
     },
-    "units": "Không có mô hình 3D gốc; hỗ trợ mô hình tái dựng minh họa & buồng điều khiển POV.",
+    "units": "No original 3D model; supports an illustrative reconstruction and control-room POV.",
     "transform": {
       "rotation": [
         0,
@@ -691,9 +730,12 @@
   {
     "id": "apollo_lrv_deployment",
     "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment (illustrative reconstruction) · Apollo LRV deployment mechanism",
     "name": "LRV deployment mechanism & chassis",
-    "kind": "Cơ cấu triển khai",
-    "summary": "Có trong tài liệu; không có GLB Mặt Trăng được cung cấp và xác minh. Cơ cấu triển khai, khung xe, 4 bánh dẫn động độc lập, hệ thống treo và 2 pin silver-zinc.",
+    "kind": "Deployment mechanism",
+    "summary": "Documented, but no Moon GLB has been supplied and verified. Includes the deployment mechanism, chassis, four independently driven wheels, suspension, and two silver-zinc batteries.",
     "evidence": "Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv",
     "source": {
       "title": "Apollo equipment notes (supplied CSV)",
@@ -707,7 +749,7 @@
       "url": "",
       "checked": "2026-11-14"
     },
-    "units": "Không có mô hình 3D gốc; hỗ trợ mô hình tái dựng minh họa & buồng điều khiển POV.",
+    "units": "No original 3D model; supports an illustrative reconstruction and control-room POV.",
     "transform": {
       "rotation": [
         0,
@@ -743,9 +785,12 @@
   {
     "id": "apollo_15_lrv",
     "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment (illustrative reconstruction) · Apollo 15 (Hadley Rille, 1971)",
     "name": "LRV Apollo 15",
     "kind": "Rover",
-    "summary": "Có trong tài liệu; không có GLB Mặt Trăng được cung cấp và xác minh. LRV-1: cấu hình ghế lái, bảng điều khiển, camera và thiết bị gắn ngoài theo sổ tay hệ thống Apollo 15.",
+    "summary": "Documented, but no Moon GLB has been supplied and verified. LRV-1: seating, instrument panel, cameras, and external equipment configuration per the Apollo 15 systems manual.",
     "evidence": "Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv",
     "source": {
       "title": "Apollo equipment notes (supplied CSV)",
@@ -759,7 +804,7 @@
       "url": "",
       "checked": "2026-11-14"
     },
-    "units": "Không có mô hình 3D gốc; hỗ trợ mô hình tái dựng minh họa & buồng điều khiển POV.",
+    "units": "No original 3D model; supports an illustrative reconstruction and control-room POV.",
     "transform": {
       "rotation": [
         0,
@@ -795,9 +840,12 @@
   {
     "id": "apollo_17_lrv",
     "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment (illustrative reconstruction) · Apollo 17 (Taurus–Littrow, 1972)",
     "name": "LRV Apollo 17",
     "kind": "Rover",
-    "summary": "Có trong tài liệu; không có GLB Mặt Trăng được cung cấp và xác minh. LRV-3: khác biệt về thiết bị địa chất và bố trí phía sau so với Apollo 15 theo sổ tay hệ thống Apollo 17.",
+    "summary": "Documented, but no Moon GLB has been supplied and verified. LRV-3: geological equipment and rear layout differences from Apollo 15 per the Apollo 17 systems manual.",
     "evidence": "Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv",
     "source": {
       "title": "Apollo equipment notes (supplied CSV)",
@@ -811,7 +859,7 @@
       "url": "",
       "checked": "2026-11-14"
     },
-    "units": "Không có mô hình 3D gốc; hỗ trợ mô hình tái dựng minh họa & buồng điều khiển POV.",
+    "units": "No original 3D model; supports an illustrative reconstruction and control-room POV.",
     "transform": {
       "rotation": [
         0,
@@ -847,9 +895,12 @@
   {
     "id": "apollo_surface_equipment",
     "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment (illustrative reconstruction) · Apollo EVA and science equipment",
     "name": "Apollo surface equipment",
-    "kind": "Thiết bị bề mặt",
-    "summary": "Có trong tài liệu; không có GLB Mặt Trăng được cung cấp và xác minh. Danh mục tài liệu cho Modular Equipment Transporter (MET), bộ đồ EVA, dụng cụ lấy mẫu, hệ thống dẫn đường LRV và thiết bị Apollo khác.",
+    "kind": "Surface equipment",
+    "summary": "Documented, but no Moon GLB has been supplied and verified. Reference records cover the Modular Equipment Transporter (MET), EVA suits, sampling tools, LRV navigation systems, and other Apollo equipment.",
     "evidence": "Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv",
     "source": {
       "title": "Apollo equipment notes (supplied CSV)",
@@ -863,7 +914,7 @@
       "url": "",
       "checked": "2026-11-14"
     },
-    "units": "Không có mô hình 3D gốc; hỗ trợ mô hình tái dựng minh họa & buồng điều khiển POV.",
+    "units": "No original 3D model; supports an illustrative reconstruction and control-room POV.",
     "transform": {
       "rotation": [
         0,
@@ -899,9 +950,12 @@
   {
     "id": "apollo_lm_equipment",
     "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Surface deployment (illustrative reconstruction) · Apollo 11 Lunar Module MESA",
     "name": "Lunar Module MESA & attached equipment",
-    "kind": "Thiết bị Lunar Module",
-    "summary": "Có trong tài liệu; không có GLB Mặt Trăng được cung cấp và xác minh. Sơ đồ MESA, camera TV, ăng-ten S-band, thí nghiệm khoa học, hộp mẫu và cơ cấu triển khai gắn với Lunar Module.",
+    "kind": "Lunar Module equipment",
+    "summary": "Documented, but no Moon GLB has been supplied and verified. Includes MESA diagrams, TV cameras, S-band antenna, science experiments, sample containers, and Lunar Module-mounted deployment mechanisms.",
     "evidence": "Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv",
     "source": {
       "title": "Apollo equipment notes (supplied CSV)",
@@ -915,7 +969,7 @@
       "url": "",
       "checked": "2026-11-14"
     },
-    "units": "Không có mô hình 3D gốc; hỗ trợ mô hình tái dựng minh họa & buồng điều khiển POV.",
+    "units": "No original 3D model; supports an illustrative reconstruction and control-room POV.",
     "transform": {
       "rotation": [
         0,
@@ -940,6 +994,63 @@
     },
     "simulationTransform": {
       "targetLongestSideM": 4.3,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
+    }
+  },
+  {
+    "id": "apollo_lunar_module",
+    "bodyId": "moon",
+    "catalogScope": "body_surface",
+    "missionRelationship": "surface_deployed",
+    "missionRelationshipLabel": "Historical landing · Apollo Lunar Module (NASA 3D)",
+    "name": "Apollo Lunar Module",
+    "kind": "Lunar lander",
+    "summary": "Official GLB model from NASA Science 3D Resources (credit NASA / Michael D. Carbajal) depicting the two-stage Apollo Lunar Module architecture (Descent and Ascent Stages). This is a general reference shape for the Lunar Module family in static inspection mode; it does not replace the LRV/MESA records without GLBs.",
+    "evidence": "NASA Science 3D Resources · Apollo Lunar Module GLB (https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/apollo-lunar-module/Apollo%20Lunar%20Module.glb)",
+    "source": {
+      "title": "Apollo Lunar Module — NASA Science 3D Resources",
+      "url": "https://science.nasa.gov/3d-resources/apollo-lunar-module/",
+      "checked": "2026-11-15",
+      "version": "NASA 3D Resources GLB (published 2025-03-20; modified 2025-06-09)"
+    },
+    "credit": "NASA / Michael D. Carbajal",
+    "license": {
+      "label": "NASA Images and Media Usage Guidelines",
+      "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "checked": "2026-11-15"
+    },
+    "units": "glTF meters convention; longest side is ~6.43 GLB units (normalized to 2 units in Inspect Model mode); physical dimensions and rig are unverified.",
+    "transform": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "normalization": "fit-longest-side-2",
+      "physicalScaleVerified": false
+    },
+    "version": "1.0.0",
+    "status": "available",
+    "modelPath": "/assets/models/moons/apollo_lunar_module.glb",
+    "bytes": 716840,
+    "sha256": "379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e",
+    "coordinates": {
+      "lat": 0.6741,
+      "lon": 23.473
+    },
+    "capabilities": {
+      "mobilityKind": "lander_static",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 9.4,
       "forwardAxis": [
         0,
         0,

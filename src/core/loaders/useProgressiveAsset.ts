@@ -836,7 +836,7 @@ export function useProgressiveMarsTextures(renderer: THREE.WebGLRenderer): BodyP
     store.reportAssetTaskProgress(
       'mars_surface_maps',
       100,
-      'Đã hoàn tất bản đồ bề mặt & quang phổ Sao Hỏa',
+      'Mars surface map & spectral layers loaded',
     );
     setTextures(generateProceduralMarsTextures());
   }, [renderer]);
@@ -865,7 +865,7 @@ export function preloadCoreSpaceAssets(renderer: THREE.WebGLRenderer): void {
   store.reportAssetTaskProgress(
     'decoders_and_models',
     10,
-    'Đang giải mã mô hình 3D Draco & bộ nạp KTX2...',
+    'Decoding Draco 3D models & initializing KTX2 loader...',
   );
 
   let completed = 0;
@@ -882,8 +882,8 @@ export function preloadCoreSpaceAssets(renderer: THREE.WebGLRenderer): void {
             'decoders_and_models',
             pct,
             completed < total
-              ? `Đang nạp mô hình tàu & vệ tinh (${completed}/${total})...`
-              : 'Đã đồng bộ toàn bộ mô hình 3D & bộ giải mã',
+              ? `Loading spacecraft & satellite models (${completed}/${total})...`
+              : 'All 3D models & decoders are ready',
           );
       }),
     ),

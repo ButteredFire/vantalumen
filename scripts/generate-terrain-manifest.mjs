@@ -18,13 +18,13 @@ const BODY_SEED = {
 
 const REGION_METADATA = {
   mars: {
-    regionName: 'Ares Vallis — Vùng hạ cánh Pathfinder',
+    regionName: 'Ares Vallis — Pathfinder landing region',
     source: 'MOLA baseline parameters + deterministic seeded synthetic micro-relief',
     license: 'Public domain NASA/MOLA reference + MIT procedural relief',
     elevationRangeM: { min: -28.4, max: 32.8 },
   },
   moon: {
-    regionName: 'Hadley–Apennine — Apollo 15',
+    regionName: 'Hadley–Apennine — Apollo 15 landing region',
     source: 'LOLA baseline parameters + deterministic seeded synthetic rille & craters',
     license: 'Public domain NASA/LOLA reference + MIT procedural relief',
     elevationRangeM: { min: -34.2, max: 38.6 },

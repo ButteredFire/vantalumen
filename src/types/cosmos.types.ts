@@ -87,6 +87,55 @@ export interface ScientificTelemetry {
   keyHighlights: string[];
 }
 
+export type EvidenceKind =
+  | 'measured'
+  | 'reported'
+  | 'derived'
+  | 'illustrative'
+  | 'unknown';
+
+export type RepresentationKind =
+  | 'source_model'
+  | 'procedural_reconstruction'
+  | 'record_only'
+  | 'illustrative_layer';
+
+export type RuntimeLoadStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+export type MissionRelationship =
+  | 'planetary_body'
+  | 'surface_feature'
+  | 'surface_deployed'
+  | 'surface_record_only'
+  | 'active_orbiter'
+  | 'historical_orbiter'
+  | 'flyby_encounter'
+  | 'natural_moon'
+  | 'conceptual_proxy'
+  | 'reference_archive';
+
+export type DeviceCatalogScope =
+  | 'body_surface'
+  | 'body_orbit'
+  | 'encounter_context'
+  | 'reference_spacecraft';
+
+export type RendererFailureKind =
+  | 'webgl-unavailable'
+  | 'context-lost'
+  | 'shader-error'
+  | 'postprocessing-error'
+  | 'render-error';
+
+export interface RendererFailureState {
+  kind: RendererFailureKind;
+  surface: 'orbital' | 'surface_terrain';
+  message: string;
+  detail?: string;
+  recoverable: boolean;
+  timestampMs: number;
+}
+
 export interface CelestialTarget {
   id: CelestialTargetId;
   name: string;
@@ -102,15 +151,40 @@ export interface CelestialTarget {
   telemetry: ScientificTelemetry;
   bodyId?: BodyId;
   source?: SourceReference;
+  credit?: string;
+  missionRelationship?: MissionRelationship;
+  missionRelationshipLabel?: string;
+  representation?: RepresentationKind;
+  evidenceKind?: EvidenceKind;
 }
 
 export type BodyId = 'mars' | 'moon';
+export type DeviceParentBodyId = BodyId | 'reference';
 
 export interface SourceReference {
   title: string;
   url: string;
   checked: string;
   version: string;
+}
+
+export interface BodyLayerConfig {
+  id: string;
+  mode?: SpectralMode;
+  label: string;
+  tag: string;
+  status: 'illustrative' | 'unavailable';
+  representation: RepresentationKind;
+  evidenceKind: EvidenceKind;
+  datasetStatus: 'illustrative_active' | 'unavailable';
+  detail: string;
+}
+
+export interface BodyUnavailableDataset {
+  id: string;
+  label: string;
+  instrumentReference: string;
+  detail: string;
 }
 
 export interface BodyConfig {
@@ -121,13 +195,20 @@ export interface BodyConfig {
   color: string;
   textureStyle: 'illustrative-mars' | 'illustrative-moon' | 'plain';
   source: SourceReference;
+  credit: string;
+  missionRelationship: MissionRelationship;
+  missionRelationshipLabel: string;
   target: CelestialTarget;
-  layers: { id: string; label: string; status: 'illustrative' | 'unavailable'; detail: string }[];
+  layers: BodyLayerConfig[];
+  unavailableDatasets: BodyUnavailableDataset[];
 }
 
 export interface DeviceRecord {
   id: string;
-  bodyId: BodyId;
+  bodyId: DeviceParentBodyId;
+  catalogScope: DeviceCatalogScope;
+  missionRelationship: MissionRelationship;
+  missionRelationshipLabel: string;
   name: string;
   kind: string;
   summary: string;
@@ -406,4 +487,53 @@ export interface DeviceControlSpec {
   cameraViews: DeviceCameraViewSpec[];
   partGroups: DevicePartGroupSpec[];
   sources: SourceReference[];
+}
+
+export type ExplorationMode = 'guided' | 'free';
+
+export type UrlViewKind = 'overview' | 'inspect' | 'viewpoints' | 'surface';
+
+export type MissionStopTargetKind = 'body' | 'poi' | 'device' | 'orbital' | 'layer';
+
+export interface MissionStopConfig {
+  id: string;
+  missionId: string;
+  stepIndex: number;
+  title: string;
+  shortLabel: string;
+  questionPrompt: string;
+  summary: string;
+  whatYouSee: string;
+  imageStatusNote: string;
+  bodyId: BodyId;
+  targetKind: MissionStopTargetKind;
+  targetId: string;
+  suggestedView: UrlViewKind;
+  recommendedLayerMode?: SpectralMode;
+}
+
+export interface MissionConfig {
+  id: string;
+  bodyId: BodyId;
+  title: string;
+  headlineQuestion: string;
+  summary: string;
+  defaultStopId: string;
+  stops: MissionStopConfig[];
+  featuredDeviceIds: string[];
+  featuredPoiIds: string[];
+}
+
+export interface ParsedUrlState {
+  hasExplicitParams: boolean;
+  version: number;
+  bodyId: BodyId;
+  mode: ExplorationMode;
+  missionId: string;
+  stopId: string;
+  targetKind: 'none' | 'poi' | 'orbital' | 'device' | 'layer';
+  targetId: string | null;
+  view: UrlViewKind;
+  spectralMode: SpectralMode;
+  notice: string | null;
 }

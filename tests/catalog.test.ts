@@ -1,18 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { BODY_CATALOG } from '../src/config/bodyCatalog';
 import { ATLAS_POIS, latLonToBodyVector } from '../src/config/atlasPOIs';
 import { DEVICE_CATALOG } from '../src/config/deviceCatalog';
+import { DEVICE_DOSSIERS } from '../src/config/deviceDossiers';
 import { ORBITAL_ACTORS_CATALOG, computeOrbitalPosition } from '../src/config/celestialCatalog';
-import { validateCatalog } from '../src/config/validateCatalog';
+import {
+  classifyDeviceStatus,
+  classifyLayerStatus,
+  isDeviceSurfaceDeployable,
+} from '../src/config/statusVocabulary';
+import { validateCatalog, validateOrbitalActors } from '../src/config/validateCatalog';
 import { useCosmosStore } from '../src/store/useCosmosStore';
 import { buildSafeWarpSpline } from '../src/core/camera/warpPaths';
 import { Vector3 } from 'three';
 
 test('catalog IDs, sources, units, transforms and availability are valid', () => {
   validateCatalog(Object.values(BODY_CATALOG), ATLAS_POIS, DEVICE_CATALOG);
+  validateOrbitalActors(Object.values(BODY_CATALOG), ORBITAL_ACTORS_CATALOG);
   const available = DEVICE_CATALOG.filter((device) => device.status === 'available');
-  assert.equal(available.length, 12);
+  assert.equal(available.length, 13);
   for (const id of [
     'pioneer_10',
     'kepler_space_telescope',
@@ -21,6 +30,7 @@ test('catalog IDs, sources, units, transforms and availability are valid', () =>
     'mro_orbiter',
     'curiosity_rover',
     'perseverance_rover',
+    'apollo_lunar_module',
   ]) {
     const dev = DEVICE_CATALOG.find((device) => device.id === id);
     assert.equal(dev?.status, 'available');
@@ -32,7 +42,12 @@ test('catalog IDs, sources, units, transforms and availability are valid', () =>
   assert.equal(apolloLrv?.modelPath, undefined);
   assert.equal(apolloLrv?.proceduralModel, 'apollo_lrv');
 
-  const inlineAttributedIds = new Set(['mro_orbiter', 'curiosity_rover', 'perseverance_rover']);
+  const inlineAttributedIds = new Set([
+    'mro_orbiter',
+    'curiosity_rover',
+    'perseverance_rover',
+    'apollo_lunar_module',
+  ]);
   for (const device of available) {
     if (inlineAttributedIds.has(device.id)) {
       assert.equal(device.attributionPath, undefined);
@@ -43,6 +58,36 @@ test('catalog IDs, sources, units, transforms and availability are valid', () =>
   for (const device of DEVICE_CATALOG.filter((item) => item.status === 'unavailable')) {
     assert.equal(device.attributionPath, undefined);
   }
+});
+
+test('English instrument-layer tags disclose when measured datasets are not integrated', () => {
+  const marsBody = BODY_CATALOG.mars;
+  const validMarsBody = {
+    ...marsBody,
+    layers: marsBody.layers.map((layer) =>
+      layer.id === 'thermal_filter'
+        ? { ...layer, tag: 'THEMIS thermal filter · Not integrated' }
+        : layer,
+    ),
+  };
+  validateCatalog(
+    [validMarsBody, BODY_CATALOG.moon],
+    ATLAS_POIS,
+    DEVICE_CATALOG,
+  );
+
+  const misleadingMarsBody = {
+    ...marsBody,
+    layers: marsBody.layers.map((layer) =>
+      layer.id === 'thermal_filter'
+        ? { ...layer, tag: 'THEMIS thermal filter' }
+        : layer,
+    ),
+  };
+  assert.throws(
+    () => validateCatalog([misleadingMarsBody, BODY_CATALOG.moon], ATLAS_POIS, DEVICE_CATALOG),
+    /Layer tag implies unintegrated instrument data/,
+  );
 });
 
 test('orbital actors catalog covers Mars moons/orbiters and Moon orbiters with valid Kepler elements and GLB paths', () => {
@@ -101,8 +146,10 @@ test('Moon body, POIs and Apollo records are source-backed and unloadable', () =
   assert.equal(spa.coordinates?.lon, 191);
   assert.match(spa.source?.url ?? '', /the-moons-largest-basin/);
   const moonDevices = DEVICE_CATALOG.filter((device) => device.bodyId === 'moon');
-  assert.equal(moonDevices.length, 6);
-  for (const device of moonDevices) {
+  assert.equal(moonDevices.length, 7);
+  const unavailableMoonCsvDevices = moonDevices.filter((device) => device.id !== 'apollo_lunar_module');
+  assert.equal(unavailableMoonCsvDevices.length, 6);
+  for (const device of unavailableMoonCsvDevices) {
     assert.equal(device.status, 'unavailable');
     assert.equal(device.modelPath, undefined);
     assert.equal(device.bytes, undefined);
@@ -110,13 +157,27 @@ test('Moon body, POIs and Apollo records are source-backed and unloadable', () =
     assert.equal(device.attributionPath, undefined);
     assert.match(device.source.url, /apollo-equipment\.csv/);
   }
+  const apolloLm = moonDevices.find((device) => device.id === 'apollo_lunar_module');
+  assert.equal(apolloLm?.status, 'available');
+  assert.equal(apolloLm?.modelPath, '/assets/models/moons/apollo_lunar_module.glb');
+  assert.equal(apolloLm?.bytes, 716840);
+  assert.equal(
+    apolloLm?.sha256,
+    '379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e',
+  );
+  assert.equal(apolloLm?.source.url, 'https://science.nasa.gov/3d-resources/apollo-lunar-module/');
+  assert.equal(apolloLm?.capabilities?.supportsRealMobility, false);
+  assert.equal(apolloLm?.capabilities?.supportsSimulatedSurfaceDrive, false);
+  assert.ok(DEVICE_DOSSIERS.apollo_lunar_module);
 });
 
 test('invalid catalog fixtures fail instead of exposing nonexistent models', () => {
   assert.throws(() => validateCatalog(Object.values(BODY_CATALOG), ATLAS_POIS, [...DEVICE_CATALOG, DEVICE_CATALOG[0]]), /duplicate/);
   assert.throws(() => validateCatalog(Object.values(BODY_CATALOG), ATLAS_POIS, [{ ...DEVICE_CATALOG[0], status: 'unavailable' }]), /unavailable/);
   assert.throws(() => validateCatalog(Object.values(BODY_CATALOG), [{ ...ATLAS_POIS[0], coordinates: { lat: 91, lon: 0, height: 0 } }], DEVICE_CATALOG), /POI/);
-  const moonDevice = DEVICE_CATALOG.find((device) => device.bodyId === 'moon')!;
+  const moonDevice = DEVICE_CATALOG.find(
+    (device) => device.bodyId === 'moon' && device.status === 'unavailable',
+  )!;
   assert.throws(() => validateCatalog(Object.values(BODY_CATALOG), ATLAS_POIS, [{ ...moonDevice, modelPath: '/assets/models/moon/none.glb' }]), /unavailable/);
   assert.throws(() => validateCatalog([{ ...BODY_CATALOG.moon, target: { ...BODY_CATALOG.moon.target, bodyId: 'mars' } }], ATLAS_POIS, DEVICE_CATALOG), /target/);
 });
@@ -156,10 +217,10 @@ test('Mars → Moon → Mars switching resets body-scoped state and isolates sta
   assert.equal(store.getState().viewStage, 'WARPING');
   store.getState().selectDevice('apollo_lrv');
   assert.equal(store.getState().activeDeviceId, 'apollo_lrv');
-  assert.equal(store.getState().assetLoad.status, 'unavailable');
+  assert.equal(store.getState().assetLoad.status, 'idle');
   assert.equal(store.getState().viewStage, 'ORBITAL_OVERVIEW');
   store.getState().setAssetLoad('viking_lander', { status: 'ready' });
-  assert.equal(store.getState().assetLoad.status, 'unavailable');
+  assert.equal(store.getState().assetLoad.status, 'idle');
   store.getState().selectBody('mars');
   assert.equal(store.getState().activeBodyId, 'mars');
   assert.equal(store.getState().activeDeviceId, null);
@@ -185,7 +246,7 @@ test('selection, unavailable assets, stale load reports and unavailable layers',
   store.getState().selectDevice('apollo_lrv');
   assert.equal(store.getState().viewStage, 'ORBITAL_OVERVIEW');
   store.getState().setAssetLoad('viking_lander', { status: 'ready' });
-  assert.equal(store.getState().assetLoad.status, 'unavailable');
+  assert.equal(store.getState().assetLoad.status, 'idle');
 
   store.getState().selectBody('mars');
   store.getState().setSpectralMode('MOLA_ELEVATION');
@@ -209,4 +270,103 @@ test('selection, unavailable assets, stale load reports and unavailable layers',
   store.getState().returnToOrbit();
   assert.equal(store.getState().activeDeviceId, null);
   assert.equal(store.getState().assetLoad.status, 'idle');
+});
+
+test('P0.3/P0.4 mission relationships, non-Mars exclusions, status vocabulary & raw shader wiring', () => {
+  // Pioneer 10, Kepler, NEAR excluded from Mars catalog and placed in reference scope
+  const marsSurfaceDevices = DEVICE_CATALOG.filter(
+    (d) => d.bodyId === 'mars' && d.catalogScope === 'body_surface',
+  );
+  for (const excludedId of ['pioneer_10', 'kepler_space_telescope', 'near_shoemaker', 'dawn_spacecraft']) {
+    assert.equal(
+      marsSurfaceDevices.some((d) => d.id === excludedId),
+      false,
+      `${excludedId} must not appear in Mars body_surface catalog`,
+    );
+  }
+  for (const refId of ['pioneer_10', 'kepler_space_telescope', 'near_shoemaker']) {
+    const dev = DEVICE_CATALOG.find((d) => d.id === refId);
+    assert.equal(dev?.bodyId, 'reference');
+    assert.equal(dev?.catalogScope, 'reference_spacecraft');
+    assert.equal(isDeviceSurfaceDeployable(dev), false);
+  }
+
+  // Dawn is encounter context only; Ares Station is conceptual proxy
+  const dawnDevice = DEVICE_CATALOG.find((d) => d.id === 'dawn_spacecraft');
+  assert.equal(dawnDevice?.catalogScope, 'encounter_context');
+  assert.equal(dawnDevice?.missionRelationship, 'flyby_encounter');
+  assert.equal(dawnDevice?.coordinates, undefined);
+  const dawnOrbital = ORBITAL_ACTORS_CATALOG.find((a) => a.id === 'dawn_flyby');
+  assert.equal(dawnOrbital?.missionRelationship, 'flyby_encounter');
+  const aresOrbital = ORBITAL_ACTORS_CATALOG.find((a) => a.id === 'ares_station');
+  assert.equal(aresOrbital?.missionRelationship, 'conceptual_proxy');
+
+  // Sojourner disclosure credits CC BY 4.0 creator instead of NASA CAD geometry
+  const sojournerDossier = DEVICE_DOSSIERS.sojourner_rover;
+  assert.doesNotMatch(sojournerDossier.modelDisclaimer, /CAD.*NASA|NASA.*hình học CAD/i);
+  assert.match(sojournerDossier.modelDisclaimer, /Dan|danthemodeler|CC BY 4\.0/i);
+
+  // Unified status vocabulary separation
+  const perseverance = DEVICE_CATALOG.find((d) => d.id === 'perseverance_rover')!;
+  assert.equal(classifyDeviceStatus(perseverance, { status: 'loading', progress: 40 }).representation, 'source_model');
+  assert.equal(classifyDeviceStatus(perseverance, { status: 'error', message: '404' }).representation, 'record_only');
+  const apolloLrv = DEVICE_CATALOG.find((d) => d.id === 'apollo_lrv')!;
+  const apolloStatus = classifyDeviceStatus(apolloLrv, { status: 'idle' });
+  assert.equal(apolloStatus.representation, 'procedural_reconstruction');
+  assert.equal(apolloStatus.representationShortTag, 'Illustrative reconstruction');
+
+  // Body layers use honest status vocabulary without implying integrated MOLA/THEMIS/LOLA/Diviner datasets
+  for (const body of Object.values(BODY_CATALOG)) {
+    assert.ok(body.unavailableDatasets.length >= 2);
+    for (const layer of body.layers) {
+      const layerStatus = classifyLayerStatus(layer);
+      assert.equal(
+        layerStatus.representationShortTag,
+        layer.id === 'terrain_mesh_3d' ? 'Illustrative reconstruction' : 'Illustrative layer',
+      );
+      assert.doesNotMatch(layer.tag, /^(MOLA|THEMIS|LOLA|Diviner)$/i);
+    }
+  }
+
+  // Raw shader imports configured without vite-plugin-glsl vs assetsInclude conflict
+  const viteConfig = fs.readFileSync(path.resolve(process.cwd(), 'vite.config.ts'), 'utf8');
+  assert.doesNotMatch(viteConfig, /vite-plugin-glsl/);
+  assert.doesNotMatch(viteConfig, /\*\*\/\*\.glsl/);
+  const starfield = fs.readFileSync(
+    path.resolve(process.cwd(), 'src/scene/environment/DeepSpaceStarfield.tsx'),
+    'utf8',
+  );
+  assert.match(starfield, /warpTunnel\.frag\.glsl\?raw/);
+  const atmosphere = fs.readFileSync(
+    path.resolve(process.cwd(), 'src/scene/mars/MarsAtmosphereMesh.tsx'),
+    'utf8',
+  );
+  assert.match(atmosphere, /marsAtmosphere\.vert\.glsl\?raw/);
+  assert.match(atmosphere, /marsAtmosphere\.frag\.glsl\?raw/);
+});
+
+test('P1 primary navigation replaces Option 1/2 and hides technical GLB/WebP/8K badges', () => {
+  const primaryNavFiles = [
+    'src/ui/hud/MissionEntry.tsx',
+    'src/ui/hud/JourneyPanel.tsx',
+    'src/ui/hud/CelestialQuickSelect.tsx',
+    'src/ui/hud/TopNavigationBar.tsx',
+  ];
+  for (const relPath of primaryNavFiles) {
+    const content = fs.readFileSync(path.resolve(process.cwd(), relPath), 'utf8');
+    assert.doesNotMatch(content, /Option\s*[12]/i, `Found Option 1/2 in ${relPath}`);
+    assert.doesNotMatch(content, /\b(GLB|WebP|8K)\b/, `Found technical format badge in ${relPath}`);
+  }
+
+  for (const relPath of ['src/ui/hud/SubSceneInfoPanel.tsx', 'src/ui/hud/ViewModeFloatingBar.tsx']) {
+    const content = fs.readFileSync(path.resolve(process.cwd(), relPath), 'utf8');
+    assert.doesNotMatch(content, /Option\s*[12]/i, `Found Option 1/2 in ${relPath}`);
+  }
+
+  const subSceneContent = fs.readFileSync(
+    path.resolve(process.cwd(), 'src/ui/hud/SubSceneInfoPanel.tsx'),
+    'utf8',
+  );
+  assert.match(subSceneContent, /Inspect model/);
+  assert.match(subSceneContent, /Explore viewpoints/);
 });

@@ -1,0 +1,1062 @@
+{
+  "version": "1.0.0",
+  "contentHash": "eee9b0ad32e14ec591660e97ea2c018d4e08a42e2a778292f86a687432f52c22",
+  "chunkCount": 85,
+  "chunks": [
+    {
+      "id": "doc_readme_md_1_1_readme_md",
+      "title": "README.md — README.md (1/2)",
+      "sourcePath": "README.md#README.md",
+      "section": "README.md",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "# Mars–Moon Orbital Atlas\n\nA shared 3D atlas for Mars and the Moon, built with React, TypeScript, Vite,\nReact Three Fiber, and Cesium.\n\n- **Mars:** Nine available GLB models associated with Mars or included as off-world references (`sojourner_rover`, `spirit_and_opportunity_rover`, `viking_lander`, `insight_lander`, `ingenuity_helicopter`, `curiosity_rover`, `perseverance_rover`, `mro_orbiter`, and `dawn_spacecraft`, shown in its flyby context), plus three separately scoped reference spacecraft (`near_shoemaker`, `pioneer_10`, `kepler_space_telescope` under `reference_spacecraft`), orbital actors and satellites (`phobos`, `deimos`, `mars_odyssey`, `maven_orbiter`, and `ares_station`, an ISS proxy), and four IAU/USGS features.\n- **Moon:** An illustrative globe and surface imagery/textures, two orbiters (`lro_orbiter`, `apollo_csm`), one verified NASA 3D Resources lander GLB (`apollo_lunar_module`, in static inspection mode), three reference features (`mare_tranquillitatis`, `tycho`, `south_pole_aitken`), and six Apollo equipment records from CSV that remain `unavailable` (with illustrative procedural geometry reconstructions)."
+    },
+    {
+      "id": "doc_readme_md_1_2_readme_md",
+      "title": "README.md — README.md (2/2)",
+      "sourcePath": "README.md#README.md",
+      "section": "README.md",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "The globe, thermal/elevation maps, seeded synthesized terrain grid, and procedural reconstructions support educational visualization. They do not replace MOLA, THEMIS, LOLA, or Diviner measurement datasets; the original measured datasets are explicitly listed as not integrated."
+    },
+    {
+      "id": "doc_readme_md_2_1_requirements",
+      "title": "README.md — Requirements",
+      "sourcePath": "README.md#Requirements",
+      "section": "Requirements",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "- Node.js 20.19+ or 22.12+\n- npm"
+    },
+    {
+      "id": "doc_readme_md_3_1_run_locally",
+      "title": "README.md — Run locally",
+      "sourcePath": "README.md#Run locally",
+      "section": "Run locally",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "```powershell\nnpm install\nnpm run dev\n```\n\nTo enable the **RISE assistant** (`/api/chat`, launched from the 3D button at\n`public/assets/mascot/rise_plushie.glb` through\n`src/scene/mascot/RiseMascot.tsx`), configure the server-side `GEMINI_API_KEY`\nenvironment variable in `.env.local` locally or in Vercel Environment\nVariables. Do not expose it to the client with the `VITE_` prefix. The backend\nuses the `@google/genai` Interactions API with the highest Free Tier model\n`gemini-3.8-flash`, falling back according to the time budget to\n`gemini-3.6-flash` and `gemini-3.5-flash-lite` under load (`store: false`). It\nuses the locally indexed project knowledge in `src/config/chatKnowledgeIndex.json`\n(`npm run build:chat-index`).\n\nChoose Mars or the Moon in the top navigation, follow the suggested journey\n(`Guided journey`) or switch to `Explore freely`, use `?v=1&body=...` for shared\nlinks, and view sources and model status in the right-hand information panel."
+    },
+    {
+      "id": "doc_readme_md_4_1_test_and_build",
+      "title": "README.md — Test and build",
+      "sourcePath": "README.md#Test and build",
+      "section": "Test and build",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "```powershell\nnpm test\nnpm run typecheck\nnpm run validate:assets\nnpm run build\nnpm run verify:dist\nnpm run test:browser\n```\n\n`validate:assets` inventories all 28 `.glb` files in `public/assets/models/`\n(separating 22 catalog/orbital/terrain runtime GLBs from six non-catalog\npreload/LOD/legacy GLBs) and one UI mascot `.glb`\n(`public/assets/mascot/rise_plushie.glb`), verifying glTF `2.0`, byte counts,\nSHA-256, and six terrain-region manifest entries. `verify:dist` compares all\nasset files and SHA-256 checksums between `public/` and `dist/` after a build.\n`npm run build:chat-index` regenerates the locally sourced knowledge index at\n`src/config/chatKnowledgeIndex.json`. `test:browser` runs Playwright/Chrome\nwith SwiftShader through both Mars and Moon journeys on desktop and narrow\nviewports.\n\nCesium is served from `/cesium/`; GLSL shaders and WASM resources are configured\nin Vite. Model assets, textures, audio, and decoders are under `public/assets/`\nand `public/decoders/`. Unprocessed source models are under `raw_assets/`.\nData sources and visualization limits are documented in `docs/SOURCES.md`."
+    },
+    {
+      "id": "doc_docs_sources_md_1_1_sources_md",
+      "title": "SOURCES.md — SOURCES.md",
+      "sourcePath": "docs/SOURCES.md#SOURCES.md",
+      "section": "SOURCES.md",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "# Sources and asset provenance\n\nReviewed 2026-11-14 (Asia/Bangkok). This is a scoped educational catalog, not a complete inventory of NASA exploration. No NASA endorsement is implied."
+    },
+    {
+      "id": "doc_docs_sources_md_2_1_supplied_material",
+      "title": "SOURCES.md — Supplied material",
+      "sourcePath": "docs/SOURCES.md#Supplied material",
+      "section": "Supplied material",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "- `DeCuong_Atlas_SaoHoa_MatTrang.pdf`, v1.0 dated 2026-11-13: shared Atlas architecture and first-release scope (pp. 2–7); optional optimization/operation appendices (pp. 8–12).\n- `Thitb-Tiliunndng-Nidungclichothitkgcnhn (1).csv`: Mars rover references, preserved at `/assets/provenance/mars-rovers.csv`.\n- `Thitb-Tiliunndng-Nidungclichothitkgcnhn.csv`: Ingenuity references, preserved at `/assets/provenance/ingenuity.csv`.\n- `Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv`: Apollo equipment references. No lunar GLBs supplied.\n- `Mars-20261114T010556Z-1-001.zip`: five Mars surface GLBs imported without modifying their bytes. Original attribution preserved at `/assets/attribution/Mars-Attributions.txt`, including credit for excluded spacecraft."
+    },
+    {
+      "id": "doc_docs_sources_md_3_1_mars_facts_and_coordinates",
+      "title": "SOURCES.md — Mars facts and coordinates",
+      "sourcePath": "docs/SOURCES.md#Mars facts and coordinates",
+      "section": "Mars facts and coordinates",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html",
+        "https://planetarynames.wr.usgs.gov/Feature/14300",
+        "https://planetarynames.wr.usgs.gov/Feature/2071",
+        "https://planetarynames.wr.usgs.gov/Feature/4453",
+        "https://planetarynames.wr.usgs.gov/Feature/6288"
+      ],
+      "text": "- [NASA NSSDCA Mars Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html), last updated 2025-05-19: volumetric mean radius 3389.5 km, sidereal rotation 24.6229 hours, mean gravity 3.73 m/s². Rotation is an illustrative elapsed-time animation, not a mission clock or ephemeris.\n- [Jezero, feature 14300](https://planetarynames.wr.usgs.gov/Feature/14300): 18.41°, 77.69°E.\n- [Gale, feature 2071](https://planetarynames.wr.usgs.gov/Feature/2071): -5.44°, 137.70°E.\n- [Olympus Mons, feature 4453](https://planetarynames.wr.usgs.gov/Feature/4453): 18.40°, 226.00°E.\n- [Valles Marineris, feature 6288](https://planetarynames.wr.usgs.gov/Feature/6288): -13.74°, 300.80°E.\n\nPOIs use the default planetocentric, east-positive coordinate table on each IAU/USGS feature page as reviewed. Alternate control networks/search tables can show different center coordinates; these are approximate feature centers, not landing coordinates. No elevation measurement is attached. The 18 km marker offset is solely a display offset. Scene axes: +Y north, +X longitude 0°, -Z longitude 90°E."
+    },
+    {
+      "id": "doc_docs_sources_md_4_1_moon_facts_and_coordinates",
+      "title": "SOURCES.md — Moon facts and coordinates",
+      "sourcePath": "docs/SOURCES.md#Moon facts and coordinates",
+      "section": "Moon facts and coordinates",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
+        "https://planetarynames.wr.usgs.gov/Feature/3691",
+        "https://planetarynames.wr.usgs.gov/Feature/6163",
+        "https://science.nasa.gov/resource/the-moons-largest-basin/"
+      ],
+      "text": "- [NASA NSSDCA Moon Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html), last updated 2024-01-11: mean radius 1737.4 km, sidereal rotation 655.720 hours, mean surface gravity 1.62 m/s², mean orbital velocity 1.022 km/s, diurnal equatorial temperature range 95–390 K, surface pressure 3×10⁻¹⁵ bar. The globe's rotation is an illustrative elapsed-time animation, not a mission clock or ephemeris.\n- [Mare Tranquillitatis, feature 3691](https://planetarynames.wr.usgs.gov/Feature/3691): center 8.35°, 30.83°E; diameter 875.75 km.\n- [Tycho, feature 6163](https://planetarynames.wr.usgs.gov/Feature/6163): center -43.30°, -11.22° (stored as 348.78°E); diameter 85.29 km.\n- [NASA Science · The Moon's Largest Basin](https://science.nasa.gov/resource/the-moons-largest-basin/): the published orthographic view is centered 53°S, 191°E. The South Pole–Aitken basin boundary is not defined by the IAU Gazetteer, so this marker is a view center, not an IAU feature center and not a landing coordinate.\n\nThe two IAU feature pages give planetographic, east-positive coordinates in the -180°–180° range. The Moon is treated as near-spherical for display, so the catalog stores these centers as east-positive 0°–360° without a planetocentric conversion. These are approximate feature centers; no elevation measurement is attached."
+    },
+    {
+      "id": "doc_docs_sources_md_5_1_apollo_equipment_records",
+      "title": "SOURCES.md — Apollo equipment records",
+      "sourcePath": "docs/SOURCES.md#Apollo equipment records",
+      "section": "Apollo equipment records",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "`Thitb-Tiliunndng-Nidungclichothitkgcnhn (2).csv` is preserved byte-for-byte at `/assets/provenance/apollo-equipment.csv` with SHA-256 `792d700306da6348e989c5a1d6737f058be2b03e8fda255b7e0871095b6ce59a` (verified against the supplied file). The six Moon records in `src/config/deviceManifest.json` summarize the CSV rows for LRV systems/operations, the LRV deployment mechanism and chassis, the Apollo 15 and Apollo 17 LRVs, Apollo surface equipment (MET, EVA, sampling and navigation), and the Lunar Module MESA/attached equipment.\n\nAll six records are `unavailable`: no model path, bytes, SHA-256, license URL or attribution file is claimed. They preserve supplied notes as educational records only; their summaries are not a substitute for the cited NASA/Lunar and Planetary Institute documents."
+    },
+    {
+      "id": "doc_docs_sources_md_6_1_model_credits_and_terms",
+      "title": "SOURCES.md — Model credits and terms (1/2)",
+      "sourcePath": "docs/SOURCES.md#Model credits and terms",
+      "section": "Model credits and terms",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://sketchfab.com/3d-models/mars-sojourner-rover-model-8b3810e7cd804bd6b0009520c67984c6",
+        "https://api.sketchfab.com/v3/models/8b3810e7cd804bd6b0009520c67984c6",
+        "https://creativecommons.org/licenses/by/4.0/",
+        "https://science.nasa.gov/resource/spirit-and-opportunity-rover-3d-model/",
+        "https://science.nasa.gov/3d-resources/viking-lander/",
+        "https://science.nasa.gov/resource/insight-lander-3d-model/",
+        "https://science.nasa.gov/3d-resources/ingenuity-mars-helicopter/"
+      ],
+      "text": "| Supplied model | Preserved credit | Terms / evidence |\n| --- | --- | --- |\n| Sojourner | Dan / danthemodeler; Ngee Ann Polytechnic (ZIP credit) | [Sketchfab source](https://sketchfab.com/3d-models/mars-sojourner-rover-model-8b3810e7cd804bd6b0009520c67984c6), [model API](https://api.sketchfab.com/v3/models/8b3810e7cd804bd6b0009520c67984c6), embedded `asset.extras.license`: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). API checked 2026-11-14: CC Attribution, author danthemodeler. |\n| Spirit / Opportunity | NASA/JPL-Caltech | [Source page](https://science.nasa.gov/resource/spirit-and-opportunity-rover-3d-model/) and NASA media guidelines. One shared model represents the pair, not two different supplied GLBs. |\n| Viking | NASA/Michael D. Carbajal (source page); NASA/JPL-Caltech (ZIP) | [Source page](https://science.nasa.gov/3d-resources/viking-lander/) and NASA media guidelines. |\n| InSight | NASA/JPL-Caltech | [Source page](https://science.nasa.gov/resource/insight-lander-3d-model/) and NASA media guidelines. |\n| Ingenuity | NASA/Brian E. Kumanchik (source page); NASA/JPL-Caltech (ZIP) | [Source page](https://science.nasa.gov/3d-resources/ingenuity-mars-helicopter/) and NASA media guidelines. |"
+    },
+    {
+      "id": "doc_docs_sources_md_6_2_model_credits_and_terms",
+      "title": "SOURCES.md — Model credits and terms (2/2)",
+      "sourcePath": "docs/SOURCES.md#Model credits and terms",
+      "section": "Model credits and terms",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "[NASA media usage guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/) include educational/informational 3D media use and require attribution; third-party material has separate terms. Preserve model credits and do not imply endorsement. Sojourner is separately licensed, not a NASA-authored model.\n\nAll models use a centered preview with longest dimension normalized to 2 scene units. Original file transforms/geometry/textures remain unchanged. The glTF meter convention does not verify real-world dimensions. Physical scale, mission-specific configuration, rigging, and mechanical operation are unverified. Unless explicitly controlled via the Ingenuity inspection MVP below, the renderer uses static poses."
+    },
+    {
+      "id": "doc_docs_sources_md_7_1_ingenuity_mechanism_camera_reference_basis_mvp",
+      "title": "SOURCES.md — Ingenuity mechanism & camera reference basis (MVP) (1/2)",
+      "sourcePath": "docs/SOURCES.md#Ingenuity mechanism & camera reference basis (MVP)",
+      "section": "Ingenuity mechanism & camera reference basis (MVP)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "Preserved project provenance at `/assets/provenance/ingenuity.csv` cites NASA technical sources (NASA Ingenuity Fact Sheet, NASA Rotor Geometry, NASA Landing Press Kit, and NASA Hover Modeling). The Ingenuity control specification (`src/config/deviceControlSpecs.ts`) distinguishes documented mission parameters from illustrative GLB inspection features:"
+    },
+    {
+      "id": "doc_docs_sources_md_7_2_ingenuity_mechanism_camera_reference_basis_mvp",
+      "title": "SOURCES.md — Ingenuity mechanism & camera reference basis (MVP) (2/2)",
+      "sourcePath": "docs/SOURCES.md#Ingenuity mechanism & camera reference basis (MVP)",
+      "section": "Ingenuity mechanism & camera reference basis (MVP)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "- **Documented NASA facts**: `1.8 kg` Earth mass (`~0.68 kg` Mars weight), `0.49 m` fuselage/mast height, coaxial counter-rotating `1.21 m` carbon-fiber rotors operating at `~2,400 rpm` for up to `~90 s` flights, `13.6 × 19.5 × 16.3 cm` avionics enclosure housing 6 Li-ion cells recharged via the top solar array, `RTE 13 MP` color horizon-facing camera, `Navcam 0.5 MP` grayscale nadir navigation camera + laser altimeter, and `~13 cm` underside ground clearance across 4 carbon composite landing legs.\n- **GLB-verified structure**: `ingenuity_helicopter.glb` contains 11 named nodes (`bus`, `cams`, `leg_01`–`leg_04`, `parts_01`, `parts_02`, `rotors_01`, `rotors_02`, `solar_panel`). Node transforms verify `rotors_01` and `rotors_02` align their local `[1, 0, 0]` axes along opposite world vertical directions (`+Y` and `-Y`).\n- **Illustrative / omitted scope**: All four camera presets (`overview`, `coaxial_mast`, `rte_horizon`, `navcam_nadir`) and the `0.5 rev/s` slow counter-rotation demo mode operate purely in normalized 2-unit GLB scene coordinates for structural visibility and are explicitly labeled illustrative (`isIllustrativeView: true`), not calibrated CAD frames or aerodynamic hover physics. Collective/cyclic blade pitch, landing-leg folding, battery charge, IMU state, and thermal telemetry are omitted because the GLB lacks separate hinge/pitch pivots and no measured flight telemetry dataset is integrated."
+    },
+    {
+      "id": "doc_docs_sources_md_8_1_initial_scope_notes_superseded_where_noted_below",
+      "title": "SOURCES.md — Initial scope notes (superseded where noted below)",
+      "sourcePath": "docs/SOURCES.md#Initial scope notes (superseded where noted below)",
+      "section": "Initial scope notes (superseded where noted below)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "In the initial catalog pass, no measured surface image, thermal layer, elevation raster, or terrain tileset was configured for either body, and only the five supplied Mars ZIP GLBs were active. Globe textures and lighting remain illustrative; no MOLA, THEMIS, LOLA, or Diviner instrument datasets are integrated in runtime layers. Historical notes below track additions made on 2026-11-14 and audited on 2026-11-15."
+    },
+    {
+      "id": "doc_docs_sources_md_9_1_extended_mars_moon_dossiers_official_nasa_surfac",
+      "title": "SOURCES.md — Extended Mars/Moon Dossiers, Official NASA Surface Rovers & Orbital GLBs (2026-11-14)",
+      "sourcePath": "docs/SOURCES.md#Extended Mars/Moon Dossiers, Official NASA Surface Rovers & Orbital GLBs (2026-11-14)",
+      "section": "Extended Mars/Moon Dossiers, Official NASA Surface Rovers & Orbital GLBs (2026-11-14)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "- **12 verified manifest GLBs (`src/config/deviceManifest.json`) & 8K baked Mars/Moon terrain**:\n  - `scripts/import-mars-assets.py` registers the 5 supplied surface assets (`sojourner_rover` under CC BY 4.0 by Dan / danthemodeler · Ngee Ann Polytechnic — not NASA CAD geometry; plus NASA/JPL-Caltech `spirit_and_opportunity_rover`, `viking_lander`, `insight_lander`, `ingenuity_helicopter`), 4 NASA spacecraft/flyby GLBs (`dawn_spacecraft` strictly scoped as February 2009 Mars flyby encounter context, plus `near_shoemaker`, `pioneer_10`, and `kepler_space_telescope` strictly isolated under `bodyId: \"reference\"` / `catalogScope: \"reference_spacecraft\"` outside Mars/Moon catalogs), `mro_orbiter` (`24884_MRO.glb`, `624,660` B, SHA-256 `69ee5dcdddfdbbd5ef7e144757926d6a89729b2ff265477659e82abeaacee621`), `curiosity_rover` (`24584_Curiosity_static.glb`, `11,860,016` B), and `perseverance_rover` (`25042_Perseverance.glb`, `11,687,880` B).\n  - Surface terrain mesh & textures: `mars_terrain.glb` and downsampled baked Mars WebP maps (`mars_albedo_baked.webp`, `mars_normals.webp`, `mars_roughness.webp`) resized cleanly to WebGL power-of-two textures on load.\n- **Official NASA Orbital GLBs (`src/scene/common/OrbitalGlbModel.tsx` + `src/config/celestialCatalog.ts`)**:\n  - **Mars Orbit & Moons** (textures/meshes optimized via `@gltf-transform` WebP + mesh simplification to preserve silhouette and material fidelity at low GPU/CPU overhead; orbital shells expanded for non-overlapping visual legibility and orbital scales halved): `phobos` (`24878_Phobos_1_1000.glb`, `778,100` B, `a=13,200` km display orbit, `r=70`), `deimos` (`24879_Deimos_1_1000.glb`, `752,840` B, `a=26,000` km display orbit, `r=55`), `mro_orbiter` (`24884_MRO.glb`, `624,660` B, `a=6,200` km, `r=42`), `mars_odyssey` (`24885_Odyssey.glb`, `577,148` B, `a=7,000` km, `r=42`), `maven_orbiter` (`24882_Maven.glb`, `1,351,112` B, `a=8,800` km, `r=45`), `dawn_flyby` (`dawn_spacecraft.glb`, `927,020` B, `a=11,800` km, `r=48`), and `ares_station` (conceptual gateway rendering official NASA ISS GLB `International Space Station (ISS) (B).glb`, `198,728` B, `a=10,200` km, `r=38`, explicitly disclosed as a structural proxy for a non-historic gateway concept).\n  - **Moon Orbit**: `lro_orbiter` (`Lunar Reconnaissance Orbiter (B).glb`, `128,472` B, `a=2,650` km display orbit, `r=38`) and `apollo_csm` (`Apollo Soyuz.glb`, `656,696` B, `a=3,050` km display orbit, `r=39`, explicitly disclosed as a Block II CSM + docking module structural reference).\n  - All 6 Moon surface Apollo entries in `deviceManifest.json` remain strictly `status: \"unavailable\"` with zero `.glb` assets (`public/assets/provenance/apollo-equipment.csv`).\n- **InSight 83-node & Perseverance 66-node control specs**: `src/config/deviceControlSpecs.ts` maps verified GLB nodes for `ingenuity_helicopter` (11 nodes), `insight_lander` (83 nodes), `perseverance_rover` (66 nodes), and `curiosity_rover` (`['MSL']`) with NASA Press Kit camera views and static node-group highlights.\n- **Documented mission dossiers (`src/config/deviceDossiers.ts`)**: Compiled from NASA NSSDCA Fact Sheets, Pathfinder / MER / Viking / InSight / MSL Curiosity / Mars 2020 Perseverance / MRO / Odyssey / MAVEN / Dawn / LRO / Apollo 14–17 Press Kits and NASA NTRS Apollo LRV Handbooks (`public/assets/provenance/mars-rovers.csv`, `ingenuity.csv`, `apollo-equipment.csv`). Every dossier separates historical measured mission telemetry and scientific contributions from illustrative 3D views and conceptual/proxy GLB disclosures."
+    },
+    {
+      "id": "doc_docs_sources_md_10_1_surface_physics_simulation_terrain_streaming_sca",
+      "title": "SOURCES.md — Surface Physics Simulation, Terrain Streaming & Scale Provenance (M0–M5, 2026-11-15)",
+      "sourcePath": "docs/SOURCES.md#Surface Physics Simulation, Terrain Streaming & Scale Provenance (M0–M5, 2026-11-15)",
+      "section": "Surface Physics Simulation, Terrain Streaming & Scale Provenance (M0–M5, 2026-11-15)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "- **Shared `TerrainProvider` & Deterministically Seeded Micro-Relief (`src/scene/terrain/terrainDataPipeline.ts`, `public/assets/terrain/manifest.json`)**:\n  - Regional coordinates reference published landing areas: **Mars Ares Vallis** (`19.13°N, 326.78°E`, Mars Pathfinder baseline, gravity `3.72076 m/s²`, radius `3,389.5 km`) and **Moon Hadley–Apennine** (`26.1322°N, 3.6339°E`, Apollo 15 baseline, gravity `1.625 m/s²`, radius `1,737.4 km`).\n  - Selectable exploration windows (`2×2 km`, `16×16 km`, `64×64 km`) stream `256×256 m` base tiles (`96×96` quads, `2.67 m` grid spacing, downsampled to LOD1 `32` & LOD2 `16` with downward skirts) plus spherical curvature drop (`computeSphericalDropM`) and dynamic `1 km` floating-origin rebasing.\n  - **Honest disclosure (`isBaselinePlusSyntheticRelief: true`)**: Fine topographic undulations, craters, Hadley-style sinuous rille, basalt step slabs, and boulder fields are generated via deterministic seeded procedural math (`BODY_SEED`), **not** high-resolution raw HiRISE/LROC DTM rasters.\n- **Physical Vehicle Dimensions, Wheel Rigging & Stationary Modes (`src/config/deviceSimulationProfiles.ts`, `src/config/deviceManifest.json`)**:\n  - Inspect model (`MODEL_CLOSEUP`, formerly Option 1) preserves normalized `fit-longest-side-2` studio framing without modifying source `.glb` bytes or `sha256` digests.\n  - Explore viewpoints (`CONTROL_ROOM_POV`, formerly Option 2) scales loaded GLBs and pedestal-free procedural hardware using `simulationTransform` & `physicalTransform` metadata (`physicalScaleVerified: false` clearly disclosed in UI and catalog metadata where exact mission sub-assemblies or procedural Apollo reconstructions stand in for calibrated CAD).\n  - Real motorized driving is enabled for rovers (`sojourner_rover`, `spirit_and_opportunity_rover`, `curiosity_rover`, `perseverance_rover` via non-destructive GLB wheel mesh partitioning; and procedural `apollo_lrv`, `apollo_lrv_deploy`, plus simulation-mode rovers under NASA equipment references). Static landers (`viking_lander`, `insight_lander`, `apollo_surface_pack`, `apollo_lm_mesa`) remain fixed by default and explicitly badge **`\"Simulated mobility\"`** when temporary educational roving is toggled on.\n  - Coaxial helicopter flight (`ingenuity_helicopter`) enforces body-relative takeoff, hover drag, coaxial `rotors_01`/`rotors_02` animation, and solid Rapier terrain collision.\n- **Decoupled Kepler Orbital Clock & Quality Tiering**:\n  - `SimulationClock` (`computeOrbitalTimeStep`) drives orbital actors and planet spin smoothly in both `ORBITAL_OVERVIEW` and orbital `CONTROL_ROOM_POV` cupola view (`1×..5000×` time-warp & pause), completely isolated from the fixed-60 Hz (`FIXED_PHYSICS_DT = 1/60`) surface Rapier simulation step.\n  - Adaptive quality tiers (`Auto / Low / Medium / High`) respect `prefers-reduced-motion`, clamp DPR (`0.75–1.5`), control shadow map resolution & Bloom/SMAA passes, and scale WebP surface map rasterization dynamically up to `8192 px` on `High` without altering asset provenance."
+    },
+    {
+      "id": "doc_docs_sources_md_11_1_shader_loading_webgl_containment_status_vocabula",
+      "title": "SOURCES.md — Shader Loading, WebGL Containment & Status Vocabulary Audit (2026-11-15)",
+      "sourcePath": "docs/SOURCES.md#Shader Loading, WebGL Containment & Status Vocabulary Audit (2026-11-15)",
+      "section": "Shader Loading, WebGL Containment & Status Vocabulary Audit (2026-11-15)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "- **Single Raw-Text Shader Path (`?raw`)**: `vite.config.ts` excludes `.glsl` from `assetsInclude` and `vite-plugin-glsl`; all custom GLSL modules (`warpTunnel.frag.glsl`, `marsAtmosphere.vert.glsl`, `marsAtmosphere.frag.glsl`) import raw GLSL source strings via `?raw` without asset URL corruption in `dev` or `build`/`preview`.\n- **WebGL & Postprocessing Containment (`src/core/canvas/rendererDiagnostics.ts`, `CanvasErrorBoundary.tsx`, `PostProcessingRig.tsx`)**: Pre-flight WebGL capability probing, `gl.debug.onShaderError` logging, `webglcontextlost`/`webglcontextrestored`/`webglcontextcreationerror` handling, React error boundaries around both R3F `<Canvas>` roots and `<EffectComposer>`, basic 3D fallback mode (bypassing postprocessing and shadows), and preloader/HUD text-first survival preserving body navigation, dossiers, and source links.\n- **Catalog Relationship & Unified Status Vocabulary (`src/config/statusVocabulary.ts`, `bodyCatalog.ts`)**:\n  - `RepresentationKind` (`source_model` | `procedural_reconstruction` | `record_only` | `illustrative_layer`), `EvidenceKind` (`measured` | `reported` | `derived` | `illustrative` | `unknown`), and `RuntimeLoadStatus` (`idle` | `loading` | `ready` | `error`) are strictly separated and enforced across `TopNavigationBar`, `CelestialQuickSelect`, `SubSceneInfoPanel`, and `CanvasFallbackPanel`.\n  - Planet layer options load directly from `BODY_CATALOG[bodyId].layers` with non-instrument tags (`MOLA`, `THEMIS`, `LOLA`, `Diviner` listed exclusively under `unavailableDatasets`).\n  - `pioneer_10`, `kepler_space_telescope`, and `near_shoemaker` are excluded from `mars` surface/body catalogs and isolated under `bodyId: \"reference\"` + `catalogScope: \"reference_spacecraft\"`; `dawn_spacecraft`/`dawn_flyby` is scoped strictly as Feb 2009 flyby encounter context; `ares_station` is badged as a conceptual ISS proxy."
+    },
+    {
+      "id": "doc_docs_sources_md_12_1_guided_missions_visitor_facing_labels_url_state_",
+      "title": "SOURCES.md — Guided Missions, Visitor-Facing Labels & URL State Navigation (P1, 2026-11-15)",
+      "sourcePath": "docs/SOURCES.md#Guided Missions, Visitor-Facing Labels & URL State Navigation (P1, 2026-11-15)",
+      "section": "Guided Missions, Visitor-Facing Labels & URL State Navigation (P1, 2026-11-15)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [],
+      "text": "- **Curated First-Minute Missions (`src/config/missions.ts`, `MissionEntry`, `JourneyPanel`)**:\n  - Introduces default guided missions for Mars (`jezero-evidence`: 4 stops across globe overview, Jezero 3D terrain block, Perseverance, and Ingenuity) and Moon (`hadley-geology`: 3 stops across globe overview, Tycho 3D terrain block, and Apollo LRV reconstruction).\n  - Full device catalogs, spectral layers, and orbital reference lines (`selectEffectiveOrbitsVisible`) remain tucked behind the explicit **\"Explore freely\"** switch in guided mode while preserving the user's saved free-mode `showOrbits` preference across switches.\n- **Visitor-Facing Naming & Scoped Provenance**:\n  - Replaces `\"Option 1 / Option 2\"` primary labels with **\"Inspect model\"** and **\"Explore viewpoints\"**, and moves technical format badges (`GLB`, `WebP`, `8K`) out of primary navigation into the right-hand contextual evidence/dossier panel.\n- **Versioned URL & Browser History State (`src/config/urlStateAdapter.ts`, `src/core/navigation/useUrlHistorySync.ts`)**:\n  - Supports shareable `?v=1&body=...&mission=...&stop=...` / `target=...` / `view=...` links with strict catalog & cross-body validation, falling back safely to a valid body overview with a dismissible notice banner (`urlNotice`) on unknown or mismatched parameters.\n  - Only settled discrete navigation changes push browser history entries (`pushState`) and restore on Back/Forward (`popstate`); camera movement, simulation time ticks, floating-origin offsets, and live telemetry never mutate browser history."
+    },
+    {
+      "id": "doc_docs_sources_md_13_1_moon_glb_addition_asset_inventory_mascot_pre_che",
+      "title": "SOURCES.md — Moon GLB Addition, Asset Inventory & Mascot Pre-Check (2026-11-15)",
+      "sourcePath": "docs/SOURCES.md#Moon GLB Addition, Asset Inventory & Mascot Pre-Check (2026-11-15)",
+      "section": "Moon GLB Addition, Asset Inventory & Mascot Pre-Check (2026-11-15)",
+      "sourceKind": "provenance",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/apollo-lunar-module/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "- **Apollo Lunar Module (`apollo_lunar_module`, Section 11)**:\n  - **Source**: [NASA Science 3D Resources — Apollo Lunar Module](https://science.nasa.gov/3d-resources/apollo-lunar-module/) (direct asset `Apollo Lunar Module.glb`, published `2025-03-20`, modified `2025-06-09`, checked `2026-11-15`).\n  - **Credit & Terms**: `NASA / Michael D. Carbajal` under [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/) (educational/informational attribution without NASA logo or endorsement implied).\n  - **Preserved Source & Runtime Artifact**: `raw_assets/nasa-3d/Apollo Lunar Module.glb` and runtime copy `/assets/models/moons/apollo_lunar_module.glb` (`716,840` bytes, identical unmodified source & runtime SHA-256 `379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e`). Uses glTF `2.0` (`glTF-Transform v4.5.1`) with `KHR_draco_mesh_compression`, `EXT_texture_webp` (6 embedded textures: `BOOSTER3`, `TEXTUREA`, `TEXTURE_`), `KHR_materials_specular`, `64,787` vertices, `97,588` triangles, upright bounds `~6.43 × 5.01 × 6.43` units.\n  - **Limitations**: Represents general two-stage Apollo Lunar Module structure rather than a mission-specific flight scan; no calibrated CAD rig or verified physical dimensions (`physicalScaleVerified: false`), configured strictly as view-only static hardware (`supportsRealMobility: false`, `supportsSimulatedSurfaceDrive: false`). Does **not** replace the six `apollo-equipment.csv` procedural/unavailable records (`apollo_lrv`, `apollo_lrv_deployment`, `apollo_15_lrv`, `apollo_17_lrv`, `apollo_surface_equipment`, `apollo_lm_equipment`).\n- **Complete Asset Inventory & `dist/` Checksum Pipeline (Section 13)**:\n  - `scripts/assetInventoryLib.mjs`, `scripts/validate-assets.mjs`, and `scripts/verify-dist-assets.mjs` (`npm run verify:dist`) distinguish **22 unique runtime catalog GLBs** (covering `13` selectable `deviceManifest.json` GLBs, `9` orbital actor GLBs in `celestialCatalog.ts` sharing `mro_orbiter.glb` and `dawn_spacecraft.glb`, plus `mars_terrain.glb` and `moon_terrain.glb`), **6 documented non-catalog GLBs** (`4` preload warmup stubs referenced by `CORE_MODEL_PATHS` in `useProgressiveAsset.ts`: `phobos_draco.glb`, `deimos_draco.glb`, `spacecraft/mars_reconnaissance_orbiter.glb`, `stations/ares_orbital_station_lod0.glb`; plus `2` legacy/LOD variants: `spacecraft/perseverance_rover.glb`, `stations/ares_orbital_station_lod1.glb`), and **6 unavailable Apollo CSV records**. Every build verifies byte counts and `SHA-256` hashes from `public/` to `dist/`.\n- **RISE Plushie Mascot Audit & Section 12 C0–C3 Status (2026-11-15)**:\n  - Audited and integrated owner-supplied external file `D:\\rise_plushie.glb` into `public/assets/mascot/rise_plushie.glb` (`716,904` bytes, SHA-256 `aee69a76157e5b5fea6067dc91d9ae847bcf747686e2b4694db383946ff6d32f`, generator `Khronos glTF Blender I/O v3.6.27`, 1 node `empty_2`, 1 mesh `Mesh_0`, 35 opaque materials, 0 textures, 0 animations, `21,516` vertices, `29,177` triangles, uncentered local bounds `[-50.80, -48.00, -50.79]` to `[76.11, 54.46, 50.79]`) for the Section 12 C3 3D RISE chat launcher (`src/scene/mascot/RiseMascot.tsx`). Contains **no embedded author, copyright, or license metadata** (`asset.extras` absent); this model is inspired by NASA Artemis II's \"Rise\" zero-gravity indicator mascot and implies no NASA endorsement or agency insignia use—confirm third-party creator attribution and commercial redistribution terms before public commercial release.\n  - **Server-Side Grounded Q&A (`/api/chat`, `api/chat.ts`, `src/chat/chatContract.ts`, `src/chat/knowledgeRetriever.ts`)**: Uses the official `@google/genai` SDK (`>= 3.2.0`) Interactions API with `GEMINI_API_KEY` read strictly server-side (`store: false`, `thinking_level: \"low\"`, `max_output_tokens: 2048`) and primary model **`gemini-3.8-flash`** (with bounded per-attempt budgets and automatic fallback through **`gemini-3.6-flash`** and **`gemini-3.5-flash-lite`**, all verified in official Gemini Developer API pricing documentation with Free Tier input/output availability, whereas `gemini-4-argon` and `gemini-3.1-pro-preview` are not available on Free Tier). Enforces same-origin checks, bounded JSON validation (`<= 16 KB` body, `<= 800` chars message), per-instance sliding-window rate limiting (`429`), XML delimiter prompt isolation, and deterministic BM25 project knowledge gating (`src/config/chatKnowledgeIndex.json`) so out-of-scope or real-time queries return an honest boundary reply without hallucinating sources.\n  - **Accessible Floating Chat Widget (`src/ui/chat/ProjectChatWidget.tsx`)**: Mounted globally across orbital, closeup, POV, and surface views with a neutral geometric launcher (`data-mascot-slot=\"neutral-placeholder\"`), pointer-capture drag vs click separation, Arrow-key movement, `Escape` focus return, `Enter`/`Shift+Enter` IME-safe composition handling, `prefers-reduced-motion` support, and visible source/evidence-type citation chips. (Note: any developer key shared in workspace chat during setup should be rotated in Google AI Studio prior to public deployment.)"
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_1_1_experience_implementation_plan_md",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — EXPERIENCE_IMPLEMENTATION_PLAN.md",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#EXPERIENCE_IMPLEMENTATION_PLAN.md",
+      "section": "EXPERIENCE_IMPLEMENTATION_PLAN.md",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "# Mars–Moon Atlas: guided exploration implementation plan\n\nPrepared 2026-11-14, Asia/Bangkok. Status: proposed implementation backlog, not completed features.\n\nThe intended outcome is a visitor who can ask a question, explore a place, inspect relevant equipment, explain one supported finding, and recognize what remains unknown. Use the existing Atlas and its shared scene to deliver that learning journey."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_2_1_1_basis_and_current_repository",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 1. Basis and current repository (1/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#1. Basis and current repository",
+      "section": "1. Basis and current repository",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Planning snapshot: `D:\\Mars-Orbital`, HEAD `530b9de` (`Expand orbit and scale down models`), branch `main`. The workspace contains ongoing uncommitted changes. Preserve them; inspect the current diff again before implementation. This planning task changes no application source or existing tests.\n\nRead the current README, Mars/Moon checkpoints, implementation notes, body/device/POI catalogs, dossiers, control specifications, store, HUD, canvas and shaders. Both bodies, model inspection, procedural hardware and Control Room POV already exist. Extend those capabilities instead of rebuilding the original Mars–Moon MVP.\n\nThe checkpoint documents describe earlier successful checks but also contain historical counts and subsequent extensions. Treat them as history, not proof that the current tree passes. Do not repeat their old counts in a new release report."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_2_2_1_basis_and_current_repository",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 1. Basis and current repository (2/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#1. Basis and current repository",
+      "section": "1. Basis and current repository",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "http://localhost:5173`",
+        "https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-announces-2025-international-space-apps-challenge-global-winners/"
+      ],
+      "text": "A fresh read-only browser check of `http://localhost:5173` loaded Mars and switched to Moon at 1440×1000 with reduced motion and Chrome/SwiftShader. It reproduced shader compilation errors: the warp fragment and atmosphere vertex/fragment inputs contain JavaScript `export default \"/src/shaders/...glsl\"` text. There were no uncaught page exceptions in this short check; a pageerror-only test therefore misses these failures. This was a targeted audit, not a full regression or physical-device performance test. Diagnostic JSON and screenshots are under ignored `test-results/experience-*` files. Aborted requests during the short audit are not, by themselves, evidence of missing model files.\n\nThe Space Apps winners URLs supplied in the request failed to load during this review. NASA's [official announcement of the ten 2025 winners](https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-announces-2025-international-space-apps-challenge-global-winners/) was accessible and confirms the names and awards. The product mappings below are our design interpretations, not NASA recommendations or claims that the winning prototypes were independently validated."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_3_1_2_translate_the_inspiration_into_visitor_value",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 2. Translate the inspiration into visitor value (1/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#2. Translate the inspiration into visitor value",
+      "section": "2. Translate the inspiration into visitor value",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "| Inspiration | Atlas implementation | Observable value |\n| --- | --- | --- |\n| SpaceGenes+ | Sourced links among location, conditions, instrument and observation | Visitor explains a relationship, not just a fact |\n| Resonant Exoplanets | Inspectable evidence for each claim | Visitor can locate the original source and limitation |\n| Twisters | A question leads to a short, supported answer | Fewer unrelated controls to interpret |\n| Astro Sweepers | Stewardship stories with explicit scope and assumptions | Visitor recognizes consequences without an opaque score |\n| PureFlow | Bounded failure/recovery exercises | Visitor understands a constraint and a recovery choice |\n| Photonics Odyssey | Text-first access and deliberate asset downloads | The journey survives weak connectivity or unavailable 3D |\n| HerCode Space | Short human stories attached to places and discoveries | Narrative gives a reason to investigate |\n| Gaia+LEO | Explain a documented Earth/space trade-off; measure app resource use | Connections have evidence and costs are visible |\n| Zumorroda-X | Optional observation challenges and visual comparisons | Play supports a specific learning objective |\n| QUEÑARIS | One reviewed, place-specific Earth connection | Local relevance has named sources and context |"
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_3_2_2_translate_the_inspiration_into_visitor_value",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 2. Translate the inspiration into visitor value (2/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#2. Translate the inspiration into visitor value",
+      "section": "2. Translate the inspiration into visitor value",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Retain six principles throughout: evidence before spectacle; visitor choice; systems thinking; responsible exploration; access for everyone; and stories that lead back to science.\n\nWorking assumptions: Vietnamese remains the primary UI language; English names and instrument terms remain available as a glossary. Start with one short mission per body, with an always-available free-exploration route. No account, AI assistant, public upload system or backend is needed for this increment."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_4_1_3_target_journey_and_first_release_scope",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 3. Target journey and first release scope (1/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#3. Target journey and first release scope",
+      "section": "3. Target journey and first release scope",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "1. **Choose a world and a question.** Show Mars and Moon, a one-sentence purpose, one recommended mission for each, and “Explore freely”. Avoid loading model fleets behind the invitation.\n2. **Orient on the globe.** Start with a calm view, selected-world label, a clear illustration/data status, and one next action. An optional camera move is skippable and stops under reduced motion.\n3. **Visit a story stop.** Show a title, a short “why this matters”, one question and a sourced position. Keep “Back to globe” and “View evidence” visible.\n4. **Inspect evidence.** Offer the few relevant claims or layers. Missing coverage remains understandable; an unavailable dataset does not prevent reading the story.\n5. **Connect to hardware.** Explain why this device or instrument is relevant to this place. Open the existing model inspector or a record with clearly labeled reconstruction status.\n6. **Try a bounded activity.** Use an appropriate existing view/control. State whether the output is a documented fact, a calculated teaching example or an illustration.\n7. **Reflect.** Present one finding, the source supporting it and one unanswered question. Offer a next mission, a copied deep link and local progress saving."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_4_2_3_target_journey_and_first_release_scope",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 3. Target journey and first release scope (2/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#3. Target journey and first release scope",
+      "section": "3. Target journey and first release scope",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "The initial Mars candidate is a Jezero story connecting a scientific question to relevant Perseverance/Ingenuity observations. Exact relationships and claims must be reviewed before publication. Start the interactive exercise with the existing Ingenuity viewpoints: distinguish looking downward from looking toward the horizon, while identifying these camera placements as illustrative.\n\nThe initial Moon candidate uses Mare Tranquillitatis and Apollo 11 surface equipment/MESA, with a source-backed explanation of an observation or equipment task. Treat the existing procedural equipment as reconstruction. Do not attach Apollo 15/17 LRV operations to the Apollo 11 site. A later LRV story needs its own verified site/mission association and coordinates.\n\nEach mission has a proposed 3–5 minute route with 3–4 stops. This is a design target, not measured completion time. Both routes must work as text and evidence cards if models or WebGL are unavailable. Free exploration preserves access to the broader reviewed catalog."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_1_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (1/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "### P0 — Establish a stable and truthful baseline\n\n**Outcome:** the current experience renders reliably and does not make contradictory scientific or asset claims."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_2_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (2/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "| Ticket | Implementation | Existing files / seams | Acceptance |\n| --- | --- | --- | --- |\n| P0.1 Shader loading | Inspect the interaction between `assetsInclude: ['**/*.glsl', ...]` and `vite-plugin-glsl`. Choose one raw-text shader path, such as explicit `?raw` imports, and update declarations as needed. Verify dev and production separately. | `vite.config.ts`, `src/vite-env.d.ts`, `DeepSpaceStarfield.tsx`, `MarsAtmosphereMesh.tsx`, shader files | No compile/link errors across Mars, Moon, model and POV transitions; imported shader strings contain source, not module-export wrappers |\n| P0.2 Failure containment | Add a canvas error boundary, explicit context-loss handling and shader-error reporting. A React boundary alone will not catch all GPU errors. Keep sources/navigation usable in a text view; allow retry or basic rendering without silently claiming full 3D success. | `MarsCanvas.tsx`, `rendererDiagnostics.ts`, `PostProcessingRig.tsx`, `App.tsx` | Forced WebGL denial/context loss and bad shader tests show an intelligible fallback and preserve body/story selection |\n| P0.3 Catalog and credit audit | Check actual files, provenance and mission associations. Resolve the Sojourner dossier's NASA-geometry wording against its Dan/Ngee Ann Polytechnic/CC BY credit. Keep Pioneer 10, Kepler and NEAR out of the Mars surface device catalog. Treat Dawn's sourced Mars encounter as encounter context, not surface deployment or a present-day Mars orbit. Identify conceptual Ares and reference spacecraft explicitly. | `deviceManifest.json`, `deviceDossiers.ts`, `celestialCatalog.ts`, `validateCatalog.ts`, `docs/SOURCES.md` | Every visible entry has an explicit mission relationship and asset credit; no body filter implies unsupported deployment; duplicate device/orbital entries do not produce contradictory descriptions |\n| P0.4 One status vocabulary | Separate the kind of representation from file-load status and scientific evidence. Make layer labels come from configuration rather than the hard-coded Mars button list. Reconcile the current “unavailable” layer metadata with enabled illustrative layer buttons. | `cosmos.types.ts`, `bodyCatalog.ts`, `CelestialQuickSelect.tsx`, `TopNavigationBar.tsx`, `SubSceneInfoPanel.tsx` | A procedural Apollo model is labeled “Illustrative reconstruction”, a missing model “Record only”, and generated color/elevation filters never imply MOLA/THEMIS/LOLA/Diviner observations |"
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_3_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (3/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Baseline commands: `npm test`, `npm run typecheck`, `npm run validate:assets`, `npm run build`, `npm run test:browser`. Extend browser assertions to inspect console shader errors as well as uncaught exceptions. Add a production-preview smoke check; the existing browser configuration starts the dev server.\n\nThe manifest now lists newly added Curiosity and Perseverance GLBs as available. Verify their files, hashes, sources and attribution; do not blindly revert them to the older checkpoint's “unavailable” description.\n\n### P1 — Make the first minute clear\n\n**Outcome:** a newcomer knows what to explore and how to proceed.\n\nAdd a small `MissionEntry` and `JourneyPanel` to the existing `App.tsx` shell. Add mission configuration rather than another scene. Update `CelestialQuickSelect.tsx` so the guided route prioritizes the current question and relevant destinations; move the full catalog behind an explicit “Explore freely” action. Hide orbital paths by default in guided mode while preserving the user's preference in free exploration.\n\nReplace “Option 1 / Option 2” as primary labels with “Inspect model” and “Explore viewpoints”. Keep the mode details secondary. Replace asset-format labels such as “GLB + 8K” in primary navigation with descriptions of what visitors will see. Offer the full technical details in the evidence panel."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_4_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (4/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "On desktop, preserve the globe as the main visual area with one task panel and contextual details. On narrow screens, use a compact header, a useful globe viewport, and an accessible document-flow panel/drawer; avoid forcing visitors through a long equipment list to reach the story. Keep unavailable-layer explanations readable without hover.\n\nImplement browser-history state through a URL adapter for validated body, mission, stop, target and view IDs. Example: `?v=1&body=mars&mission=jezero-evidence&stop=observe`. Unknown IDs return to a valid overview with a clear message. Back/forward restores a meaningful step. Camera drag, animation ticks and simulated telemetry do not create history entries.\n\n**Gate:** five first-time participants attempt “choose a world, open a story stop, explain the image status” without coaching. Proposed target: at least four succeed within 60 seconds. Also verify keyboard traversal, 390 px layout, reduced motion and browser Back/Forward. This is a formative check, not a statistical claim.\n\n### P2 — Make evidence inspectable at the claim level\n\n**Outcome:** visitors can tell what a fact means, where it came from and what it does not establish."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_5_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (5/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Introduce a source registry and reusable `EvidenceBadge`, `EvidenceCard` and `SourceDrawer`. Migrate `DossierMetric` beyond its current `{ label, value }` shape; its “Measured Mission Data” tab currently has no individual source/unit/date/method fields. Give narrative contributions claim references too. Preserve existing records during migration but do not promote unreviewed values to measured status.\n\nKeep these three dimensions independent:\n\n| Dimension | Proposed values | Meaning |\n| --- | --- | --- |\n| Evidence kind | measured, reported, derived, illustrative, unknown | How the claim or displayed value was produced |\n| Representation | source model, procedural reconstruction, record only | What the visitor is viewing; a verified file does not verify physical fidelity |\n| Runtime state | idle, loading, ready, error | Whether a resource loaded; this never upgrades its scientific status |\n\nA claim records: stable ID, subject/mission, text or typed value, unit when applicable, source IDs, source locator, observation interval or publication date, version/check date, method and limitations. A derived value additionally records inputs and a reproducible method. Store uncertainty only when the source supplies it; otherwise say it is unspecified. “Unknown” data must not become zero."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_6_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (6/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "A layer also records: body, coverage, coordinate reference/projection, physical resolution when known, display resolution separately, date/version, source, attribution/terms and failure state. An 8K texture dimension is not a ground-resolution measurement. Only offer side-by-side quantitative comparison when units, coverage, coordinate frame and time context are compatible. Otherwise provide an explicitly qualitative comparison.\n\nRender the same evidence component in POI stories, device dossiers and activity results. One action opens the relevant source and locator. Historical measurements stay visually separate from app-generated POV readouts.\n\n**Gate:** every factual claim used in the two initial missions resolves to reviewed provenance. Every remaining dossier item has a source or a visible unverified status. Tests reject duplicate IDs, missing references, unsupported measured labels, invalid units/coordinates and incompatible layer comparisons. Retain original per-asset attribution.\n\n### P3 — Connect stories, hardware and learning\n\n**Outcome:** each interaction helps answer the visitor's question."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_7_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (7/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Add `missionStories.ts` and a small relationship registry linking a story stop to a place, mission, instrument, evidence and capability. Each relationship carries its own source and role: deployed at, observed, regional context, flyby, or conceptual reference. Sharing a body ID is not proof of a relationship. Validate all references and prohibit accidental cross-mission links.\n\nReuse `DeviceModel`, `ProceduralDeviceModel`, `DeviceControlPanel`, `ControlRoomFirstPersonScene` and the current camera rig. Add capability metadata to `deviceControlSpecs.ts`: supported target, documented basis, illustrative/verified status, permitted inputs, output evidence type, reset behavior and limitations. A documented real-world mechanical limit is distinct from an interface yaw/pitch clamp.\n\nGate actions by capability. The current generic arm/boom and spectrometer buttons should not appear on every selected platform or POI. Retain supported camera inspection; label visual demos; omit unsupported actions. A simulated scan must never become a claimed composition measurement of the selected Mars/Moon site."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_8_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (8/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Implement one complete Mars route first and record its acceptance evidence. Then implement the Moon route with the same story/evidence/activity components. Each stop offers a short narrative, optional deeper detail, an observation prompt and a clear next step. Add one reflection prompt that asks the visitor to distinguish observation from inference, rather than rewarding clicks or speed.\n\nAdd an `ExplorationNotebook` containing visited stops, selected evidence, one takeaway and an unknown. Save a small versioned record locally, with reset and storage-failure handling. Provide a deep link and plain-text summary export. Sharing remains optional; do not add an account requirement or automatic external transmission.\n\n**Gate:** a visitor completes a short route for each body and explains one finding plus its limitation. Test evidence links, unsupported-action suppression, model failure recovery, rapid switching, local progress restoration and invalid/stale deep links. Closing or switching out of an activity stops its animation and releases obsolete resources.\n\n### P4 — Add resilience, access and responsible context\n\n**Outcome:** the same educational value remains available across devices and imperfect conditions."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_9_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (9/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://www.w3.org/TR/WCAG22/"
+      ],
+      "text": "Accessibility starts in P1; this phase completes the audit. Target [WCAG 2.2 AA](https://www.w3.org/TR/WCAG22/) with semantic navigation, visible focus, keyboard-operated tabs and drawers, text equivalents for meaningful canvas/POV information, and reduced motion covering auto-rotation and ongoing loops. The current POV overlay is entirely `aria-hidden`; retain decorative crosshairs as hidden but provide the meaningful state elsewhere. Use 44 CSS px as an internal touch-target goal, not as a statement of the AA minimum. Test zoom/reflow and screen-reader order manually as well as with automation.\n\nAdd a persistent low-data/text-first preference. Load mission text and sources first; defer high-resolution maps, fleet models and device GLBs until requested. Show download size before a large optional asset. Pause offscreen/hidden-tab work. Cache only bounded, versioned content with known redistribution terms. Offer a useful offline explanation and cached text where available; do not claim a full offline 3D mode without testing it."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_10_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (10/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Measure startup bytes, time to usable text, time to first useful 3D view, frame time and renderer-resource counts on a named laptop and a real phone. Use cold/warm cache runs and the same camera/content before and after changes. Software WebGL checks are for functional coverage, not hardware performance claims. Provisional targets: usable text within 3 seconds under a documented 1.6 Mbps/150 ms test profile; no GLB or 8K map requests before opt-in in low-data mode; resource counts return near the documented warm baseline after ten body/activity switches. Revise these targets only with measured evidence.\n\nAdd one reviewed resilience exercise after P2/P3: for example, choose a useful observation when one explicitly modeled view is unavailable. Explain what changed and why the alternatives remain useful. If the numbers or physics are not validated, use a qualitative teaching exercise with stated assumptions."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_5_11_4_delivery_backlog",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 4. Delivery backlog (11/11)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#4. Delivery backlog",
+      "section": "4. Delivery backlog",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Add one optional stewardship/Earth-connection story when suitable evidence is ready. Separate analogy from demonstrated transfer, name the community/context, and cite any claimed benefit. Do not transplant a Low Earth Orbit debris score to Mars/Moon exploration. Do not invent a combined sustainability score. Broader hazard simulation, local/community content and numerical resource trade-offs remain separate later increments unless their inputs, method and validation are available.\n\n**Gate:** the core journey works with keyboard, touch, reduced motion, WebGL unavailable and interrupted downloads. Users can tell a historical fact from simulated output. Each stewardship claim is sourced; each exercise states its assumptions and limits."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_6_1_5_implementation_seams_and_state_ownership",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 5. Implementation seams and state ownership (1/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#5. Implementation seams and state ownership",
+      "section": "5. Implementation seams and state ownership",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "| Concern | Approach |\n| --- | --- |\n| Rendering | Keep `MarsCanvas`, `CosmosSceneRoot`, existing body/model/terrain adapters and one camera rig. Story steps dispatch existing selection actions; they never mount a second scene. |\n| Content | Keep scientific content outside components. Extend `bodyCatalog`, `atlasPOIs`, `deviceManifest`, `deviceDossiers` and `deviceControlSpecs`; add registries for reviewed claims, relationships and stories. |\n| Journey state | Extend Zustand with mode (guided/free), mission ID, stop ID and current detail panel. Derive valid selection combinations instead of adding unrelated booleans. Keep renderer/loading states separate. |\n| URL | Add a parser/serializer with allowed IDs, versioning and fallback behavior. Apply body/target/view changes atomically to avoid stale callbacks and duplicated loads. |\n| Persistence | Store lightweight progress and preferences, not Three.js objects, model buffers or telemetry. Leaving a body resets live controls; saved story progress can be resumed explicitly. |\n| UI | Extract source/evidence components and contextual activity controls from the growing `SubSceneInfoPanel`; preserve existing functionality during migration. |\n| Measurement | Initially use local QA logs and user-test notes. Add events such as mission_started, evidence_opened, activity_completed, fallback_shown and reflection_completed only after defining their purpose; no external analytics service is needed for the first increment. |"
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_6_2_5_implementation_seams_and_state_ownership",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 5. Implementation seams and state ownership (2/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#5. Implementation seams and state ownership",
+      "section": "5. Implementation seams and state ownership",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Use feature flags for guided entry and the new evidence presentation so existing free exploration remains available during development. Migrate both UI and content together; avoid two conflicting status systems. Keep the Mars-first checkpoint before extending each shared feature to Moon."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_7_1_6_sequence_effort_and_ownership",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 6. Sequence, effort and ownership (1/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#6. Sequence, effort and ownership",
+      "section": "6. Sequence, effort and ownership",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Estimates are planning ranges for one developer familiar with this codebase, with a science/content reviewer available. They are not calendar commitments. New terrain procurement, asset authoring, translations and unplanned shader/driver investigations are excluded.\n\n| Increment | Dependencies | Developer effort | Review responsibility |\n| --- | --- | --- | --- |\n| P0 baseline and critical truth corrections | Current tree inspection | 2–3 days | Engineering plus source/asset review |\n| P1 guided entry, progressive disclosure, URL state | P0 status contract and stable rendering | 3–4 days | UX plus first-time visitor sessions |\n| P2 claim evidence and content migration | P0 vocabulary; used by P1 shell | 3–5 days | Science/content reviewer |\n| P3 Mars route, then Moon route, activities and notebook | P1 + reviewed P2 content | 4–6 days | Engineering, content and learning review |\n| P4 access, bandwidth, resilience and one sourced context story | Core P3 journey; accessibility work starts in P1 | 3–5 days | QA, accessibility and content review |"
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_7_2_6_sequence_effort_and_ownership",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 6. Sequence, effort and ownership (2/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#6. Sequence, effort and ownership",
+      "section": "6. Sequence, effort and ownership",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Full scope: roughly 15–23 developer-days plus review turnaround. Re-estimate after P0. If time is limited, ship P0, the P1 shell, P2 coverage for one mission and the Mars P3 route first; existing Moon free exploration remains available. Then reuse the verified route components for Moon. Do not trade source accuracy or accessibility for extra scenes."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_8_1_7_acceptance_and_release_evidence",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 7. Acceptance and release evidence (1/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#7. Acceptance and release evidence",
+      "section": "7. Acceptance and release evidence",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "| Value | Proposed check |\n| --- | --- |\n| First-minute clarity | At least 4/5 formative participants choose a world, reach a story stop and identify content status within 60 seconds |\n| Evidence literacy | At least 4/5 distinguish a sourced historical measurement from an illustrative view and open the supporting source without help |\n| Learning | At least 4/5 give one correct takeaway and one limitation after a route; record the prompts and scoring rubric |\n| Content integrity | All initial-route claims and relationships have reviewed sources; every displayed scientific value has a source or explicit unknown/unverified status |\n| Recovery | Model 404, malformed GLB, decoder/texture failure, shader failure and context loss have recoverable outcomes; switching worlds stays usable |\n| Navigation | Keyboard-only route, Back/Forward, direct links, refresh and local progress recovery pass; no focus traps or hidden focused controls |\n| Access and performance | Verify text-first/low-data behavior, 390 px and 320 px layouts, 200% zoom, reduced motion and one physical phone; report measured timings and resource behavior |"
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_8_2_7_acceptance_and_release_evidence",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 7. Acceptance and release evidence (2/2)",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#7. Acceptance and release evidence",
+      "section": "7. Acceptance and release evidence",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Extend existing Node tests and Playwright suites rather than creating a parallel framework. Browser coverage must collect console and page errors, exercise dev and production, include normal-motion and reduced-motion projects, and test Mars → Moon → Mars during active loading/POV sessions. Review screenshots for readability and content status, not merely pixel similarity.\n\nFor each completed increment, record changed files, reviewed claims/assets, exact validation commands/results, browser/device conditions and remaining limitations. The release gate is the current repository state passing its checks; old checkpoints do not satisfy it. Use the existing Vercel setup only when the actual target is configured and deployment is authorized. Missing deployment configuration does not block implementation or local verification."
+    },
+    {
+      "id": "doc_docs_experience_implementation_plan_md_9_1_8_source_references_for_this_plan",
+      "title": "EXPERIENCE_IMPLEMENTATION_PLAN.md — 8. Source references for this plan",
+      "sourcePath": "docs/EXPERIENCE_IMPLEMENTATION_PLAN.md#8. Source references for this plan",
+      "section": "8. Source references for this plan",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-announces-2025-international-space-apps-challenge-global-winners/",
+        "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md",
+        "https://www.w3.org/TR/WCAG22/"
+      ],
+      "text": "- [NASA 2025 Space Apps winners announcement](https://www.nasa.gov/learning-resources/stem-engagement-at-nasa/nasa-announces-2025-international-space-apps-challenge-global-winners/), published 2025-12-18, accessed 2026-11-14: winner identities and inspiration only.\n- [Vercel Web Interface Guidelines](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md), accessed 2026-11-14: reference for UI review; applied selectively to this app, not treated as repository instructions.\n- [WCAG 2.2](https://www.w3.org/TR/WCAG22/), accessed 2026-11-14: accessibility target; conformance requires implementation and evaluation.\n- Existing supplied brief/CSVs, catalog source references and `docs/SOURCES.md`: inputs to the required content audit, not automatic verification of every newly added dossier claim.\n- Installed Three.js source exposes `renderer.debug.onShaderError` and context-loss handling; inspect the installed version while implementing P0 instead of relying only on the latest online API."
+    },
+    {
+      "id": "body_mars",
+      "title": "Mars (undefined)",
+      "sourcePath": "src/config/bodyCatalog.ts#mars",
+      "section": "BODY_CATALOG.mars",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html"
+      ],
+      "text": "Body ID: mars · Mars (undefined)\nRadius: 3389.5 km · Rotation period: 88642.44 s (24.62 h)\nSummary: undefined\nCredit: NASA NSSDCA (planetary data) · Atlas procedural/baked visual globe · Source: NASA NSSDCA Mars Fact Sheet (https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html, checked 2026-11-14)\nClassification: Terrestrial planet\nSurface gravity: 3.73 m/s² (mean · NSSDCA) · Temp: No data available · Pressure: No data available\nHighlights: One scene unit = 1 km. | Color, elevation, and temperature filters are illustrative layers.\nVisual layers: Illustrative surface color [Illustrative · 3D texture] — Prebuilt colored surface for visual exploration; not calibrated orbital imagery.; Elevation color filter (illustrative) [Simulated color filter · MOLA not integrated] — Synthesized color scale based on simulated elevation; original MOLA laser altimetry data is not integrated.; Thermal color filter (illustrative) [Simulated color filter · THEMIS not integrated] — Synthesized day/night thermal color filter; THEMIS infrared radiance data is not integrated.; Synthesized 3D terrain mesh [Illustrative terrain] — Prebuilt 3D terrain mesh for close-up viewing; not a measured terrain map.\nUnintegrated measured datasets (unavailable): Calibrated orbital imagery (Viking / CTX / HiRISE) (undefined): Calibrated quantitative imagery is not integrated.; Measured elevation data (MOLA DEM) (undefined): The original MOLA raster is not integrated; the 3D driving surface uses a reference baseline with synthesized detail.; Infrared thermal data (THEMIS IR) (undefined): A quantitative surface-temperature layer is not integrated."
+    },
+    {
+      "id": "body_moon",
+      "title": "Moon (undefined)",
+      "sourcePath": "src/config/bodyCatalog.ts#moon",
+      "section": "BODY_CATALOG.moon",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html"
+      ],
+      "text": "Body ID: moon · Moon (undefined)\nRadius: 1737.4 km · Rotation period: 2360592 s (655.72 h)\nSummary: undefined\nCredit: NASA NSSDCA (lunar data) · Atlas illustrative lunar surface map · Source: NASA NSSDCA Moon Fact Sheet (https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html, checked 2026-11-14)\nClassification: Earth’s natural satellite\nSurface gravity: 1.62 m/s² (mean · NSSDCA) · Temp: 95–390 K at the equator (day/night); no single mean value · Pressure: ≈3×10⁻¹⁰ Pa (night; 3×10⁻¹⁵ bar)\nHighlights: One scene unit = 1 km. | The Apollo Lunar Module lander uses an official NASA 3D Resources GLB (static inspection); the LRV and other surface equipment still use illustrative reconstructions / documentary records. | Elevation and thermal filters are synthesized visual layers, not LOLA/Diviner measurements.\nVisual layers: Illustrative surface color [Illustrative · 3D texture] — Illustrative surface imagery for the Moon globe; not a substitute for scientific measurement maps.; Elevation color filter (illustrative) [Simulated color filter · LOLA not integrated] — Synthesized elevation colors for illustration; original LOLA laser altimetry data is not integrated.; Thermal color filter (illustrative) [Simulated color filter · Diviner not integrated] — Simulated thermal colors illustrate the Moon’s temperature range; original Diviner radiometer data is not integrated.; Synthesized 3D terrain mesh [Illustrative terrain] — Prebuilt 3D terrain mesh for close-up viewing; not a measured LOLA raster.\nUnintegrated measured datasets (unavailable): Original LROC WAC/NAC mapping imagery (undefined): Calibrated high-resolution imagery is not integrated.; LOLA DEM laser altimetry data (undefined): A quantitative LOLA raster is not integrated.; Diviner infrared thermal data (undefined): An orbital thermal measurement map is not integrated."
+    },
+    {
+      "id": "poi_jezero_crater",
+      "title": "Jezero (mars)",
+      "sourcePath": "src/config/atlasPOIs.ts#jezero_crater",
+      "section": "ATLAS_POIS.jezero_crater",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://planetarynames.wr.usgs.gov/Feature/14300"
+      ],
+      "text": "POI: Jezero (id: jezero_crater, body: mars)\nSubtitle: Feature center · IAU / USGS\nCoordinates: 18.4100° lat, 77.6900°E (approximate reference center; no measured elevation attached)\nRelationship: Reference feature center (IAU/USGS)\nCredit: IAU / USGS Gazetteer of Planetary Nomenclature · Source: IAU / USGS · Jezero (https://planetarynames.wr.usgs.gov/Feature/14300)\nSummary: Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.\nHighlights: Planetocentric latitude; east longitude 0–360°. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "poi_gale_crater",
+      "title": "Gale (mars)",
+      "sourcePath": "src/config/atlasPOIs.ts#gale_crater",
+      "section": "ATLAS_POIS.gale_crater",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://planetarynames.wr.usgs.gov/Feature/2071"
+      ],
+      "text": "POI: Gale (id: gale_crater, body: mars)\nSubtitle: Feature center · IAU / USGS\nCoordinates: -5.4400° lat, 137.7000°E (approximate reference center; no measured elevation attached)\nRelationship: Reference feature center (IAU/USGS)\nCredit: IAU / USGS Gazetteer of Planetary Nomenclature · Source: IAU / USGS · Gale (https://planetarynames.wr.usgs.gov/Feature/2071)\nSummary: Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.\nHighlights: Planetocentric latitude; east longitude 0–360°. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "poi_olympus_mons",
+      "title": "Olympus Mons (mars)",
+      "sourcePath": "src/config/atlasPOIs.ts#olympus_mons",
+      "section": "ATLAS_POIS.olympus_mons",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://planetarynames.wr.usgs.gov/Feature/4453"
+      ],
+      "text": "POI: Olympus Mons (id: olympus_mons, body: mars)\nSubtitle: Feature center · IAU / USGS\nCoordinates: 18.4000° lat, 226.0000°E (approximate reference center; no measured elevation attached)\nRelationship: Reference feature center (IAU/USGS)\nCredit: IAU / USGS Gazetteer of Planetary Nomenclature · Source: IAU / USGS · Olympus Mons (https://planetarynames.wr.usgs.gov/Feature/4453)\nSummary: Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.\nHighlights: Planetocentric latitude; east longitude 0–360°. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "poi_valles_marineris",
+      "title": "Valles Marineris (mars)",
+      "sourcePath": "src/config/atlasPOIs.ts#valles_marineris",
+      "section": "ATLAS_POIS.valles_marineris",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://planetarynames.wr.usgs.gov/Feature/6288"
+      ],
+      "text": "POI: Valles Marineris (id: valles_marineris, body: mars)\nSubtitle: Feature center · IAU / USGS\nCoordinates: -13.7400° lat, 300.8000°E (approximate reference center; no measured elevation attached)\nRelationship: Reference feature center (IAU/USGS)\nCredit: IAU / USGS Gazetteer of Planetary Nomenclature · Source: IAU / USGS · Valles Marineris (https://planetarynames.wr.usgs.gov/Feature/6288)\nSummary: Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.\nHighlights: Planetocentric latitude; east longitude 0–360°. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "poi_mare_tranquillitatis",
+      "title": "Mare Tranquillitatis (moon)",
+      "sourcePath": "src/config/atlasPOIs.ts#mare_tranquillitatis",
+      "section": "ATLAS_POIS.mare_tranquillitatis",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://planetarynames.wr.usgs.gov/Feature/3691"
+      ],
+      "text": "POI: Mare Tranquillitatis (id: mare_tranquillitatis, body: moon)\nSubtitle: Feature center · IAU / USGS\nCoordinates: 8.3500° lat, 30.8300°E (approximate reference center; no measured elevation attached)\nRelationship: Reference feature center (IAU/USGS)\nCredit: IAU / USGS Gazetteer of Planetary Nomenclature · Source: IAU / USGS · Mare Tranquillitatis (https://planetarynames.wr.usgs.gov/Feature/3691)\nSummary: Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.\nHighlights: Latitude/longitude from the Gazetteer page (planetographic +East); the Moon is nearly spherical, so these coordinates are used for display. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "poi_tycho",
+      "title": "Tycho (moon)",
+      "sourcePath": "src/config/atlasPOIs.ts#tycho",
+      "section": "ATLAS_POIS.tycho",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://planetarynames.wr.usgs.gov/Feature/6163"
+      ],
+      "text": "POI: Tycho (id: tycho, body: moon)\nSubtitle: Feature center · IAU / USGS\nCoordinates: -43.3000° lat, 348.7800°E (approximate reference center; no measured elevation attached)\nRelationship: Reference feature center (IAU/USGS)\nCredit: IAU / USGS Gazetteer of Planetary Nomenclature · Source: IAU / USGS · Tycho (https://planetarynames.wr.usgs.gov/Feature/6163)\nSummary: Feature-center coordinates from the Gazetteer of Planetary Nomenclature. These are not exact device or landing-site coordinates.\nHighlights: Latitude/longitude from the Gazetteer page (planetographic +East); the Moon is nearly spherical, so these coordinates are used for display. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "poi_south_pole_aitken",
+      "title": "South Pole–Aitken (moon)",
+      "sourcePath": "src/config/atlasPOIs.ts#south_pole_aitken",
+      "section": "ATLAS_POIS.south_pole_aitken",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "source_verified",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/the-moons-largest-basin/"
+      ],
+      "text": "POI: South Pole–Aitken (id: south_pole_aitken, body: moon)\nSubtitle: Basin · NASA (view center)\nCoordinates: -53.0000° lat, 191.0000°E (approximate reference center; no measured elevation attached)\nRelationship: NASA orthographic view center (no IAU boundary)\nCredit: NASA Science (Orthographic view center) · Source: NASA Science · The Moon's Largest Basin (https://science.nasa.gov/resource/the-moons-largest-basin/)\nSummary: The center of NASA’s map view for the South Pole–Aitken basin. This is not an IAU-defined feature center; the basin boundary is not defined in the Gazetteer.\nHighlights: View center at 53°S, 191°E; not a landing-site coordinate. | Elevation, imagery, and terrain have not been integrated here."
+    },
+    {
+      "id": "device_sojourner_rover",
+      "title": "Sojourner (mars)",
+      "sourcePath": "src/config/deviceManifest.json#sojourner_rover",
+      "section": "sojourner_rover",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://sketchfab.com/3d-models/mars-sojourner-rover-model-8b3810e7cd804bd6b0009520c67984c6",
+        "https://creativecommons.org/licenses/by/4.0/"
+      ],
+      "text": "Device ID: sojourner_rover · Sojourner (Rover)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment · Mars Pathfinder (Ares Vallis, 1997)\nSummary: Illustrative reference model (Dan / danthemodeler · Ngee Ann Polytechnic, CC BY 4.0); not official NASA CAD and does not simulate physical operations.\nSource: Sojourner (https://sketchfab.com/3d-models/mars-sojourner-rover-model-8b3810e7cd804bd6b0009520c67984c6, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: Dan / danthemodeler; Ngee Ann Polytechnic (attribution in supplied ZIP) · License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/sojourner_rover.glb · bytes=6414204 · sha256=2df291ab9fadc150f1990d59bca87a9968fc58310875f6b21706f61229ce4086\nReference coordinates: lat 19.13, lon 326.78\nAgency/Program: NASA / JPL · Mars Pathfinder Discovery Mission · Era: Launched Dec 4, 1996 · Landed Ares Vallis Jul 4, 1997 (83 sols)\nBiography: Sojourner was humankind’s first wheeled rover to operate on another planet, proving autonomous hazard-avoidance navigation and rocker-bogie mobility across flood-carved terrain at Ares Vallis.\nTechnical Specs: Rover Mass: 10.6 kg (Earth) · 6-wheel rocker-bogie; Dimensions: 0.65 m L × 0.48 m W × 0.30 m H; Power System: 0.22 m² GaAs solar panel (~16 W peak) + LiSOCl₂ backup; Instruments: APXS (Alpha Proton X-Ray Spectrometer), 3 cameras\nMeasured Mission Data: Traverse Distance: ~100 m total (within 12 m of Carl Sagan Memorial Station); Sample Analyses: 16+ rock and soil APXS chemical assays; Air Temp Range: -10 °C daytime peak to -76 °C pre-dawn (Pathfinder ASI/MET)\nScientific Contributions: Analyzed high-silica andesite-like rocks (Barnacle Bill) and basaltic soils (Yogi, Scooby Doo). | Imaged rounded pebbles and conglomerate textures consistent with past episodic flooding. | Validated lightweight airbag EDL and laser-stripe hazard detection for later MER and MSL rovers.\nModel Disclaimer: Displays the verified third-party GLB model credited to Dan (danthemodeler) / Ngee Ann Polytechnic under CC BY 4.0 (not an official NASA-authored CAD mesh); runtime rover motion and POV telemetry in this app are illustrative.\nSimulation Profile: mobilityKind=rover_6w, maxSpeedMs=1.4, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=0.79, physicalScaleVerified=false\nSimulation Note: Actual speed ~0.01 m/s (Mars Pathfinder 1997); exploration mode allows speeds up to 1.4 m/s. · NASA/Sketchfab GLB + synthesized terrain based on MOLA parameters (Ares Vallis)"
+    },
+    {
+      "id": "device_spirit_and_opportunity_rover",
+      "title": "Spirit / Opportunity (mars)",
+      "sourcePath": "src/config/deviceManifest.json#spirit_and_opportunity_rover",
+      "section": "spirit_and_opportunity_rover",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/spirit-and-opportunity-rover-3d-model/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: spirit_and_opportunity_rover · Spirit / Opportunity (Rover)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment · Mars Exploration Rovers (2004–2018)\nSummary: NASA/JPL-Caltech reference model for the Spirit (Gusev) and Opportunity (Meridiani Planum) rover pair; does not simulate actual operations or verify CAD scale.\nSource: Spirit / Opportunity (https://science.nasa.gov/resource/spirit-and-opportunity-rover-3d-model/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/JPL-Caltech · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/spirit_and_opportunity_rover.glb · bytes=11910084 · sha256=efad9c6275d832d86e7232d63520e48628797d9a7f7c7ff870b28d175ac8b250\nReference coordinates: lat -14.57, lon 175.47\nAgency/Program: NASA / JPL · Mars Exploration Rovers (MER-A & MER-B) · Era: Landed Jan 2004 · Operated 2004–2010 (Spirit) & 2004–2018 (Opportunity)\nBiography: Twin solar-powered robot geologists dispatched to opposite sides of Mars—Gusev Crater and Meridiani Planum—originally planned for 90 sols and ultimately operating for 6 and 14 years.\nTechnical Specs: Rover Mass: 185 kg per rover; Mobility: 6-wheel rocker-bogie · 0.05 m/s top speed; Athena Payload: Pancam, Mini-TES, Mössbauer, APXS, Microscopic Imager, RAT; Power System: Triple-junction GaInP/GaAs/Ge solar arrays + Li-ion batteries\nMeasured Mission Data: Odometer Record: 45.16 km (Opportunity) · 7.73 km (Spirit); Water Signatures: Jarosite, sulfates, hematite concretions, pure silica (>90% SiO₂); Deepest Dust Storm: Optical depth τ > 10.8 (2018 global dust storm ending Opportunity)\nScientific Contributions: Opportunity discovered cross-bedded sulfate sandstones and hematite \"blueberries\" formed in ancient standing acidic groundwater at Meridiani Planum. | Spirit uncovered hydrothermally altered amorphous silica (~90% purity) near Home Plate in Columbia Hills, pointing to past hot-spring activity. | Set an off-world driving endurance benchmark exceeding 45 km over Martian terrain.\nModel Disclaimer: Displays the verified NASA MER 3D GLB mesh; onboard Control Room POV panels represent illustrative reconstructions.\nSimulation Profile: mobilityKind=rover_6w, maxSpeedMs=2.2, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=2.28, physicalScaleVerified=false\nSimulation Note: Designed maximum speed 0.05 m/s (MER); exploration mode supports up to 2.2 m/s. · NASA/JPL-Caltech GLB + synthesized terrain based on MOLA parameters"
+    },
+    {
+      "id": "device_viking_lander",
+      "title": "Viking landers (mars)",
+      "sourcePath": "src/config/deviceManifest.json#viking_lander",
+      "section": "viking_lander",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/viking-lander/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: viking_lander · Viking landers (Lander)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment · Viking 1 & 2 Landers (1976)\nSummary: Viking lander reference model (NASA/Michael D. Carbajal · JPL-Caltech); stationary on the surface by default.\nSource: Viking landers (https://science.nasa.gov/3d-resources/viking-lander/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/Michael D. Carbajal (source page); NASA/JPL-Caltech (supplied ZIP) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/viking_lander.glb · bytes=1849384 · sha256=1233dc2c96a1c0b08ca9a20f7ed9c09e0223f06f14f6ae6371349504c1929149\nReference coordinates: lat 22.27, lon 312.05\nAgency/Program: NASA / Langley & JPL · Viking 1 & Viking 2 Landers · Era: Landed Jul 20, 1976 (Chryse Planitia) & Sep 3, 1976 (Utopia Planitia)\nBiography: First U.S. spacecraft to land safely and conduct sustained multi-year surface operations on Mars, establishing the baseline meteorology and soil chemistry of the northern plains.\nTechnical Specs: Landed Mass: ~576 kg dry (3-leg crushable honeycomb pads); Power System: Two SNAP-19 Pu-238 RTGs (~70 W electrical combined); Sampling: 3 m extendible collector boom + backhoe sieve; Instruments: Twin facsimile cameras, GCMS, XRFS, biology package, meteorology\nMeasured Mission Data: Surface Pressure: 6.5 to 10.8 mbar seasonal CO₂ condensation cycle; Surface Temp: -107 °C winter minimum to -17 °C summer peak; Atmospheric Bulk: 95.3% CO₂ · 2.7% N₂ · 1.6% Ar · trace O₂/CO/H₂O\nScientific Contributions: Delivered the first clear surface panoramas of Mars and multi-year daily weather records (Viking 1 operated 2,245 sols). | Measured global atmospheric CO₂ freeze-thaw pressure oscillations between northern and southern polar caps. | Detected reactive oxidants (later linked to perchlorates) while constraining near-surface organic carbon sensitivity.\nModel Disclaimer: Displays the verified NASA Viking Lander 3D GLB file; interactive views are for inspection, not physical dynamics simulation.\nSimulation Profile: mobilityKind=lander_static, maxSpeedMs=1.8, supportsRealMobility=false, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=3.2, physicalScaleVerified=false\nSimulation Note: The real lander is stationary; movement is available only when \"Simulated mobility\" is enabled. · NASA Viking GLB (stationary real lander · supports simulated mobility)"
+    },
+    {
+      "id": "device_insight_lander",
+      "title": "InSight (mars)",
+      "sourcePath": "src/config/deviceManifest.json#insight_lander",
+      "section": "insight_lander",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/insight-lander-3d-model/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: insight_lander · InSight (Lander)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment · InSight (Elysium Planitia, 2018–2022)\nSummary: NASA/JPL-Caltech InSight seismometer model (stationary on the surface by default); simulated movement is illustrative.\nSource: InSight (https://science.nasa.gov/resource/insight-lander-3d-model/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/JPL-Caltech · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/insight_lander.glb · bytes=22357936 · sha256=1e944bedb23af07962ba9f2b88d195b561665f255573b29ba7d028293a179387\nReference coordinates: lat 4.502, lon 135.623\nAgency/Program: NASA / JPL & CNES / DLR · Discovery Mission 12 · Era: Launched May 5, 2018 · Landed Elysium Planitia Nov 26, 2018 (1,440 sols)\nBiography: A stationary geophysical observatory dedicated to listening to Mars’s deep interior heartbeat using a ultra-sensitive dome-shielded seismometer, precision radio tracking, and meteorology boom.\nTechnical Specs: Landed Mass: 358 kg · two 2.15 m decagonal solar wings; Deployment Arm: 2.4 m 4-DOF Instrument Deployment Arm (IDA) + scoop; Geophysics Suite: SEIS (VBB+SP seismometers), HP³ mole, RISE X-band transponder; Weather Sensors: APSS pressure transducer, TWINS wind booms, IFG magnetometer\nMeasured Mission Data: Marsquakes Logged: 1,319+ seismic events (up to Magnitude ~5 on May 4, 2022); Liquid Core Radius: ~1,830 km ± 40 km molten Fe-Ni + light elements; Crustal Thickness: ~24–72 km beneath InSight (39 km global reference layers)\nScientific Contributions: Confirmed Mars remains seismically and tectonically active, notably around the Cerberus Fossae graben system. | Directly measured the boundary radii and density of the Martian crust, mantle, and liquid metallic core for the first time. | Captured first acoustic infrasound of Martian winds, vortex pressure drops, and meteoroid impact seismic waves.\nModel Disclaimer: Uses the verified NASA InSight GLB with articulated 83-node arm/turret hierarchy bounded within illustrative safety angles.\nSimulation Profile: mobilityKind=lander_static, maxSpeedMs=1.8, supportsRealMobility=false, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=6, physicalScaleVerified=false\nSimulation Note: Stationary seismometer (Elysium Planitia); supports area exploration using \"Simulated mobility\" mode. · NASA InSight GLB (stationary real lander · supports simulated mobility)\nInteractive Control Spec: Full structure (83 nodes) [83 nodes]: Launch mass ~358 kg (lander only); span ~6.0 m with both Ultraflex arrays deployed on Elysium Planitia. | IDA arm and IDC camera [8 nodes]: The ~1.8 m robotic arm (4 degrees of freedom) carries the IDC color camera, lens cap (lens_cap_IDC), and soil scoop (shovel). | Five-finger grapple [6 nodes]: The passive five-finger grapple (grapple, claw_01–claw_05) was used to place the SEIS seismometer and HP³ heat probe on the surface. | Two Ultraflex solar arrays [68 nodes]: Two deployed, 10-sided disk-shaped solar arrays, each ~2.15 m in diameter, with a combined design output of hundreds of watts at midday. | Lander deck and main antenna [1 nodes]: The Phoenix-derived three-legged lander body carries the SEIS seismometer, TWINS weather sensors, and RISE system.\nCamera Presets: Lander overview (illustrative=true), IDA arm and grapple (illustrative=true), Two Ultraflex solar arrays (2.15 m) (illustrative=true), Deck and SEIS/HP³ instruments (illustrative=true)"
+    },
+    {
+      "id": "device_ingenuity_helicopter",
+      "title": "Ingenuity (mars)",
+      "sourcePath": "src/config/deviceManifest.json#ingenuity_helicopter",
+      "section": "ingenuity_helicopter",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/ingenuity-mars-helicopter/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: ingenuity_helicopter · Ingenuity (Helicopter)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment & low-altitude flights · Jezero Crater (2021–2024)\nSummary: NASA 3D Resources Ingenuity helicopter model (NASA/Brian E. Kumanchik · JPL-Caltech); aerodynamics and rotor speed in the 3D scene are illustrative.\nSource: Ingenuity (https://science.nasa.gov/3d-resources/ingenuity-mars-helicopter/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/Brian E. Kumanchik (source page); NASA/JPL-Caltech (supplied ZIP) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/ingenuity_helicopter.glb · bytes=2019408 · sha256=9e5a5398ab335eae7d46335085301ce46fb7de052300b645debe8bac6d39f2b5\nReference coordinates: lat 18.38, lon 77.58\nAgency/Program: NASA / JPL & AeroVironment · Mars 2020 Technology Demo · Era: First flight Apr 19, 2021 · 72 flights completed through Jan 18, 2024\nBiography: The first aircraft in history to achieve controlled, powered aerodynamic flight on another planet, overcoming Mars’s ~1% Earth sea-level air density inside Jezero Crater.\nTechnical Specs: Flight Mass: 1.8 kg (680 g Earth-equivalent weight on Mars); Rotor System: 1.2 m carbon-fiber counter-rotating coaxial blades (~2,400–2,900 RPM); Avionics / Nav: Qualcomm Snapdragon 801 flight computer, NAV downward + RTE color cams; Power System: Top-mounted solar array charging 6 Sony Li-ion cells (~350 W flight peak)\nMeasured Mission Data: Total Flight Record: 72 flights · 17.0 km cumulative distance · 128.8 min air time; Performance Peaks: Max altitude 24 m · max groundspeed 10 m/s · longest hop 704 m; Air Density: ~0.015–0.020 kg/m³ CO₂ (~1–1.5% of Earth sea level)\nScientific Contributions: Transitioned from a 5-flight experimental demo into Perseverance’s tactical aerial scout across hazardous dune fields and boulders. | Proved supersonic-tip-margin coaxial aerodynamics and autonomous optical-flow visual odometry off-world. | Established flight design heritage for future Mars rotorcraft sample-recovery and science helicopters.\nModel Disclaimer: Displays the verified NASA Ingenuity GLB (11-node helicopter tree); rotor spin speeds in this viewer are visual approximations only.\nSimulation Profile: mobilityKind=helicopter, maxSpeedMs=10, supportsRealMobility=true, supportsSimulatedSurfaceDrive=false, supportsFlight=true, targetLongestSideM=1.21, physicalScaleVerified=false\nSimulation Note: Record maximum horizontal speed of 10 m/s; flight ceiling up to 24 m in Mars’s thin atmosphere. · NASA/JPL Ingenuity GLB (11 nodes) + simulated flight in the Martian atmosphere\nInteractive Control Spec: All components (11 nodes) [11 nodes]: Mass 1.8 kg on Earth (~0.68 kg on Mars); height 0.49 m; coaxial rotor span 1.21 m. | Coaxial rotor system (rotors_01/02) [4 nodes]: Two counter-rotating, 1.21 m-diameter carbon-fiber rotor levels; design speed ~2,400 rpm (associated with parts_01 and parts_02). | Solar panel and antenna (solar_panel) [1 nodes]: Photovoltaic array mounted atop the rotor mast to charge six Li-ion cells, with a communications antenna mast above. | Avionics and sensor bus [1 nodes]: The thermally controlled 13.6 × 19.5 × 16.3 cm body houses the flight computer, IMU, autonomy processor, and underside laser altimeter port. | RTE and Navcam assembly (cams) [1 nodes]: Includes a downward-facing navigation camera (0.5 MP monochrome Navcam) and a horizon-facing color camera (13 MP RTE). | Four carbon landing legs (leg_01–04) [4 nodes]: Four carbon-composite landing legs, with ~13 cm ground clearance when on the surface.\nCamera Presets: Three-quarter overview (illustrative=true), Rotor and solar panel assembly (illustrative=true), RTE color camera (13 MP · forward-facing) (illustrative=true), Navcam (0.5 MP · downward-facing) (illustrative=true)"
+    },
+    {
+      "id": "device_dawn_spacecraft",
+      "title": "Dawn Spacecraft (Bay ngang 2009) (mars)",
+      "sourcePath": "src/config/deviceManifest.json#dawn_spacecraft",
+      "section": "dawn_spacecraft",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/dawn/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: dawn_spacecraft · Dawn Spacecraft (Bay ngang 2009) (Flyby Encounter)\nBody: mars · Catalog Scope: encounter_context · Status: available\nRelationship: Feb 17, 2009 flyby context · Not deployed on the surface / Not in a current orbit\nSummary: NASA/JPL-Caltech Dawn spacecraft model; performed only a gravity-assist Mars flyby on Feb 17, 2009 (~549 km) en route to Vesta and Ceres, never landing or entering a current Mars orbit.\nSource: Dawn Spacecraft (https://science.nasa.gov/3d-resources/dawn/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/JPL-Caltech (supplied ZIP) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/dawn_spacecraft.glb · bytes=927020 · sha256=411249aed791994b6a2014894ad6bd7ca0445dbcf6d5342af9edc5df988f04b7\nAgency/Program: NASA / JPL & UCLA · Discovery Mission 9 (Mars Flyby Context Only) · Era: Launched Sep 27, 2007 · Mars Gravity Assist Flyby Feb 17, 2009 (~549 km) on route to Vesta & Ceres\nBiography: The first spacecraft to orbit two extraterrestrial Solar System bodies (protoplanet Vesta and dwarf planet Ceres). Dawn executed a single unpowered gravity-assist flyby past Mars on Feb 17, 2009 (~549 km altitude) and never orbited or landed on Mars.\nTechnical Specs: Dry / Launch Mass: 747 kg dry · 1,217 kg launch (incl. 425 kg Xenon propellant); Propulsion: 3× NSTAR xenon ion thrusters (specific impulse ~3,100 s); Solar Wing Span: 19.7 m tip-to-tip (10.3 kW at 1 AU); Science Suite: Framing Cameras, VIR imaging spectrometer, GRaND neutron detector\nMeasured Mission Data: Mars Flyby Periapsis: 549 km altitude on Feb 17, 2009 · +9,330 km/h gravity-assist trajectory turn; Total Ion Delta-V: 11.5 km/s achieved over 11-year deep-space mission (Vesta & Ceres); VIR Checkouts: Infrared/camera calibration pass during the 2009 Mars encounter\nScientific Contributions: Used Mars’s gravity well once in Feb 2009 to incline its heliocentric orbit by ~5 degrees toward the Main Asteroid Belt. | Captured multi-band framing camera and VIR spectrometer calibration spectra during the brief flyby. | Demonstrated long-duration xenon ion cruising around Vesta and Ceres rather than Mars orbit.\nModel Disclaimer: Official NASA/JPL-Caltech Dawn GLB (`dawn_spacecraft.glb`). Shown strictly as historical Feb 2009 Mars gravity-assist encounter context — not a Mars surface deployment and not a present-day Mars orbiter.\nSimulation Profile: mobilityKind=orbital, maxSpeedMs=0, supportsRealMobility=false, supportsSimulatedSurfaceDrive=false, supportsFlight=false, targetLongestSideM=19.7, physicalScaleVerified=false\nSimulation Note: Orbital velocity is calculated using Kepler’s laws around the parent body. · NASA/JPL-Caltech Dawn GLB · Feb 17, 2009 Mars flyby context (not in a current orbit / not surface-deployed)"
+    },
+    {
+      "id": "device_near_shoemaker",
+      "title": "NEAR Shoemaker (reference)",
+      "sourcePath": "src/config/deviceManifest.json#near_shoemaker",
+      "section": "near_shoemaker",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/near-shoemaker/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: near_shoemaker · NEAR Shoemaker (Reference Spacecraft)\nBody: reference · Catalog Scope: reference_spacecraft · Status: available\nRelationship: Non-Mars reference spacecraft · Orbit and landing at asteroid 433 Eros\nSummary: NASA/APL reference model (asteroid 433 Eros); not part of the Mars or Moon catalogs.\nSource: NEAR Shoemaker (https://science.nasa.gov/3d-resources/near-shoemaker/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/JPL-Caltech (supplied ZIP) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/near_shoemaker.glb · bytes=701808 · sha256=f3de2f87c97685b207be97e80d7cdca37d1567dd68204e1feb2d85f90e3adb0c\nAgency/Program: NASA / APL · Discovery 1 · Non-Mars Deep-Space Reference (Asteroid 433 Eros) · Era: Launched Feb 17, 1996 · Asteroid 433 Eros Mission (Excluded from Mars Catalog)\nBiography: The first spacecraft to orbit and softly touch down on asteroid 433 Eros. Preserved here solely as an off-planet NASA APL spacecraft reference model from the local asset archive; NEAR Shoemaker never visited Mars.\nTechnical Specs: Dry Mass: 487 kg · octagonal aluminum bus; Power System: 4 GaAs fixed solar paddles (~400 W at 2.2 AU); Instruments: MSI camera, NIS IR spectrometer, XGRS, NLR laser rangefinder, MAG\nMeasured Mission Data: Mission Duration: 5 years active (1996–2001) · 1 year in orbit around 433 Eros; Touchdown Velocity: ~1.5–1.8 m/s final soft impact on Eros surface (Feb 12, 2001)\nScientific Contributions: Collected >160,000 high-resolution surface images and complete laser altimetry shape models of asteroid 433 Eros. | Confirmed primitive chondritic elemental ratios directly linking S-type asteroids to ordinary chondrite meteorites.\nModel Disclaimer: Non-Mars reference asset (`near_shoemaker.glb`, NASA/JPL-Caltech / APL archive). Excluded from the Mars surface catalog; asteroid 433 Eros spacecraft only.\nSimulation Profile: mobilityKind=orbital, maxSpeedMs=0, supportsRealMobility=false, supportsSimulatedSurfaceDrive=false, supportsFlight=false, targetLongestSideM=2.75, physicalScaleVerified=false\nSimulation Note: Orbital velocity is calculated using Kepler’s laws around the parent body. · NASA NEAR Shoemaker GLB · Non-Mars reference spacecraft (asteroid 433 Eros)"
+    },
+    {
+      "id": "device_pioneer_10",
+      "title": "Pioneer 10 (reference)",
+      "sourcePath": "src/config/deviceManifest.json#pioneer_10",
+      "section": "pioneer_10",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/pioneer/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: pioneer_10 · Pioneer 10 (Reference Spacecraft)\nBody: reference · Catalog Scope: reference_spacecraft · Status: available\nRelationship: Non-Mars reference spacecraft · Jupiter encounter and deep-space exploration\nSummary: NASA/Ames reference model; spacecraft flew by Jupiter and is not part of the Mars surface or orbital catalogs.\nSource: Pioneer 10 (https://science.nasa.gov/3d-resources/pioneer/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/JPL-Caltech (supplied ZIP) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/pioneer_10.glb · bytes=2049840 · sha256=81443a7fa01cca0dda878cd27692b3307f9c332c4eb8e55a844499d7b350573c\nAgency/Program: NASA / Ames Research Center · Outer Planets Reference (Non-Mars) · Era: Launched Mar 3, 1972 · Jupiter Flyby & Deep-Space Cruise Reference Model\nBiography: Humanity’s first spacecraft to cross the Asteroid Belt and fly past Jupiter; carried the Pioneer plaque toward the outer heliosphere. Included strictly in the non-Mars engineering reference section — Pioneer 10 is not part of the Mars surface or orbital catalog.\nTechnical Specs: Launch Mass: 258 kg · spin-stabilized at 4.8 RPM; High-Gain Dish: 2.74 m parabolic reflector; Power System: 4× SNAP-19 Pu-238 RTGs on twin radial trusses (~155 W launch)\nMeasured Mission Data: Last Weak Signal: Jan 23, 2003 at 12.2 billion km (~82 AU from Earth); Jupiter Flyby: 132,252 km cloud-top closest approach (Dec 1973)\nScientific Contributions: Demonstrated safe passage through micrometeoroid zones beyond Mars orbit and intense Jovian radiation belts. | Provided outer Solar System solar-wind, cosmic-ray, and Doppler anomalous-acceleration tracking baselines.\nModel Disclaimer: Non-Mars outer-planet reference asset (`pioneer_10.glb`, NASA/JPL-Caltech / Ames). Excluded from the Mars surface catalog; never orbited or landed on Mars.\nSimulation Profile: mobilityKind=orbital, maxSpeedMs=0, supportsRealMobility=false, supportsSimulatedSurfaceDrive=false, supportsFlight=false, targetLongestSideM=2.9, physicalScaleVerified=false\nSimulation Note: Orbital velocity is calculated using Kepler’s laws around the parent body. · NASA Pioneer 10 GLB · Non-Mars reference spacecraft (Jupiter encounter)"
+    },
+    {
+      "id": "device_kepler_space_telescope",
+      "title": "Kepler Space Telescope (reference)",
+      "sourcePath": "src/config/deviceManifest.json#kepler_space_telescope",
+      "section": "kepler_space_telescope",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/kepler-a/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: kepler_space_telescope · Kepler Space Telescope (Reference Telescope)\nBody: reference · Catalog Scope: reference_spacecraft · Status: available\nRelationship: Non-Mars reference telescope · Heliocentric Earth-trailing orbit\nSummary: NASA/Ames reference model of an exoplanet-hunting telescope; it did not operate at Mars or the Moon.\nSource: Kepler Space Telescope (https://science.nasa.gov/3d-resources/kepler-a/, checked 2026-11-14, version Supplied ZIP; original GLB bytes)\nCredit: NASA/JPL-Caltech (supplied ZIP) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/kepler_space_telescope.glb · bytes=2003276 · sha256=382014d90e2cf3e1f23e931d233547e652fe3629fddfb5acb8a99e2ceb72ff19\nAgency/Program: NASA / Ames & Ball Aerospace · Discovery 10 · Non-Mars Reference Telescope · Era: Launched Mar 7, 2009 · Retired Nov 2018 (Heliocentric Earth-trailing orbit)\nBiography: Space photometer observatory built to measure Earth-sized exoplanet occurrence in a heliocentric Earth-trailing orbit. Preserved strictly in the separate deep-space reference archive — Kepler never orbited or observed Mars as a planetary surface mission.\nTechnical Specs: Launch Mass: 1,052 kg · 0.95 m aperture Schmidt photometer (1.4 m mirror); Focal Plane: 42 CCD mosaic · 95-megapixel curved focal surface; Orbit: Earth-trailing heliocentric ~372.5-day solar orbit\nMeasured Mission Data: Stars Monitored: >530,000 stars across primary + K2 campaigns; Confirmed Planets: 2,700+ confirmed exoplanets discovered (>3,000 candidates)\nScientific Contributions: Demonstrated statistically that small rocky planets outnumber stars in the Milky Way galaxy. | Uncovered ultra-compact multi-planet resonant systems, circumbinary worlds, and sub-Neptune radius valley physics.\nModel Disclaimer: Non-Mars heliocentric space telescope reference asset (`kepler_space_telescope.glb`, NASA/JPL-Caltech / Ames). Excluded from the Mars surface catalog.\nSimulation Profile: mobilityKind=orbital, maxSpeedMs=0, supportsRealMobility=false, supportsSimulatedSurfaceDrive=false, supportsFlight=false, targetLongestSideM=4.7, physicalScaleVerified=false\nSimulation Note: Orbital velocity is calculated using Kepler’s laws around the parent body. · NASA Kepler GLB · Non-Mars reference telescope (heliocentric orbit)"
+    },
+    {
+      "id": "device_mro_orbiter",
+      "title": "Mars Reconnaissance Orbiter (MRO) (mars)",
+      "sourcePath": "src/config/deviceManifest.json#mro_orbiter",
+      "section": "mro_orbiter",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/mars-reconnaissance-orbiter-3d-model/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: mro_orbiter · Mars Reconnaissance Orbiter (MRO) (Orbiter)\nBody: mars · Catalog Scope: body_orbit · Status: available\nRelationship: Active orbiter · Mars Reconnaissance Orbiter\nSummary: Official NASA 3D Resources reference GLB for MRO; shape reference only — no operational telemetry or physical scale simulation.\nSource: Mars Reconnaissance Orbiter (MRO) (https://science.nasa.gov/resource/mars-reconnaissance-orbiter-3d-model/, checked 2026-11-14, version 24884_MRO.glb)\nCredit: NASA/JPL-Caltech (official NASA 3D Resources) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/mro_orbiter.glb · bytes=624660 · sha256=69ee5dcdddfdbbd5ef7e144757926d6a89729b2ff265477659e82abeaacee621\nAgency/Program: NASA / JPL & Lockheed Martin · Mars Reconnaissance Orbiter · Era: Launched Aug 12, 2005 · In Mars Polar Orbit Since Mar 10, 2006 (Active)\nBiography: Mars’s premier high-resolution remote-sensing eye and deep-space communications relay, operating in a sun-synchronous 255 × 320 km near-polar mapping orbit.\nTechnical Specs: Dry / Wet Mass: 1,031 kg dry · 2,180 kg launch mass; Optics & Radar: HiRISE (0.5 m telescope, 0.3 m/px), CTX, CRISM, SHARAD, MCS; High-Gain Dish: 3.0 m parabolic Ka/X-band UHF/DSN relay antenna; Solar Arrays: Dual 5.3 × 2.5 m tracking wings (~2,000 W in Mars orbit)\nMeasured Mission Data: Data Returned: >450 terabits (>100,000 HiRISE targeted stereopairs & images); Subsurface Ice: SHARAD radar mapped km-thick mid-latitude glaciers & layered polar ice; Landing Support: Verified landing safety & live EDL telemetry for Phoenix, Curiosity, InSight, Perseverance\nScientific Contributions: Identified phyllosilicate clays, hydrated sulfates, chlorides, and silica terraces guiding every modern Mars landing site selection. | Detected active Martian surface change in real time: fresh impact craters excavating pure water ice, migrating sand dunes, and CO₂ ice geysers. | Serves as the critical primary UHF data relay between surface landers/rovers and NASA Deep Space Network.\nModel Disclaimer: Displays the verified NASA MRO GLB during Model Close-Up; orbital path and cupola POV are illustrative.\nSimulation Profile: mobilityKind=orbital, maxSpeedMs=0, supportsRealMobility=false, supportsSimulatedSurfaceDrive=false, supportsFlight=false, targetLongestSideM=6.5, physicalScaleVerified=false\nSimulation Note: Orbital velocity is calculated using Kepler’s laws around the parent body. · NASA/JPL-Caltech MRO GLB · Active Mars orbiter (illustrative camera view)"
+    },
+    {
+      "id": "device_curiosity_rover",
+      "title": "Curiosity (mars)",
+      "sourcePath": "src/config/deviceManifest.json#curiosity_rover",
+      "section": "curiosity_rover",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/curiosity-rover-3d-model/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: curiosity_rover · Curiosity (Rover)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment · Mars Science Laboratory (Gale Crater, 2012–present)\nSummary: Official NASA/JPL-Caltech Curiosity (MSL) 3D model; single static glTF mesh at nominal surface configuration (Gale Crater, Aeolis Palus).\nSource: NASA 3D Resources — Curiosity Rover 3D Model (MSL) (https://science.nasa.gov/resource/curiosity-rover-3d-model/, checked 2026-11-14, version 24584_Curiosity_static.glb)\nCredit: NASA/JPL-Caltech (official NASA 3D Resources) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified against engineering CAD drawings · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/curiosity_rover.glb · bytes=11860016 · sha256=86a8ee6d39fb1711ae549ba99951d2f52b44a7b8367ce4814cc81aec60e94b31\nReference coordinates: lat -4.5895, lon 137.4417\nAgency/Program: NASA / JPL · Mars Science Laboratory (MSL) · Era: Launched Nov 26, 2011 · Landed Gale Crater Aug 6, 2012 (Active >4,300 sols)\nBiography: A car-sized nuclear-powered analytical laboratory exploring Gale Crater and climbing the 5.5 km layered sediments of Aeolis Mons (Mount Sharp) to reconstruct ancient habitability.\nTechnical Specs: Rover Mass: 899 kg (incl. 75 kg scientific instrument payload); Power System: MMRTG Pu-238 radioisotope generator (~110 W at landing); Mobility / Arm: 6× 0.50 m machined Al wheels · 2.1 m 5-DOF rotary percussive drill arm; Payload (10): Mastcam, ChemCam (LIBS), MAHLI, MARDI, APXS, CheMin, SAM, RAD, DAN, REMS\nMeasured Mission Data: Traverse / Climb: >33 km driven · >800 m vertical ascent up Mount Sharp strata; Habitability Finding: Neutral pH ancient lakebeds at Yellowknife Bay with C, H, N, O, P, S; Organics & Methane: Indigenous thiophenes & chlorobenzene organics; seasonal CH₄ ~0.2–0.7 ppbv + spikes\nScientific Contributions: Achieved MSL’s core goal within months: proved Gale Crater once held long-lived habitable freshwater lakes and groundwater systems. | Discovered bedrock clay-to-sulfate transitions recording Mars’s planetary drying over 3.5+ billion years. | Pioneered sky-crane pinpoint EDL precision and measured surface radiation (RAD) essential for future human Mars mission planning.\nModel Disclaimer: Rendered from the official NASA/JPL-Caltech Curiosity GLB (24584_Curiosity_static.glb). Geometry is a single static mesh without articulated joints; physical metric CAD dimensions and live kinematics are illustrative.\nSimulation Profile: mobilityKind=rover_6w, maxSpeedMs=2.8, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=3.94, physicalScaleVerified=false\nSimulation Note: Actual speed ~0.04 m/s (MSL Gale Crater); exploration mode extends to 2.8 m/s. · NASA/JPL-Caltech GLB + synthesized terrain based on MOLA parameters\nInteractive Control Spec: Complete Static MSL Mesh (1 node) [1 nodes]: Launch mass 899 kg (dimensions ~3.0 m × 2.7 m × 2.2 m); nuclear-powered Mars Science Laboratory laboratory rover operating in Gale Crater since 2012.\nCamera Presets: 3/4 Rover Overview (illustrative=true), ChemCam & Mastcam Head (illustrative=true), Sampling Arm & MAHLI Turret (illustrative=true), Aft MMRTG & High-Gain Dish (illustrative=true)"
+    },
+    {
+      "id": "device_perseverance_rover",
+      "title": "Perseverance (mars)",
+      "sourcePath": "src/config/deviceManifest.json#perseverance_rover",
+      "section": "perseverance_rover",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/mars-perseverance-rover-3d-model/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: perseverance_rover · Perseverance (Rover)\nBody: mars · Catalog Scope: body_surface · Status: available\nRelationship: Surface deployment · Mars 2020 (Jezero Crater, 2021–present)\nSummary: Official NASA/JPL-Caltech Perseverance (Mars 2020) 3D model with 66 named hardware nodes across mobility, Mastcam-Z/SuperCam mast, robotic arm/PIXL turret, and MMRTG/RIMFAX subsystems.\nSource: NASA 3D Resources — Mars Perseverance Rover 3D Model (https://science.nasa.gov/resource/mars-perseverance-rover-3d-model/, checked 2026-11-14, version 25042_Perseverance.glb)\nCredit: NASA/JPL-Caltech (official NASA 3D Resources) · License: NASA media usage guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; physical dimensions unverified against engineering CAD drawings · physicalScaleVerified=false\nVerified GLB Model: /assets/models/mars/perseverance_rover.glb · bytes=11687880 · sha256=484f00aa5d3739b127b6d413e77149a2d74ae87b76ae57463c4b91965ffb4990\nReference coordinates: lat 18.38, lon 77.58\nAgency/Program: NASA / JPL · Mars 2020 Mission · Era: Launched Jul 30, 2020 · Landed Jezero Crater Feb 18, 2021 (Active)\nBiography: Mars’s flagship astrobiology and sample-caching rover exploring an ancient river delta inside Jezero Crater while preparing hermetically sealed cores for future Mars Sample Return.\nTechnical Specs: Rover Mass: 1,025 kg · strengthened thick-tread curved-grouser aluminum wheels; Power System: MMRTG Pu-238 (~110 W electric + waste heat fluid loop); Payload (7): Mastcam-Z, SuperCam, PIXL, SHERLOC, RIMFAX, MEDA, MOXIE; Sample Caching: Rotary-percussive coring turret + Adaptive Caching Assembly (43 tubes)\nMeasured Mission Data: Samples Sealed: 24+ igneous, delta mudstone, and carbonate cores + 10-tube Three Forks depot; MOXIE Oxygen: 122 g O₂ produced from CO₂ atmosphere at ~98% purity across 16 runs; RIMFAX Radar: Imaged dipping delta foreset beds down to ~15–20 m beneath Jezero floor\nScientific Contributions: Built the first extraterrestrial cached sample depot and confirmed basaltic-olivine magma floor overlain by lacustrine/deltaic carbonate sediments. | Operated MOXIE, proving in-situ resource utilization (ISRU) oxygen generation from Martian CO₂ for future ascent rockets and crew life support. | Deployed Ingenuity helicopter and recorded the first direct microphones audio of Martian winds, laser sparks, and rover wheels.\nModel Disclaimer: Rendered from the official NASA/JPL-Caltech Perseverance GLB (25042_Perseverance.glb, 66 hardware nodes). Subsystem highlighting and camera views reflect the NASA mesh hierarchy; telemetry and Control Room POV imagery are illustrative.\nSimulation Profile: mobilityKind=rover_6w, maxSpeedMs=3, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=4.09, physicalScaleVerified=false\nSimulation Note: Actual maximum speed ~0.042 m/s (Mars 2020); exploration mode supports up to 3.0 m/s. · NASA/JPL-Caltech GLB (66 nodes) + synthesized terrain based on MOLA parameters\nInteractive Control Spec: Complete Rover Assembly (66 nodes) [66 nodes]: Launch mass 1,025 kg (dimensions ~3.0 m × 2.7 m × 2.2 m); car-sized Mars 2020 astrobiology and core-caching flagship rover. | Remote Sensing Mast & Cameras (17) [17 nodes]: Includes Mastcam-Z stereo zoom imagers, SuperCam LIBS/Raman head (lens), NavCams, EDL Up/Down Look cameras, MEDA probes, and calibration targets. | Sampling Arm, Turret & Belly Bay (25) [25 nodes]: 2.1 m 5-axis robotic arm carrying a ~45 kg turret with rotary-percussive coring drill, PIXL, and WATSON, plus under-chassis sample/helicopter bay hardware. | Rocker-Bogie Chassis & Hazcams (17) [17 nodes]: Titanium rocker-bogie suspension with six 52.5 cm strengthened aluminum curved-grouser wheels, avionics body, MOXIE/ACA bay, and front/rear Hazcams. | MMRTG, Antennas & RIMFAX (7) [7 nodes]: Pu-238 MMRTG (~110 W initial electric), High-Gain/Low-Gain/UHF antennas, rear bumper RIMFAX subsurface radar, and belly shield panel.\nCamera Presets: 3/4 Rover Overview (illustrative=true), Mastcam-Z & SuperCam Head (illustrative=true), 2.1 m Arm & PIXL/WATSON Turret (illustrative=true), Aft MMRTG & RIMFAX Radar (illustrative=true)"
+    },
+    {
+      "id": "device_apollo_lrv",
+      "title": "Lunar Roving Vehicle (LRV) (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_lrv",
+      "section": "apollo_lrv",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "/assets/provenance/apollo-equipment.csv"
+      ],
+      "text": "Device ID: apollo_lrv · Lunar Roving Vehicle (LRV) (Rover)\nBody: moon · Catalog Scope: body_surface · Status: unavailable\nRelationship: Surface deployment (illustrative reconstruction) · Apollo 15–17\nSummary: Documented, but no Moon GLB has been supplied and verified. LRV operating and systems manuals cover equipment layouts, TV cameras, antennas, controllers, and navigation systems.\nSource: Apollo equipment notes (supplied CSV) (/assets/provenance/apollo-equipment.csv, checked 2026-11-14, version User-supplied notes; undated)\nCredit: NASA / Lunar and Planetary Institute references named in supplied device notes · License: No model supplied\nUnits/Transform: No original 3D model; supports an illustrative reconstruction and control-room POV. · physicalScaleVerified=false\nProcedural / No-GLB status: unavailable GLB, proceduralModel=apollo_lrv (illustrative reconstruction only)\nReference coordinates: lat 26.1322, lon 3.6339\nAgency/Program: NASA MSFC · Boeing / Delco Electronics · Apollo J-Missions · Era: Operated on Apollo 15 (1971), Apollo 16 (1972) & Apollo 17 (1972)\nBiography: An electric, collapsible 4×4 lunar dune buggy stowed in Quadrant 1 of the Apollo Lunar Module Descent Stage that multiplied astronauts’ geological exploration range on the Moon.\nTechnical Specs: Empty Mass: 210 kg Earth weight (~34.5 kg lunar weight · 490 kg payload capacity); Dimensions: 3.1 m length × 2.06 m width × 2.3 m wheelbase; Traction & Tires: 4 × 0.25 hp (186 W) DC hub motors · piano-wire zinc-coated mesh wheels; Power & Nav: Two 36 V AgZn primary batteries (121 Ah each) · gyro dead-reckoning\nMeasured Mission Data: Combined Mileage: 90.6 km total driven across Apollo 15, 16, and 17; Top Lunar Speed: 18.0 km/h (recorded downhill during Apollo 17 by Gene Cernan); Grade Climbing: Sustained climbs up 20–25° dusty regolith slopes\nScientific Contributions: Transformed Apollo from local LM-vicinity walks into regional multi-kilometer geological field expeditions. | Carried 286+ kg total of Apollo 15/16/17 documented lunar rock cores, orange glass beads, and anorthosite samples. | Demonstrated wire-mesh elastic wheel traction and passive multi-layer thermal control on vacuum regolith.\nModel Disclaimer: No official Apollo LRV `.glb` exists in the repository; rendered via an interactive procedural 3D spaceframe & LCRU assembly.\nSimulation Profile: mobilityKind=rover_4w, maxSpeedMs=4.5, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=3.1, physicalScaleVerified=false\nSimulation Note: Designed speed ~13 km/h (3.6 m/s); Apollo 17 record was 18 km/h (5.0 m/s). Simulation is capped at 4.5 m/s. · Apollo LRV geometric reconstruction + synthesized LOLA terrain (Hadley–Apennine)"
+    },
+    {
+      "id": "device_apollo_lrv_deployment",
+      "title": "LRV deployment mechanism & chassis (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_lrv_deployment",
+      "section": "apollo_lrv_deployment",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "/assets/provenance/apollo-equipment.csv"
+      ],
+      "text": "Device ID: apollo_lrv_deployment · LRV deployment mechanism & chassis (Deployment mechanism)\nBody: moon · Catalog Scope: body_surface · Status: unavailable\nRelationship: Surface deployment (illustrative reconstruction) · Apollo LRV deployment mechanism\nSummary: Documented, but no Moon GLB has been supplied and verified. Includes the deployment mechanism, chassis, four independently driven wheels, suspension, and two silver-zinc batteries.\nSource: Apollo equipment notes (supplied CSV) (/assets/provenance/apollo-equipment.csv, checked 2026-11-14, version User-supplied notes; undated)\nCredit: NASA / Lunar and Planetary Institute references named in supplied device notes · License: No model supplied\nUnits/Transform: No original 3D model; supports an illustrative reconstruction and control-room POV. · physicalScaleVerified=false\nProcedural / No-GLB status: unavailable GLB, proceduralModel=apollo_lrv_deploy (illustrative reconstruction only)\nReference coordinates: lat 26.1322, lon 3.6339\nAgency/Program: NASA MSC / NTRS · LRV Quadrant 1 Deployment Assembly · Era: Apollo 15, 16 & 17 LM Descent Stage Unfolding Sequence\nBiography: Ingenious spring-assisted, lanyard-deployed folding mechanism allowing two pressure-suited astronauts to pull, unfold, and lock a full 3.1 m vehicle from a wedge bay in ~20 minutes.\nTechnical Specs: Stowed Envelope: Tri-folded hinged aluminum chassis packed inside LM Quadrant 1; Actuation: Crew-pulled nylon tapes, torsion bars, damping reels & locking pins; Sub-Frames: Center load bay + folding aft engine/palette + folding forward suspension\nMeasured Mission Data: Deployment Time: ~18–25 minutes EVA crew procedure from LM Quadrant 1 release; Clearance Angle: ~45–60° tilt-out arc prior to wheel deployment onto lunar surface\nScientific Contributions: Solved severe Apollo mass and volume constraints without hydraulic actuators or ground cranes. | Validated cold-vacuum mechanical latch reliability across extreme +120 °C sunlit storage gradients.\nModel Disclaimer: Illustrative 3D procedural deployment-pose model derived from NASA NTRS LRV Systems & Deployment manuals; zero `.glb` files loaded.\nSimulation Profile: mobilityKind=lander_static, maxSpeedMs=2.4, supportsRealMobility=false, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=3.4, physicalScaleVerified=false\nSimulation Note: Mechanism for lowering the LRV from Lunar Module Quadrant 1; enable \"Simulated mobility\" to drive around the landing area. · Apollo LRV deployment mechanism reconstruction (stationary · supports simulated mobility)"
+    },
+    {
+      "id": "device_apollo_15_lrv",
+      "title": "LRV Apollo 15 (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_15_lrv",
+      "section": "apollo_15_lrv",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "/assets/provenance/apollo-equipment.csv"
+      ],
+      "text": "Device ID: apollo_15_lrv · LRV Apollo 15 (Rover)\nBody: moon · Catalog Scope: body_surface · Status: unavailable\nRelationship: Surface deployment (illustrative reconstruction) · Apollo 15 (Hadley Rille, 1971)\nSummary: Documented, but no Moon GLB has been supplied and verified. LRV-1: seating, instrument panel, cameras, and external equipment configuration per the Apollo 15 systems manual.\nSource: Apollo equipment notes (supplied CSV) (/assets/provenance/apollo-equipment.csv, checked 2026-11-14, version User-supplied notes; undated)\nCredit: NASA / Lunar and Planetary Institute references named in supplied device notes · License: No model supplied\nUnits/Transform: No original 3D model; supports an illustrative reconstruction and control-room POV. · physicalScaleVerified=false\nProcedural / No-GLB status: unavailable GLB, proceduralModel=apollo_lrv (illustrative reconstruction only)\nReference coordinates: lat 26.1322, lon 3.6339\nAgency/Program: NASA · Apollo 15 (LRV-1) · Hadley-Apennine Site · Era: Deployed Jul 31, 1971 · Crew: David Scott & James Irwin\nBiography: The inaugural Lunar Roving Vehicle (LRV-1), carrying astronauts to the sinuous walls of Hadley Rille and the Apennine foothills including the discovery of the \"Genesis Rock\" anorthosite.\nTechnical Specs: Vehicle ID: LRV-1 · Front-wheel steering only after forward steering fault; Battery Capacity: Two 36 V, 121 Ah non-rechargeable AgZn cells (~4.3 kWh each); Broadcast Comms: Earth-aimed high-gain parabolic dish + color LCRU TV camera\nMeasured Mission Data: Traverse Distance: 27.9 km across 3 EVAs (~3 h 02 m driving time); Max Range from LM: 5.0 km radial excursion to Spur Crater & Hadley Rille rim; Samples Returned: 77 kg of lunar rocks including #15415 anorthosite (\"Genesis Rock\")\nScientific Contributions: Collected sample 15415 ferroan anorthosite (~4.1+ billion years old), foundational evidence for the Lunar Magma Ocean hypothesis. | Broadcast live high-resolution geological traverse video controlled remotely from Houston Mission Control.\nModel Disclaimer: Illustrative procedural 3D hardware assembly based on NASA Apollo 15 Press Kit & Operations Handbook; no `.glb` model bundled.\nSimulation Profile: mobilityKind=rover_4w, maxSpeedMs=4.5, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=3.1, physicalScaleVerified=false\nSimulation Note: Apollo 15 LRV-1 traveled a total of 27.9 km around Hadley Rille (~3.6 m/s nominal). · Apollo 15 LRV-1 geometric reconstruction + synthesized LOLA terrain"
+    },
+    {
+      "id": "device_apollo_17_lrv",
+      "title": "LRV Apollo 17 (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_17_lrv",
+      "section": "apollo_17_lrv",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "/assets/provenance/apollo-equipment.csv"
+      ],
+      "text": "Device ID: apollo_17_lrv · LRV Apollo 17 (Rover)\nBody: moon · Catalog Scope: body_surface · Status: unavailable\nRelationship: Surface deployment (illustrative reconstruction) · Apollo 17 (Taurus–Littrow, 1972)\nSummary: Documented, but no Moon GLB has been supplied and verified. LRV-3: geological equipment and rear layout differences from Apollo 15 per the Apollo 17 systems manual.\nSource: Apollo equipment notes (supplied CSV) (/assets/provenance/apollo-equipment.csv, checked 2026-11-14, version User-supplied notes; undated)\nCredit: NASA / Lunar and Planetary Institute references named in supplied device notes · License: No model supplied\nUnits/Transform: No original 3D model; supports an illustrative reconstruction and control-room POV. · physicalScaleVerified=false\nProcedural / No-GLB status: unavailable GLB, proceduralModel=apollo_lrv (illustrative reconstruction only)\nReference coordinates: lat 20.1908, lon 30.7717\nAgency/Program: NASA · Apollo 17 (LRV-3) · Taurus-Littrow Valley · Era: Operated Dec 11–14, 1972 · Crew: Eugene Cernan & Harrison Schmitt\nBiography: The final and longest-range Apollo rover traverse, carrying astronaut-geologist Harrison Schmitt across Shorty Crater, North/South Massifs, and deep valley floor boulder fields.\nTechnical Specs: Vehicle ID: LRV-3 · Iconic taped-map fender repair after right-aft fender damage; Field Equipment: Traverse Gravimeter Experiment (TGE), Surface Electrical Properties (SEP), 78-cm magnetometer/drill rack; Power Used: Only ~48 Ah of 242 Ah total dual-battery capacity consumed\nMeasured Mission Data: Traverse Distance: 35.9 km across 3 EVAs (~4 h 26 m driving time · Apollo record); Max Range from LM: 7.6 km radial walk-back safety limit distance; Samples Returned: 110.5 kg total lunar rock/soil incl. #74220 pyroclastic orange glass\nScientific Contributions: Discovered pyroclastic orange volcanic glass beads at Shorty Crater (~3.64 Ga), revealing volatile-rich deep lunar mantle reservoirs. | Demonstrated improvised regolith-dust abatement using laminated lunar maps and clamps, later preserving rover electronics.\nModel Disclaimer: Illustrative procedural 3D LRV assembly mapped from NASA Apollo 17 Press Kit & Operations Handbook; zero GLB requests.\nSimulation Profile: mobilityKind=rover_4w, maxSpeedMs=4.8, supportsRealMobility=true, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=3.1, physicalScaleVerified=false\nSimulation Note: Apollo 17 LRV-3 traveled 35.9 km (Taurus–Littrow), with a speed record of 18 km/h (5.0 m/s). · Apollo 17 LRV-3 geometric reconstruction + synthesized LOLA terrain"
+    },
+    {
+      "id": "device_apollo_surface_equipment",
+      "title": "Apollo surface equipment (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_surface_equipment",
+      "section": "apollo_surface_equipment",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "/assets/provenance/apollo-equipment.csv"
+      ],
+      "text": "Device ID: apollo_surface_equipment · Apollo surface equipment (Surface equipment)\nBody: moon · Catalog Scope: body_surface · Status: unavailable\nRelationship: Surface deployment (illustrative reconstruction) · Apollo EVA and science equipment\nSummary: Documented, but no Moon GLB has been supplied and verified. Reference records cover the Modular Equipment Transporter (MET), EVA suits, sampling tools, LRV navigation systems, and other Apollo equipment.\nSource: Apollo equipment notes (supplied CSV) (/assets/provenance/apollo-equipment.csv, checked 2026-11-14, version User-supplied notes; undated)\nCredit: NASA / Lunar and Planetary Institute references named in supplied device notes · License: No model supplied\nUnits/Transform: No original 3D model; supports an illustrative reconstruction and control-room POV. · physicalScaleVerified=false\nProcedural / No-GLB status: unavailable GLB, proceduralModel=apollo_surface_pack (illustrative reconstruction only)\nReference coordinates: lat -3.6453, lon 342.5283\nAgency/Program: NASA MSC · Modularized Equipment Transporter (MET) & Surface Science · Era: Apollo 14 (Feb 1971) & ALSEP / Traverse Hardware Suite\nBiography: Two-wheeled, nitrogen-rubber-tired astronaut handcart and geological tool carrier that preceded the LRV on Apollo 14, alongside deployable ALSEP geophysical stations.\nTechnical Specs: MET Structure: 12.5 kg aluminum frame cart with 4-inch wide soft Goodyear XLR tires; Payload Bay: Carried Hasselblad cameras, 35-mm stereo close-up cam, thumper/geophone, magnetometer\nMeasured Mission Data: Cone Crater Climb: ~2.9 km Apollo 14 EVA-2 hike toward Cone Crater boulder rim; ALSEP Lifespan: Apollo 12–17 ALSEP nuclear stations returned seismic/laser data until Sep 1977\nScientific Contributions: Enabled Apollo 14 to haul 42.3 kg of Imbrium basin ejecta samples back from steep Cone Crater slopes. | Validated wide-footprint tire flotation and portable magnetometer traverses prior to wheeled electric LRV operations.\nModel Disclaimer: Illustrative procedural 3D reconstruction of Apollo surface hardware when no official NASA GLB asset exists.\nSimulation Profile: mobilityKind=lander_static, maxSpeedMs=1.8, supportsRealMobility=false, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=2.4, physicalScaleVerified=false\nSimulation Note: ALSEP science equipment is stationary on the lunar surface; enable \"Simulated mobility\" to explore the area. · ALSEP geometric reconstruction (stationary in reality · supports simulated mobility)"
+    },
+    {
+      "id": "device_apollo_lm_equipment",
+      "title": "Lunar Module MESA & attached equipment (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_lm_equipment",
+      "section": "apollo_lm_equipment",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "/assets/provenance/apollo-equipment.csv"
+      ],
+      "text": "Device ID: apollo_lm_equipment · Lunar Module MESA & attached equipment (Lunar Module equipment)\nBody: moon · Catalog Scope: body_surface · Status: unavailable\nRelationship: Surface deployment (illustrative reconstruction) · Apollo 11 Lunar Module MESA\nSummary: Documented, but no Moon GLB has been supplied and verified. Includes MESA diagrams, TV cameras, S-band antenna, science experiments, sample containers, and Lunar Module-mounted deployment mechanisms.\nSource: Apollo equipment notes (supplied CSV) (/assets/provenance/apollo-equipment.csv, checked 2026-11-14, version User-supplied notes; undated)\nCredit: NASA / Lunar and Planetary Institute references named in supplied device notes · License: No model supplied\nUnits/Transform: No original 3D model; supports an illustrative reconstruction and control-room POV. · physicalScaleVerified=false\nProcedural / No-GLB status: unavailable GLB, proceduralModel=apollo_lm_mesa (illustrative reconstruction only)\nReference coordinates: lat 0.6741, lon 23.473\nAgency/Program: NASA / Grumman · Lunar Module MESA (Quadrant 4 Stowage) · Era: All Six Crewed Apollo Landings (Apollo 11–17, 1969–1972)\nBiography: Hinged drop-down stowage table built into Quadrant 4 of every Apollo Lunar Module Descent Stage, holding the historic Westinghouse slow-scan TV camera, solar wind foil, and rock boxes.\nTechnical Specs: Mount Bay: LM Descent Stage Quadrant 4 · cable-released fold-out workbench; Primary Cargo: Westinghouse/RCA lunar TV camera, two SRC rock sample boxes, Contingency Sampler\nMeasured Mission Data: Historic First: Broadcast Apollo 11 Neil Armstrong first ladder steps on Jul 20, 1969 (~600M+ viewers); Sample Sealing: Indium knife-edge vacuum SRC containers preserved pristine regolith chemistry\nScientific Contributions: Delivered humanity’s first live television broadcast from another celestial world directly from its hinged bracket. | Organized vacuum-tight rock return canisters and Solar Wind Composition (SWC) collector foil across all 6 landings.\nModel Disclaimer: Illustrative procedural 3D representation of the LM MESA fold-out platform; no `.glb` assets are fetched.\nSimulation Profile: mobilityKind=lander_static, maxSpeedMs=2, supportsRealMobility=false, supportsSimulatedSurfaceDrive=true, supportsFlight=false, targetLongestSideM=4.3, physicalScaleVerified=false\nSimulation Note: The MESA equipment bay / Lunar Module landing platform is stationary; \"Simulated mobility\" can be enabled. · MESA / Lunar Module equipment bay reconstruction (stationary · supports simulated mobility)"
+    },
+    {
+      "id": "device_apollo_lunar_module",
+      "title": "Apollo Lunar Module (moon)",
+      "sourcePath": "src/config/deviceManifest.json#apollo_lunar_module",
+      "section": "apollo_lunar_module",
+      "sourceKind": "dossier",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/3d-resources/apollo-lunar-module/",
+        "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+      ],
+      "text": "Device ID: apollo_lunar_module · Apollo Lunar Module (Lunar lander)\nBody: moon · Catalog Scope: body_surface · Status: available\nRelationship: Historical landing · Apollo Lunar Module (NASA 3D)\nSummary: Official GLB model from NASA Science 3D Resources (credit NASA / Michael D. Carbajal) depicting the two-stage Apollo Lunar Module architecture (Descent and Ascent Stages). This is a general reference shape for the Lunar Module family in static inspection mode; it does not replace the LRV/MESA records without GLBs.\nSource: Apollo Lunar Module — NASA Science 3D Resources (https://science.nasa.gov/3d-resources/apollo-lunar-module/, checked 2026-11-15, version NASA 3D Resources GLB (published 2025-03-20; modified 2025-06-09))\nCredit: NASA / Michael D. Carbajal · License: NASA Images and Media Usage Guidelines (https://www.nasa.gov/nasa-brand-center/images-and-media/)\nUnits/Transform: glTF meters convention; longest side is ~6.43 GLB units (normalized to 2 units in Inspect Model mode); physical dimensions and rig are unverified. · physicalScaleVerified=false\nVerified GLB Model: /assets/models/moons/apollo_lunar_module.glb · bytes=716840 · sha256=379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e\nReference coordinates: lat 0.6741, lon 23.473\nAgency/Program: NASA MSC / Grumman Aircraft · Apollo Lunar Module (LM-5 Eagle Reference) · Era: Crewed Lunar Landings Apollo 11, 12, 14–17 (1969–1972)\nBiography: Two-stage crewed spacecraft built exclusively to operate in the lunar vacuum, carrying two astronauts from lunar orbit down to the surface using its lower Descent Stage and returning them in the upper Ascent Stage.\nTechnical Specs: Two-Stage Layout: Octagonal Descent Stage (4 landing gear struts) + pressurized Ascent Stage; Nominal Reference Dimensions: ~9.4 m diagonal footpad span · ~7.0 m total height (per NASA reference sheets); Propulsion: Descent Engine (DPS, 45 kN throttleable) · Ascent Engine (APS, 15.6 kN hypergolic); Surface Crew: 2 astronauts standing side-by-side at triangular forward observation windows\nMeasured Mission Data: Loaded Mission Mass: ~15,100 kg (Apollo 11 LM-5) up to ~16,430 kg (J-mission LM-10+); First Touchdown Site: Mare Tranquillitatis (Tranquility Base · 0.6741°N, 23.4730°E · Jul 20, 1969); Longest Surface Stay: ~75 hours on the lunar surface (Apollo 17 Challenger, Dec 1972)\nScientific Contributions: Enabled six crewed lunar landings and safe rendezvous returns with the orbiting Command/Service Module. | Provided life-support basecamp, lunar surface science stowage (MESA/ALSEP), and Apollo 13 orbital lifeboat survival capacity.\nModel Disclaimer: Displays the official NASA Science 3D Resources GLB (`Apollo Lunar Module.glb`, credit NASA / Michael D. Carbajal) downloaded unmodified (`SHA-256: 379101df...585c4e`). Serves as a general unrigged structural reference model in view-only mode; physical scale (`physicalScaleVerified: false`), flight-specific mission differences, and mechanical deployment remain unverified.\nSimulation Profile: mobilityKind=lander_static, maxSpeedMs=0, supportsRealMobility=false, supportsSimulatedSurfaceDrive=false, supportsFlight=false, targetLongestSideM=9.4, physicalScaleVerified=false\nSimulation Note: The lunar lander is stationary (NASA 3D Resources GLB is not rigged or scale-verified — static inspection only, with no driving or real-scale collisions). · NASA 3D Resources Apollo LM GLB (static inspection · not rigged or scale-verified)"
+    },
+    {
+      "id": "orbital_phobos",
+      "title": "Phobos (Mars I) (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#phobos",
+      "section": "phobos",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/phobos-3d-model/"
+      ],
+      "text": "Orbital Actor ID: phobos · Phobos (Mars I) (Largest and closest natural satellite of Mars)\nBody: mars · Category: MOON · Relationship: Natural satellite · Mars orbit\nGLB Model: /assets/models/moons/phobos.glb · Credit: NASA/JPL-Caltech (NASA 3D Resources 24878_Phobos_1_1000.glb)\nSource: NASA Science · Phobos Facts & NASA 3D Resources GLB (https://science.nasa.gov/resource/phobos-3d-model/)\nSummary: Orbits Mars at a true semi-major axis of 9,376 km (~5,980 km above the surface), faster than Mars rotates (orbital period 7.65 hours). Notable for the ~9 km-wide Stickney crater.\nHighlights: Actual dimensions: ~27 × 22 × 18 km · True semi-major axis 9,376 km (the displayed 3D orbit is expanded to separate it from the orbiter fleet) | Orbital period: 7 hours 39 minutes · Equatorial inclination: 1.093° | Its close orbit subjects Phobos to tidal forces that gradually draw it toward Mars\nDisplay Kepler Elements: a=13200 km, e=0.0151, i=1.093 deg, period=7.6538 h\nDossier Disclaimer: Orbital and close-up views render the official NASA 3D Resources Phobos GLB (`24878_Phobos_1_1000.glb`), scaled on orbit for legibility alongside documented Keplerian parameters.\nSimulation Note: Phobos · Keplerian orbit around Mars"
+    },
+    {
+      "id": "orbital_deimos",
+      "title": "Deimos (Mars II) (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#deimos",
+      "section": "deimos",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/deimos-3d-model/"
+      ],
+      "text": "Orbital Actor ID: deimos · Deimos (Mars II) (Outer natural satellite of Mars)\nBody: mars · Category: MOON · Relationship: Natural satellite · Outer Mars orbit\nGLB Model: /assets/models/moons/deimos.glb · Credit: NASA/JPL-Caltech (NASA 3D Resources 24879_Deimos_1_1000.glb)\nSource: NASA Science · Deimos Facts & NASA 3D Resources GLB (https://science.nasa.gov/resource/deimos-3d-model/)\nSummary: The outer orbit has a 23,463.2 km semi-major axis and very low eccentricity (0.00033). Its surface is smoother than Phobos, with thick regolith around the large Swift and Voltaire craters.\nHighlights: True semi-major axis: 23,463.2 km · Orbital period: 30.31 hours | Actual dimensions: ~15 × 12 × 10 km (display size and radius are adjusted to avoid overlap) | Nearly circular orbit around Mars’s equatorial plane\nDisplay Kepler Elements: a=26000 km, e=0.00033, i=1.788 deg, period=30.312 h\nDossier Disclaimer: Orbital and close-up views render the official NASA 3D Resources Deimos GLB (`24879_Deimos_1_1000.glb`), scaled for orbital visibility alongside documented Keplerian parameters.\nSimulation Note: Deimos · Keplerian orbit around Mars"
+    },
+    {
+      "id": "orbital_mro_orbiter",
+      "title": "Mars Reconnaissance Orbiter (MRO) (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#mro_orbiter",
+      "section": "mro_orbiter",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/mars-reconnaissance-orbiter-3d-model/"
+      ],
+      "text": "Orbital Actor ID: mro_orbiter · Mars Reconnaissance Orbiter (MRO) (HiRISE / CRISM remote-sensing orbiter · Active polar orbit)\nBody: mars · Category: SPACECRAFT · Relationship: Active Mars orbiter (since 2006)\nGLB Model: /assets/models/mars/mro_orbiter.glb · Credit: NASA/JPL-Caltech (official NASA 3D Resources 24884_MRO.glb)\nSource: NASA Science · Mars Reconnaissance Orbiter (MRO) (https://science.nasa.gov/resource/mars-reconnaissance-orbiter-3d-model/)\nSummary: Equipped with the HiRISE telescope and CRISM spectrometer to map minerals and rover landing sites, and serve as the primary UHF relay.\nHighlights: Actual orbit: 255 × 320 km, inclined 92.6° (the displayed 3D orbit is expanded for visibility) | NASA 3D Resources GLB model (24884_MRO.glb) is shown in orbit and in Inspect Model mode | Explore Viewpoints includes a downward-facing HiRISE remote-sensing view\nDisplay Kepler Elements: a=6200 km, e=0.002, i=92.6 deg, period=1.87 h\nDossier Disclaimer: Displays the verified NASA MRO GLB during Model Close-Up; orbital path and cupola POV are illustrative.\nSimulation Note: NASA/JPL-Caltech MRO GLB · Active Mars orbiter (illustrative camera view)"
+    },
+    {
+      "id": "orbital_mars_odyssey",
+      "title": "2001 Mars Odyssey (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#mars_odyssey",
+      "section": "mars_odyssey",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/mars-odyssey-3d-model/"
+      ],
+      "text": "Orbital Actor ID: mars_odyssey · 2001 Mars Odyssey (THEMIS infrared spectrometer orbiter · Active polar orbit)\nBody: mars · Category: SPACECRAFT · Relationship: Active Mars orbiter (since 2001)\nGLB Model: /assets/models/mars/mars_odyssey.glb · Credit: NASA/JPL-Caltech (NASA 3D Resources 24885_Odyssey.glb)\nSource: NASA Science · 2001 Mars Odyssey (https://science.nasa.gov/resource/mars-odyssey-3d-model/)\nSummary: The longest-operating orbiter around Mars, carrying the THEMIS thermal imager and a gamma-ray spectrometer that detected signs of near-polar water ice.\nHighlights: Sun-synchronous orbit inclined ~93.1°, with a period of nearly 2 hours | NASA 3D Resources GLB model (24885_Odyssey.glb) is shown in orbit and in Inspect Model mode | Explore Viewpoints supports thermal-sensor and global-grid views\nDisplay Kepler Elements: a=7000 km, e=0.003, i=93.1 deg, period=1.97 h\nDossier Disclaimer: Renders the official NASA 3D Resources 2001 Mars Odyssey GLB (`24885_Odyssey.glb`) directly along its Keplerian orbital track and in Inspect model.\nSimulation Note: NASA Mars Odyssey GLB · Active Mars polar orbiter"
+    },
+    {
+      "id": "orbital_maven_orbiter",
+      "title": "MAVEN Orbiter (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#maven_orbiter",
+      "section": "maven_orbiter",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/maven-3d-model/"
+      ],
+      "text": "Orbital Actor ID: maven_orbiter · MAVEN Orbiter (Upper-atmosphere and escape research · Active elliptical orbit)\nBody: mars · Category: SPACECRAFT · Relationship: Active Mars orbiter (since 2014)\nGLB Model: /assets/models/mars/maven_orbiter.glb · Credit: NASA/GSFC & JPL (NASA 3D Resources 24882_Maven.glb)\nSource: NASA Science · MAVEN (https://science.nasa.gov/resource/maven-3d-model/)\nSummary: Studies how the solar wind strips Mars’s atmosphere into space and also relays communications for surface rovers.\nHighlights: Elliptical orbit inclined ~75° (the displayed 3D orbit is expanded to separate it from Mars) | NASA 3D Resources GLB model (24882_Maven.glb) is shown in orbit and in Inspect Model mode | Explore Viewpoints includes an upper-atmosphere orbital view\nDisplay Kepler Elements: a=8800 km, e=0.31, i=75 deg, period=3.6 h\nDossier Disclaimer: Renders the official NASA 3D Resources MAVEN GLB (`24882_Maven.glb`) along its elliptical upper-atmosphere orbit and in Inspect model.\nSimulation Note: NASA MAVEN GLB · Active Mars atmospheric orbiter"
+    },
+    {
+      "id": "orbital_dawn_flyby",
+      "title": "Dawn · 2009 Flyby Context (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#dawn_flyby",
+      "section": "dawn_flyby",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/mission/dawn/"
+      ],
+      "text": "Orbital Actor ID: dawn_flyby · Dawn · 2009 Flyby Context (Feb 17, 2009 gravity-assist flyby (not surface-deployed / not in a current orbit))\nBody: mars · Category: SPACECRAFT · Relationship: Feb 17, 2009 flyby context · Departed Mars for Vesta and Ceres\nGLB Model: /assets/models/mars/dawn_spacecraft.glb · Credit: NASA/JPL-Caltech (official NASA 3D Resources dawn_spacecraft.glb)\nSource: NASA Science · Dawn Mission & Mars Gravity Assist (Feb 2009) (https://science.nasa.gov/mission/dawn/)\nSummary: Dawn performed only one gravity-assist Mars flyby (Feb 17, 2009, at an altitude of ~549 km), redirecting its trajectory toward asteroids Vesta and Ceres. It is not in a current Mars orbit and did not land on the surface.\nHighlights: Historical context: flew past Mars only on Feb 17, 2009 (~549 km); it does not actually orbit Mars continuously | The NASA GLB model (dawn_spacecraft.glb) is shown along an illustrative path for the 2009 flyby | Linked to the Dawn reference record; not listed as Mars surface equipment\nDisplay Kepler Elements: a=11800 km, e=0.14, i=42 deg, period=5.4 h\nDossier Disclaimer: Renders the official NASA/JPL-Caltech `dawn_spacecraft.glb` model on an illustrative flyby visualization loop representing the Feb 2009 gravity assist only — not a present-day Mars orbit or surface asset.\nSimulation Note: NASA/JPL-Caltech Dawn GLB · Feb 17, 2009 gravity-assist flyby context"
+    },
+    {
+      "id": "orbital_ares_station",
+      "title": "Ares Orbital Station (Concept · ISS Proxy) (mars)",
+      "sourcePath": "src/config/celestialCatalog.ts#ares_station",
+      "section": "ares_station",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/international-space-station-3d-model/"
+      ],
+      "text": "Orbital Actor ID: ares_station · Ares Orbital Station (Concept · ISS Proxy) (Hypothetical Mars orbital relay station (not a historically launched spacecraft))\nBody: mars · Category: SPACECRAFT · Relationship: Illustrative concept · ISS structural proxy\nGLB Model: /assets/models/stations/ares_orbital_station.glb · Credit: Mars Orbital Atlas concept · Structural proxy based on the ISS (see dossier for GLB details)\nSource: Mars Orbital Atlas · Illustrative Gateway (NASA ISS Structural Proxy GLB) (https://science.nasa.gov/resource/international-space-station-3d-model/)\nSummary: The conceptual orbital station serves as a Mars overview point and elevated control-room (Cupola POV) for the exploration fleet; it uses NASA’s ISS modular truss model as a structural reference.\nHighlights: Explicitly identified as an illustrative concept using the official International Space Station (ISS) GLB as a structural reference, not a real Mars mission | The displayed medium orbit (~10,200 km) provides a broad view, separated from the Martian atmosphere | Supports Inspect Model and Explore Viewpoints (illustrative Cupola view)\nDisplay Kepler Elements: a=10200 km, e=0.001, i=28.5 deg, period=3.12 h\nDossier Disclaimer: Conceptual gateway node — renders the official NASA 3D Resources International Space Station GLB as a realistic structural proxy; clearly separated from flown Martian missions.\nSimulation Note: Illustrative Ares Station concept · Structural proxy based on NASA ISS GLB (not a historical spacecraft)"
+    },
+    {
+      "id": "orbital_lro_orbiter",
+      "title": "Lunar Reconnaissance Orbiter (LRO) (moon)",
+      "sourcePath": "src/config/celestialCatalog.ts#lro_orbiter",
+      "section": "lro_orbiter",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/lunar-reconnaissance-orbiter-3d-model/"
+      ],
+      "text": "Orbital Actor ID: lro_orbiter · Lunar Reconnaissance Orbiter (LRO) (LROC and LOLA mapping orbiter · Active lunar polar orbit)\nBody: moon · Category: SPACECRAFT · Relationship: Active lunar orbiter (since 2009)\nGLB Model: /assets/models/moons/lro_orbiter.glb · Credit: NASA/GSFC (NASA 3D Resources Lunar Reconnaissance Orbiter GLB)\nSource: NASA Science · Lunar Reconnaissance Orbiter (LRO) (https://science.nasa.gov/resource/lunar-reconnaissance-orbiter-3d-model/)\nSummary: Maps lunar terrain using the LOLA laser altimeter and high-resolution LROC cameras, observing permanently shadowed polar regions and Apollo landing sites.\nHighlights: Near-polar orbit (~90°) passes over the lunar south pole every ~113 minutes | NASA 3D Resources GLB model (Lunar Reconnaissance Orbiter) is shown directly in lunar polar orbit | Supports Inspect Model or Explore Viewpoints (LROC nadir view)\nDisplay Kepler Elements: a=2650 km, e=0.004, i=89.2 deg, period=1.88 h\nDossier Disclaimer: Renders the official NASA 3D Resources Lunar Reconnaissance Orbiter GLB (`Lunar Reconnaissance Orbiter (B).glb`) in polar lunar orbit and Inspect model (surface Apollo hardware remains separate and unmodeled).\nSimulation Note: NASA LRO GLB · Lunar polar orbit"
+    },
+    {
+      "id": "orbital_apollo_csm",
+      "title": "Apollo Command/Service Module (CSM · ASTP Reference) (moon)",
+      "sourcePath": "src/config/celestialCatalog.ts#apollo_csm",
+      "section": "apollo_csm",
+      "sourceKind": "catalog",
+      "language": "mixed",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://science.nasa.gov/resource/apollo-soyuz-3d-model/"
+      ],
+      "text": "Orbital Actor ID: apollo_csm · Apollo Command/Service Module (CSM · ASTP Reference) (Lunar-orbit command module (1968–1972) · Apollo-Soyuz GLB reference)\nBody: moon · Category: SPACECRAFT · Relationship: Historical orbiter (1968–1972 · Apollo-Soyuz reference model)\nGLB Model: /assets/models/moons/apollo_csm.glb · Credit: NASA NTRS & NASA 3D Resources (Apollo-Soyuz Block II CSM GLB reference)\nSource: NASA NTRS & 3D Resources · Apollo Block II CSM / ASTP GLB (https://science.nasa.gov/resource/apollo-soyuz-3d-model/)\nSummary: Remained in lunar orbit while the LM descended to the surface; performed orbital rendezvous and docking after the LRV survey was complete.\nHighlights: Orbital period ~2 hours around the Moon at a nominal altitude of ~110 km | Official NASA GLB model (Apollo Soyuz.glb, Block II CSM orbital assembly) is displayed; Apollo surface equipment remains separate and has no GLBs | Open Inspect Model to rotate the CSM 3D model or Explore Viewpoints\nDisplay Kepler Elements: a=3050 km, e=0.002, i=18 deg, period=2 h\nDossier Disclaimer: Uses the official NASA 3D Resources Apollo-Soyuz orbital spacecraft GLB (`Apollo Soyuz.glb`, Block II CSM + docking module) as the orbital CSM structural reference on orbit and in Inspect model; surface Apollo Lunar Module GLB is available separately via Apollo Lunar Module, while LRV and MESA equipment entries remain procedural/unavailable.\nSimulation Note: Apollo CSM GLB · Lunar orbit"
+    },
+    {
+      "id": "mission_jezero-evidence",
+      "title": "Jezero Journey: Searching for Traces of an Ancient Lake (mars)",
+      "sourcePath": "src/config/missions.ts#jezero-evidence",
+      "section": "jezero-evidence",
+      "sourceKind": "mission",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Mission ID: jezero-evidence · Body: mars · Title: Jezero Journey: Searching for Traces of an Ancient Lake\nHeadline question: Why was Jezero Crater selected to search for evidence of ancient water on Mars?\nSummary: Follow four stops, from the planetary overview and illustrative terrain to the Perseverance rover and Ingenuity helicopter.\nFeatured devices: perseverance_rover, ingenuity_helicopter, curiosity_rover · Featured POIs: jezero_crater, gale_crater\nStop 1 (observe): View Mars from Orbit — Where are Jezero and other notable features on the planetary globe? | What you see: An illustrative synthesized Mars globe at center, with markers leading to Jezero Crater. | Status note: Displays a synthesized illustrative globe (not quantitative real-time imagery).\nStop 2 (jezero): Jezero Terrain Mesh (Illustrative 3D) — How do the terrain relief and crater rim appear in the target area? | What you see: The illustrative Mars 3D terrain mesh can be rotated and zoomed to inspect the landforms. | Status note: Feature center from the IAU/USGS Gazetteer; the 3D terrain mesh is illustrative.\nStop 3 (investigate): Perseverance Rover — How do the optical assemblies, chassis, and robotic arm support rock and soil sample collection? | What you see: A size-normalized Perseverance 3D model with controls for selecting component groups. | Status note: NASA/JPL GLB model · Control-room operating values are illustrative simulations.\nStop 4 (compare): Ingenuity Helicopter — How did Ingenuity’s counter-rotating coaxial rotor design enable flight in the thin atmosphere? | What you see: The Ingenuity 3D model includes controls for inspecting components and stepping rotor rotation. | Status note: NASA/JPL GLB model · On-screen rotor motion uses an illustrative speed for visibility."
+    },
+    {
+      "id": "mission_hadley-geology",
+      "title": "Apollo-Era Lunar Geology Survey (moon)",
+      "sourcePath": "src/config/missions.ts#hadley-geology",
+      "section": "hadley-geology",
+      "sourceKind": "mission",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Mission ID: hadley-geology · Body: moon · Title: Apollo-Era Lunar Geology Survey\nHeadline question: How do impact craters and Apollo rovers help reveal the Moon’s history?\nSummary: Visit four stops, from dark basaltic maria to Tycho crater, the Apollo Lunar Module lander (NASA GLB), and an Apollo LRV 3D reconstruction.\nFeatured devices: apollo_lunar_module, apollo_lrv, apollo_surface_equipment · Featured POIs: mare_tranquillitatis, tycho, south_pole_aitken\nStop 1 (observe): View the Moon from Orbit — How do the dark basaltic maria differ from the bright, heavily cratered highlands? | What you see: An illustrative synthesized Moon globe at the center of the view, ready to guide you to Tycho crater. | Status note: Displays a synthesized illustrative globe (LOLA/Diviner measurement maps are not integrated).\nStop 2 (tycho): Tycho Crater Terrain Mesh (Illustrative) — What evidence of impact is shown by the crater-wall slope and surrounding area? | What you see: An illustrative lunar 3D terrain mesh in Inspect Model mode, which can be rotated to view its relief. | Status note: Feature center from the IAU/USGS Gazetteer; the 3D terrain mesh is for illustrative visualization.\nStop 3 (lrv): Apollo LRV (3D Reconstruction) — How did this foldable vehicle extend Apollo astronauts’ geological survey range? | What you see: An Apollo LRV 3D reconstruction with an option to switch to illustrative Explore Viewpoints mode. | Status note: Illustrative 3D reconstruction (the original Apollo LRV GLB is not integrated).\nStop 4 (lunar_module): Apollo Lunar Module Lander (NASA GLB) — How did the Lunar Module’s two-stage (Descent and Ascent Stage) design support landing on and launching from the Moon? | What you see: The normalized Apollo Lunar Module 3D model shows the two separate stages, four landing legs, and ascent module. | Status note: NASA Science 3D Resources GLB model · Static inspection only (no rig or real-scale collision)."
+    },
+    {
+      "id": "guide_navigation_and_controls",
+      "title": "VantaLumen guide: views and simulation shortcuts",
+      "sourcePath": "src/config/urlStateAdapter.ts#navigation-guide",
+      "section": "Application Controls & Modes",
+      "sourceKind": "simulation",
+      "language": "en",
+      "evidenceType": "illustrative_or_simulated",
+      "sourceUrls": [],
+      "text": "VantaLumen supports two exploration modes: \"Guided journey\" (the default, following Jezero/Hadley mission stops and temporarily hiding reference orbital paths) and \"Explore freely\" (showing the full catalog of equipment, features, orbits, and visual layers).\nTwo detailed view modes are available: \"Inspect model\" (MODEL_CLOSEUP — rotate a model normalized to a 2-unit longest side) and \"Explore viewpoints\" (CONTROL_ROOM_POV — control-room or field perspective on 3D terrain or in orbit).\nExplore Viewpoints shortcuts: use WASD or the arrow keys to drive a rover or fly the Ingenuity helicopter (Q/Space to increase throttle or ascend, E/Shift to descend with the helicopter), C to switch between First Person (Mastcam/Eye) and Chase views, and R to restore the equipment pose.\nTerrain simulation offers three area sizes (2×2 km, 16×16 km, 64×64 km) and four graphics quality levels (Auto, Low, Medium, High). Terrain and surface textures are illustrative simulations generated from mathematical seeds and reference coordinates for Ares Vallis and Hadley–Apennine; they are not measured HiRISE/LROC DEM maps.\nShareable URLs use the format ?v=1&body=mars|moon&mission=...&stop=... or &mode=free&target=...&view=overview|inspect|viewpoints. The system cross-checks body/mission/target to prevent mismatches."
+    }
+  ]
+}

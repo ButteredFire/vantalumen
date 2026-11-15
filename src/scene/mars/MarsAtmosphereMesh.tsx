@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { MARS_MEAN_RADIUS_KM } from '../../config/celestialCatalog';
 import { SUN_DIRECTION_VECTOR } from '../environment/SunLightSource';
-import marsAtmosphereVert from '../../shaders/atmosphere/marsAtmosphere.vert.glsl';
-import marsAtmosphereFrag from '../../shaders/atmosphere/marsAtmosphere.frag.glsl';
+import marsAtmosphereVert from '../../shaders/atmosphere/marsAtmosphere.vert.glsl?raw';
+import marsAtmosphereFrag from '../../shaders/atmosphere/marsAtmosphere.frag.glsl?raw';
 
 const ATMOSPHERE_RADIUS = MARS_MEAN_RADIUS_KM * 1.034;
 

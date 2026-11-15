@@ -7,6 +7,12 @@ import type {
   DeviceSimulationProfile,
 } from '../types/cosmos.types';
 
+const NON_MARS_REFERENCE_IDS = new Set([
+  'pioneer_10',
+  'kepler_space_telescope',
+  'near_shoemaker',
+]);
+
 export function validateCatalog(bodies: BodyConfig[], pois: CelestialTarget[], devices: DeviceRecord[]): void {
   const ids = new Set<string>();
   for (const record of [...bodies, ...pois, ...devices]) {
@@ -16,18 +22,65 @@ export function validateCatalog(bodies: BodyConfig[], pois: CelestialTarget[], d
   const bodyIds = new Set(bodies.map((body) => body.id));
   for (const body of bodies) {
     if (!Number.isFinite(body.radiusKm) || body.radiusKm <= 0 || !Number.isFinite(body.rotationSeconds) || body.rotationSeconds <= 0) throw new Error('Invalid body units: ' + body.id);
-    if (!body.source.url || !body.source.checked || !body.source.version) throw new Error('Missing body provenance');
-    if (!body.target || body.target.id !== body.id || body.target.bodyId !== body.id) throw new Error('Body target does not match its body: ' + body.id);
+    if (!body.source.url || !body.source.checked || !body.source.version || !body.credit || !body.missionRelationshipLabel) throw new Error('Missing body provenance');
+    if (!body.target || body.target.id !== body.id || body.target.bodyId !== body.id || !body.target.credit || !body.target.missionRelationshipLabel) throw new Error('Body target does not match its body: ' + body.id);
     if (new Set(body.layers.map((layer) => layer.id)).size !== body.layers.length) throw new Error('Duplicate layers');
+    for (const layer of body.layers) {
+      if (!layer.label || !layer.tag || !layer.representation || !layer.evidenceKind) {
+        throw new Error('Incomplete layer status metadata: ' + body.id + '/' + layer.id);
+      }
+      if (
+        /\b(MOLA|THEMIS|LOLA|Diviner)\b/i.test(layer.tag) &&
+        !/\b(?:not (?:yet )?integrated|unavailable|no (?:MOLA|THEMIS|LOLA|Diviner))\b/i.test(layer.tag)
+      ) {
+        throw new Error('Layer tag implies unintegrated instrument data: ' + layer.id);
+      }
+    }
   }
   for (const poi of pois) {
     const c = poi.coordinates;
     if (!poi.bodyId || !bodyIds.has(poi.bodyId) || !c || !Number.isFinite(c.lat) || !Number.isFinite(c.lon) || Math.abs(c.lat) > 90 || c.lon < 0 || c.lon >= 360) throw new Error('Invalid POI: ' + poi.id);
-    if (!poi.source?.url || !poi.source.checked) throw new Error('Missing POI provenance');
+    if (!poi.source?.url || !poi.source.checked || !poi.credit || !poi.missionRelationship || !poi.missionRelationshipLabel) throw new Error('Missing POI provenance');
     if (poi.isSurfaceLanding) throw new Error('No verified terrain provider configured');
   }
   for (const device of devices) {
-    if (!bodyIds.has(device.bodyId) || !device.source.url || !device.source.checked || !device.credit || !device.version || !device.evidence || !device.units) throw new Error('Missing device metadata: ' + device.id);
+    const validParent =
+      bodyIds.has(device.bodyId as never) ||
+      (device.bodyId === 'reference' && device.catalogScope === 'reference_spacecraft');
+    if (
+      !validParent ||
+      !device.source.url ||
+      !device.source.checked ||
+      !device.credit ||
+      !device.version ||
+      !device.evidence ||
+      !device.units ||
+      !device.missionRelationship ||
+      !device.missionRelationshipLabel
+    ) {
+      throw new Error('Missing device metadata: ' + device.id);
+    }
+    if (NON_MARS_REFERENCE_IDS.has(device.id)) {
+      if (
+        device.bodyId !== 'reference' ||
+        device.catalogScope !== 'reference_spacecraft' ||
+        device.missionRelationship !== 'reference_archive'
+      ) {
+        throw new Error('Non-Mars reference spacecraft must stay out of Mars catalog: ' + device.id);
+      }
+    }
+    if (device.id === 'dawn_spacecraft') {
+      if (
+        device.catalogScope !== 'encounter_context' ||
+        device.missionRelationship !== 'flyby_encounter' ||
+        Boolean(device.coordinates)
+      ) {
+        throw new Error('Dawn must be scoped as Mars flyby encounter context: ' + device.id);
+      }
+    }
+    if (device.catalogScope === 'body_surface' && device.capabilities?.mobilityKind === 'orbital') {
+      throw new Error('Orbital asset cannot be scoped as body_surface: ' + device.id);
+    }
     if (device.transform.normalization !== 'fit-longest-side-2' || device.transform.physicalScaleVerified !== false || device.transform.rotation.length !== 3 || !device.transform.rotation.every(Number.isFinite)) throw new Error('Invalid transform');
     if (device.simulationTransform) {
       if (!Number.isFinite(device.simulationTransform.targetLongestSideM) || device.simulationTransform.targetLongestSideM <= 0) {
@@ -44,6 +97,39 @@ export function validateCatalog(bodies: BodyConfig[], pois: CelestialTarget[], d
     if (device.status === 'available') {
       if (!device.modelPath?.startsWith('/assets/models/') || device.modelPath.includes('..') || !device.modelPath.endsWith('.glb') || !device.bytes || !/^[a-f0-9]{64}$/.test(device.sha256 ?? '') || !device.license.url || !device.license.checked) throw new Error('Incomplete model manifest: ' + device.id);
     } else if (device.status !== 'unavailable' || device.modelPath || device.bytes || device.sha256) throw new Error('Invalid unavailable device: ' + device.id);
+  }
+}
+
+export function validateOrbitalActors(
+  bodies: BodyConfig[],
+  orbitalActors: CelestialTarget[],
+): void {
+  const bodyIds = new Set(bodies.map((body) => body.id));
+  const ids = new Set<string>();
+  for (const actor of orbitalActors) {
+    if (!actor.id || ids.has(actor.id)) {
+      throw new Error('Invalid or duplicate orbital actor ID: ' + actor.id);
+    }
+    ids.add(actor.id);
+    if (!actor.bodyId || !bodyIds.has(actor.bodyId)) {
+      throw new Error('Orbital actor missing valid bodyId: ' + actor.id);
+    }
+    if (
+      !actor.source?.url ||
+      !actor.source.checked ||
+      !actor.source.version ||
+      !actor.credit ||
+      !actor.missionRelationship ||
+      !actor.missionRelationshipLabel
+    ) {
+      throw new Error('Incomplete orbital actor provenance: ' + actor.id);
+    }
+    if (actor.id === 'dawn_flyby' && actor.missionRelationship !== 'flyby_encounter') {
+      throw new Error('Dawn flyby must use flyby_encounter missionRelationship');
+    }
+    if (actor.id === 'ares_station' && actor.missionRelationship !== 'conceptual_proxy') {
+      throw new Error('Ares conceptual station must use conceptual_proxy missionRelationship');
+    }
   }
 }
 
