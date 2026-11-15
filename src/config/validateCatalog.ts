@@ -1,8 +1,10 @@
 import type {
   BodyConfig,
+  BodyPhysicsConfig,
   CelestialTarget,
   DeviceControlSpec,
   DeviceRecord,
+  DeviceSimulationProfile,
 } from '../types/cosmos.types';
 
 export function validateCatalog(bodies: BodyConfig[], pois: CelestialTarget[], devices: DeviceRecord[]): void {
@@ -27,9 +29,61 @@ export function validateCatalog(bodies: BodyConfig[], pois: CelestialTarget[], d
   for (const device of devices) {
     if (!bodyIds.has(device.bodyId) || !device.source.url || !device.source.checked || !device.credit || !device.version || !device.evidence || !device.units) throw new Error('Missing device metadata: ' + device.id);
     if (device.transform.normalization !== 'fit-longest-side-2' || device.transform.physicalScaleVerified !== false || device.transform.rotation.length !== 3 || !device.transform.rotation.every(Number.isFinite)) throw new Error('Invalid transform');
+    if (device.simulationTransform) {
+      if (!Number.isFinite(device.simulationTransform.targetLongestSideM) || device.simulationTransform.targetLongestSideM <= 0) {
+        throw new Error('Invalid simulationTransform scale: ' + device.id);
+      }
+      if (
+        device.simulationTransform.forwardAxis.length !== 3 ||
+        !device.simulationTransform.forwardAxis.every(Number.isFinite) ||
+        Math.hypot(...device.simulationTransform.forwardAxis) === 0
+      ) {
+        throw new Error('Invalid simulationTransform forwardAxis: ' + device.id);
+      }
+    }
     if (device.status === 'available') {
       if (!device.modelPath?.startsWith('/assets/models/') || device.modelPath.includes('..') || !device.modelPath.endsWith('.glb') || !device.bytes || !/^[a-f0-9]{64}$/.test(device.sha256 ?? '') || !device.license.url || !device.license.checked) throw new Error('Incomplete model manifest: ' + device.id);
     } else if (device.status !== 'unavailable' || device.modelPath || device.bytes || device.sha256) throw new Error('Invalid unavailable device: ' + device.id);
+  }
+}
+
+export function validateSimulationProfiles(
+  bodies: BodyConfig[],
+  devices: DeviceRecord[],
+  orbitalActors: CelestialTarget[],
+  bodyPhysics: Record<string, BodyPhysicsConfig>,
+  profiles: Record<string, DeviceSimulationProfile>,
+): void {
+  for (const body of bodies) {
+    const physics = bodyPhysics[body.id];
+    if (!physics || physics.gravityMs2 <= 0 || physics.meanRadiusM <= 0) {
+      throw new Error('Missing or invalid body physics config: ' + body.id);
+    }
+    if (physics.surfaceFriction <= 0 || !physics.regionCenterName) {
+      throw new Error('Incomplete body surface physics parameters: ' + body.id);
+    }
+  }
+  for (const device of devices) {
+    const profile = profiles[device.id];
+    if (!profile) {
+      throw new Error('Missing simulation profile for device: ' + device.id);
+    }
+    if (
+      !Number.isFinite(profile.physicalTransform.targetLongestSideM) ||
+      profile.physicalTransform.targetLongestSideM <= 0 ||
+      !profile.wheelRig ||
+      profile.wheelRig.chassisMassKg <= 0
+    ) {
+      throw new Error('Invalid physical simulation metrics for device: ' + device.id);
+    }
+    if (!profile.documentedSpeedNote || !profile.provenanceLabel) {
+      throw new Error('Missing simulation provenance note for device: ' + device.id);
+    }
+  }
+  for (const actor of orbitalActors) {
+    if (!profiles[actor.id]) {
+      throw new Error('Missing simulation profile for orbital actor: ' + actor.id);
+    }
   }
 }
 

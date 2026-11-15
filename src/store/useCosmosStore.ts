@@ -4,29 +4,98 @@ import * as THREE from 'three';
 import { BODY_CATALOG } from '../config/bodyCatalog';
 import { DEVICE_CATALOG } from '../config/deviceCatalog';
 import type {
+    BodyId,
+    CameraMountMode,
     CelestialTarget,
     CelestialTargetId,
-    SpectralMode,
-    ViewStage,
-    BodyId,
     DeviceCameraViewId,
     DevicePartGroupId,
+    ExplorationRegionSizeKm,
+    InspectionViewMode,
+    QualityRuntimeStats,
+    QualityTier,
+    ResolvedQualityTier,
     RotorSpinMode,
     RotorStepDeg,
-    InspectionViewMode,
     SensorFilterMode,
+    SimulationCheckpoint,
+    SpectralMode,
     SurfaceEquipmentItem,
+    SurfaceTelemetrySnapshot,
+    ViewStage,
 } from '../types/cosmos.types';
 
 export type {
+    CameraMountMode,
     CelestialTarget,
     CelestialTargetId,
-    SpectralMode,
-    ViewStage,
+    ExplorationRegionSizeKm,
     InspectionViewMode,
+    QualityRuntimeStats,
+    QualityTier,
+    ResolvedQualityTier,
     SensorFilterMode,
+    SimulationCheckpoint,
+    SpectralMode,
     SurfaceEquipmentItem,
+    SurfaceTelemetrySnapshot,
+    ViewStage,
 };
+
+export const INITIAL_SURFACE_TELEMETRY: SurfaceTelemetrySnapshot = {
+  speedMs: 0,
+  headingDeg: 0,
+  pitchDeg: 0,
+  rollDeg: 0,
+  altitudeAboveGroundM: 0,
+  elevationM: 0,
+  globalXM: 0,
+  globalYM: 0,
+  globalZM: 0,
+  distanceTraveledM: 0,
+  wheelsGroundedCount: 0,
+  totalWheels: 0,
+  slipRatio: 0,
+  stabilityWarning: 'none',
+  isStreamingColliderHold: false,
+  isSimulatedMobilityActive: false,
+  isFlightAirborne: false,
+  activeCameraMount: 'first_person',
+  pointerLocked: false,
+  horizonStabilized: true,
+  trailPoints: [],
+  activeChunkCount: 0,
+  originShiftCount: 0,
+};
+
+function detectInitialReducedMotion(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+const CHECKPOINT_STORAGE_KEY = 'vantalumen_surface_checkpoints_v1';
+
+function loadInitialCheckpoints(): Record<string, SimulationCheckpoint> {
+  if (typeof window === 'undefined' || !window.localStorage) return {};
+  try {
+    const raw = window.localStorage.getItem(CHECKPOINT_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, SimulationCheckpoint>;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function getCheckpointStorageKey(
+  bodyId: BodyId,
+  deviceId: string,
+  regionSizeKm: ExplorationRegionSizeKm,
+): string {
+  return `${bodyId}::${deviceId}::${regionSizeKm}`;
+}
 
 const INITIAL_POV_STATE: {
   inspectionMode: InspectionViewMode;
@@ -86,9 +155,23 @@ interface CosmosState {
   povSensorMode: SensorFilterMode;
   povArmDeployed: boolean;
   povScanActive: boolean;
+  qualityTier: QualityTier;
+  resolvedQualityTier: ResolvedQualityTier;
+  reducedMotion: boolean;
+  qualityStats: QualityRuntimeStats | null;
+  explorationRegionSizeKm: ExplorationRegionSizeKm;
+  simulationPaused: boolean;
+  cameraMountMode: CameraMountMode;
+  horizonStabilized: boolean;
+  simulatedMobilityEnabled: boolean;
+  pointerLocked: boolean;
+  surfaceTelemetry: SurfaceTelemetrySnapshot;
+  checkpointsByDevice: Record<string, SimulationCheckpoint>;
+  regionBoundaryMessage: string | null;
+  simulationRecoverTick: number;
   showOrbits: boolean;
   showPOIs: boolean;
-  selectBody: (bodyId: BodyId) => void;
+  selectBody: (bodyId: BodyId, options?: { animate?: boolean }) => void;
   beginBodyTransitionLoad: () => void;
   beginBodyTransitionArrival: (bodyId: BodyId) => void;
   completeBodyTransition: () => void;
@@ -108,6 +191,24 @@ interface CosmosState {
   togglePovArm: () => void;
   togglePovScan: () => void;
   resetPovCamera: () => void;
+  setQualityTier: (tier: QualityTier) => void;
+  setResolvedQualityTier: (tier: ResolvedQualityTier) => void;
+  setReducedMotion: (reduced: boolean) => void;
+  setQualityStats: (stats: QualityRuntimeStats | null) => void;
+  setExplorationRegionSizeKm: (sizeKm: ExplorationRegionSizeKm) => void;
+  toggleSimulationPaused: () => void;
+  setSimulationPaused: (paused: boolean) => void;
+  setCameraMountMode: (mode: CameraMountMode) => void;
+  toggleCameraMountMode: () => void;
+  toggleHorizonStabilized: () => void;
+  setSimulatedMobilityEnabled: (enabled: boolean) => void;
+  toggleSimulatedMobilityEnabled: () => void;
+  setPointerLocked: (locked: boolean) => void;
+  setSurfaceTelemetry: (snapshot: Partial<SurfaceTelemetrySnapshot>) => void;
+  saveSimulationCheckpoint: (checkpoint: SimulationCheckpoint) => void;
+  clearSimulationCheckpoint: (key: string) => void;
+  triggerSimulationRecovery: () => void;
+  setRegionBoundaryMessage: (message: string | null) => void;
     toggleOrbits: () => void;
     togglePOIs: () => void;
     viewStage: ViewStage;
@@ -157,6 +258,15 @@ const REQUIRED_LOADING_TASKS = [
   'decoders_and_models',
 ] as const;
 
+const INITIAL_SIMULATION_UI_STATE = {
+  cameraMountMode: 'first_person' as CameraMountMode,
+  horizonStabilized: true,
+  simulatedMobilityEnabled: false,
+  pointerLocked: false,
+  regionBoundaryMessage: null as string | null,
+  surfaceTelemetry: { ...INITIAL_SURFACE_TELEMETRY },
+};
+
 export const useCosmosStore = create<CosmosState>()(
   subscribeWithSelector((set, get) => ({
     activeBodyId: 'mars',
@@ -166,28 +276,53 @@ export const useCosmosStore = create<CosmosState>()(
     assetRetryTick: 0,
     ...INITIAL_DEVICE_CONTROL_STATE,
     ...INITIAL_POV_STATE,
+    ...INITIAL_SIMULATION_UI_STATE,
+    qualityTier: 'auto',
+    resolvedQualityTier: 'high',
+    reducedMotion: detectInitialReducedMotion(),
+    qualityStats: null,
+    explorationRegionSizeKm: 2,
+    simulationPaused: false,
+    checkpointsByDevice: loadInitialCheckpoints(),
+    simulationRecoverTick: 0,
     deviceCameraTick: 0,
     rotorStepTick: 0,
     showOrbits: true,
     showPOIs: true,
-        selectBody: (bodyId) => {
+        selectBody: (bodyId, options) => {
             if (!BODY_CATALOG[bodyId]) return;
             const current = get();
-            if (current.bodyTransition) return;
             const currentStage = current.viewStage;
             const keepPreloading = currentStage === 'PRELOADING' || currentStage === 'LAUNCHING';
             const isSurfaceView =
                 currentStage === 'SURFACE_VIEW' || currentStage === 'SURFACE_CESIUM';
-            if (bodyId !== current.activeBodyId && !keepPreloading && !isSurfaceView) {
-                set({
+            if (
+                options?.animate === true &&
+                bodyId !== current.activeBodyId &&
+                !keepPreloading &&
+                !isSurfaceView &&
+                !current.bodyTransition
+            ) {
+                set((state) => ({
                     bodyTransition: {
                         fromBodyId: current.activeBodyId,
                         targetBodyId: bodyId,
                         phase: 'departing',
                     },
+                    activeTarget: null,
+                    activeDeviceId: null,
+                    selectedSurfaceEquipment: null,
+                    inspectionTransitionTarget: null,
+                    assetLoad: { status: 'idle' },
+                    ...INITIAL_DEVICE_CONTROL_STATE,
+                    ...INITIAL_POV_STATE,
+                    ...INITIAL_SIMULATION_UI_STATE,
+                    rotorStepTick: state.rotorStepTick + 1,
+                    dynamicPositions: {},
+                    spectralMode: 'VISUAL_RGB',
                     viewStage: 'BODY_TRANSITION',
                     controlsLocked: true,
-                });
+                }));
                 return;
             }
             set((state) => ({
@@ -200,6 +335,7 @@ export const useCosmosStore = create<CosmosState>()(
                 assetLoad: { status: 'idle' },
                 ...INITIAL_DEVICE_CONTROL_STATE,
                 ...INITIAL_POV_STATE,
+                ...INITIAL_SIMULATION_UI_STATE,
                 rotorStepTick: state.rotorStepTick + 1,
                 dynamicPositions: {},
                 viewStage: keepPreloading ? currentStage : 'ORBITAL_OVERVIEW',
@@ -223,6 +359,7 @@ export const useCosmosStore = create<CosmosState>()(
           assetLoad: { status: 'idle' },
           ...INITIAL_DEVICE_CONTROL_STATE,
           ...INITIAL_POV_STATE,
+          ...INITIAL_SIMULATION_UI_STATE,
           rotorStepTick: state.rotorStepTick + 1,
           dynamicPositions: {},
           spectralMode: 'VISUAL_RGB',
@@ -263,6 +400,7 @@ export const useCosmosStore = create<CosmosState>()(
         ...(state.spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
         ...INITIAL_DEVICE_CONTROL_STATE,
         ...INITIAL_POV_STATE,
+        ...INITIAL_SIMULATION_UI_STATE,
         deviceCameraTick: state.deviceCameraTick + 1,
         rotorStepTick: state.rotorStepTick + 1,
       }));
@@ -308,7 +446,9 @@ export const useCosmosStore = create<CosmosState>()(
                 povPitchDeg: -8,
                 povFovZoom: 1 as const,
               }
-            : {}),
+            : {
+                pointerLocked: false,
+              }),
         };
       }),
     setPovOrientation: (yawDeg, pitchDeg) =>
@@ -327,7 +467,106 @@ export const useCosmosStore = create<CosmosState>()(
         povFovZoom: 1,
         povArmDeployed: false,
         povScanActive: false,
+        cameraMountMode: 'first_person',
+        horizonStabilized: true,
+        pointerLocked: false,
       }),
+    setQualityTier: (tier) => set({ qualityTier: tier }),
+    setResolvedQualityTier: (tier) =>
+      set((state) => (state.resolvedQualityTier === tier ? state : { resolvedQualityTier: tier })),
+    setReducedMotion: (reduced) => set({ reducedMotion: reduced }),
+    setQualityStats: (stats) => set({ qualityStats: stats }),
+    setExplorationRegionSizeKm: (sizeKm) =>
+      set({
+        explorationRegionSizeKm: sizeKm,
+        regionBoundaryMessage: null,
+      }),
+    toggleSimulationPaused: () =>
+      set((state) => ({ simulationPaused: !state.simulationPaused })),
+    setSimulationPaused: (paused) => set({ simulationPaused: paused }),
+    setCameraMountMode: (mode) =>
+      set((state) => ({
+        cameraMountMode: mode,
+        surfaceTelemetry: { ...state.surfaceTelemetry, activeCameraMount: mode },
+      })),
+    toggleCameraMountMode: () =>
+      set((state) => {
+        const next: CameraMountMode =
+          state.cameraMountMode === 'first_person' ? 'third_person' : 'first_person';
+        return {
+          cameraMountMode: next,
+          surfaceTelemetry: { ...state.surfaceTelemetry, activeCameraMount: next },
+        };
+      }),
+    toggleHorizonStabilized: () =>
+      set((state) => ({
+        horizonStabilized: !state.horizonStabilized,
+        surfaceTelemetry: {
+          ...state.surfaceTelemetry,
+          horizonStabilized: !state.horizonStabilized,
+        },
+      })),
+    setSimulatedMobilityEnabled: (enabled) =>
+      set((state) => ({
+        simulatedMobilityEnabled: enabled,
+        surfaceTelemetry: { ...state.surfaceTelemetry, isSimulatedMobilityActive: enabled },
+      })),
+    toggleSimulatedMobilityEnabled: () =>
+      set((state) => {
+        const next = !state.simulatedMobilityEnabled;
+        return {
+          simulatedMobilityEnabled: next,
+          surfaceTelemetry: { ...state.surfaceTelemetry, isSimulatedMobilityActive: next },
+        };
+      }),
+    setPointerLocked: (locked) =>
+      set((state) => ({
+        pointerLocked: locked,
+        surfaceTelemetry: { ...state.surfaceTelemetry, pointerLocked: locked },
+      })),
+    setSurfaceTelemetry: (snapshot) =>
+      set((state) => ({
+        surfaceTelemetry: { ...state.surfaceTelemetry, ...snapshot },
+      })),
+    saveSimulationCheckpoint: (checkpoint) =>
+      set((state) => {
+        const key = getCheckpointStorageKey(
+          checkpoint.bodyId,
+          checkpoint.deviceId,
+          checkpoint.regionSizeKm,
+        );
+        const next = { ...state.checkpointsByDevice, [key]: checkpoint };
+        if (typeof window !== 'undefined' && window.localStorage) {
+          try {
+            window.localStorage.setItem(CHECKPOINT_STORAGE_KEY, JSON.stringify(next));
+          } catch {
+            // Ignore storage quota errors cleanly
+          }
+        }
+        return { checkpointsByDevice: next };
+      }),
+    clearSimulationCheckpoint: (key) =>
+      set((state) => {
+        const next = { ...state.checkpointsByDevice };
+        delete next[key];
+        if (typeof window !== 'undefined' && window.localStorage) {
+          try {
+            window.localStorage.setItem(CHECKPOINT_STORAGE_KEY, JSON.stringify(next));
+          } catch {
+            // Ignore storage quota errors cleanly
+          }
+        }
+        return { checkpointsByDevice: next };
+      }),
+    triggerSimulationRecovery: () =>
+      set((state) => ({
+        simulationRecoverTick: state.simulationRecoverTick + 1,
+        regionBoundaryMessage: null,
+      })),
+    setRegionBoundaryMessage: (message) =>
+      set((state) =>
+        state.regionBoundaryMessage === message ? state : { regionBoundaryMessage: message },
+      ),
     toggleOrbits: () => set((state) => ({ showOrbits: !state.showOrbits })),
     togglePOIs: () => set((state) => ({ showPOIs: !state.showPOIs })),
         viewStage: 'PRELOADING',
@@ -409,6 +648,7 @@ export const useCosmosStore = create<CosmosState>()(
                     assetLoad: { status: 'idle' },
                     ...INITIAL_DEVICE_CONTROL_STATE,
                     ...INITIAL_POV_STATE,
+                    ...INITIAL_SIMULATION_UI_STATE,
                     viewStage: 'ORBITAL_OVERVIEW',
                     controlsLocked: false,
                 });
@@ -428,6 +668,7 @@ export const useCosmosStore = create<CosmosState>()(
                 assetLoad: { status: 'idle' },
                 ...INITIAL_DEVICE_CONTROL_STATE,
                 ...INITIAL_POV_STATE,
+                ...INITIAL_SIMULATION_UI_STATE,
                 ...(get().spectralMode === 'TERRAIN_MESH_3D' ? { spectralMode: 'VISUAL_RGB' as const } : {}),
                 viewStage: 'WARPING',
                 controlsLocked: true,
@@ -448,6 +689,7 @@ export const useCosmosStore = create<CosmosState>()(
                 assetLoad: { status: 'idle' },
                 ...INITIAL_DEVICE_CONTROL_STATE,
                 ...INITIAL_POV_STATE,
+                ...INITIAL_SIMULATION_UI_STATE,
                 spectralMode: 'VISUAL_RGB',
                 viewStage: 'SURFACE_VIEW',
                 controlsLocked: false,
@@ -475,10 +717,12 @@ export const useCosmosStore = create<CosmosState>()(
                 assetLoad: { status: 'idle' },
                 ...INITIAL_DEVICE_CONTROL_STATE,
                 ...INITIAL_POV_STATE,
+                ...INITIAL_SIMULATION_UI_STATE,
                 spectralMode: state.spectralMode === 'TERRAIN_MESH_3D' ? 'VISUAL_RGB' : state.spectralMode,
                 viewStage: 'ORBITAL_OVERVIEW',
                 controlsLocked: false,
                 cameraResetTick: state.cameraResetTick + 1,
+                floatingOriginOffset: new THREE.Vector3(),
             })),
 
     setViewStage: (stage) =>
@@ -516,9 +760,13 @@ export const useCosmosStore = create<CosmosState>()(
     toggleAudio: () => set((state) => ({ audioMuted: !state.audioMuted })),
 
     advanceSimulationTime: (delta) =>
-      set((state) => ({
-        simulationTime: state.simulationTime + delta * state.timeScale,
-      })),
+      set((state) =>
+        state.simulationPaused
+          ? state
+          : {
+              simulationTime: state.simulationTime + Math.min(Math.max(delta, 0), 0.1) * state.timeScale,
+            },
+      ),
 
     setCameraAltitudeKm: (altitudeKm) => set({ cameraAltitudeKm: altitudeKm }),
 

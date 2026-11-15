@@ -33,23 +33,34 @@ export function CosmosSceneRoot({
   sunLightRef: React.RefObject<THREE.DirectionalLight | null>;
 }) {
   const bodyId = useCosmosStore((state) => state.activeBodyId);
+  const viewStage = useCosmosStore((state) => state.viewStage);
   const deviceId = useCosmosStore((state) => state.activeDeviceId);
   const activeTarget = useCosmosStore((state) => state.activeTarget);
   const inspectionMode = useCosmosStore((state) => state.inspectionMode);
   const orbitalCloseup = useCosmosStore((state) => state.orbitalCloseup);
   const spectralMode = useCosmosStore((state) => state.spectralMode);
 
+  const inTransitionOrBoot =
+    viewStage === 'PRELOADING' ||
+    viewStage === 'LAUNCHING' ||
+    viewStage === 'BODY_TRANSITION';
+
   const device = DEVICE_CATALOG.find((item) => item.id === deviceId);
   const hasPovSelection = Boolean(device) || Boolean(activeTarget);
-  const isControlRoomPov = inspectionMode === 'CONTROL_ROOM_POV' && hasPovSelection;
-  const isAvailableDevice = device?.status === 'available';
+  const isControlRoomPov =
+    !inTransitionOrBoot && inspectionMode === 'CONTROL_ROOM_POV' && hasPovSelection;
+  const isAvailableDevice = !inTransitionOrBoot && device?.status === 'available';
   const isProceduralDevice =
-    device?.status === 'unavailable' && Boolean(device.proceduralModel);
+    !inTransitionOrBoot &&
+    device?.status === 'unavailable' &&
+    Boolean(device.proceduralModel);
   const isTerrainShowcase =
+    !inTransitionOrBoot &&
     spectralMode === 'TERRAIN_MESH_3D' &&
     !device &&
     (!activeTarget || activeTarget.category === 'SURFACE_POI');
   const isOrbitalCloseup =
+    !inTransitionOrBoot &&
     !device &&
     Boolean(activeTarget?.modelPath) &&
     orbitalCloseup &&

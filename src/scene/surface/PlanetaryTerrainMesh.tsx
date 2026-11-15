@@ -69,6 +69,8 @@ export const PlanetaryTerrainMesh: React.FC<PlanetaryTerrainMeshProps> = ({ body
                 if (clonedMaterial instanceof THREE.MeshStandardMaterial) {
                     clonedMaterial.color.set(bodyId === 'moon' ? '#d0d0d0' : '#ffffff');
                     clonedMaterial.map = textures?.albedo ?? null;
+                    clonedMaterial.normalMap = textures?.normal ?? null;
+                    clonedMaterial.normalScale.set(bodyId === 'moon' ? 1.05 : 0.9, bodyId === 'moon' ? 1.05 : 0.9);
                     clonedMaterial.roughnessMap = textures?.roughness ?? null;
                     clonedMaterial.roughness = bodyId === 'moon' ? 0.92 : 0.9;
                     clonedMaterial.needsUpdate = true;

@@ -22,7 +22,7 @@ export function TopNavigationBar() {
     <nav aria-label="Chọn thiên thể" className="body-selector">
       {Object.values(BODY_CATALOG).map((body) => <button key={body.id}
         aria-pressed={body.id === bodyId} className={'hud-action-btn ' + (body.id === bodyId ? 'is-active' : '')}
-        onClick={() => selectBody(body.id)}>{body.name}</button>)}
+        onClick={() => selectBody(body.id, { animate: true })}>{body.name}</button>)}
     </nav>
     <button className="audio-toggle-btn" onClick={() => {
       spatialAudio.setMuted(!muted); spatialAudio.initAndStart(); toggleAudio();

@@ -15,6 +15,7 @@ interface ProceduralDeviceModelProps {
   kind: ExtendedProceduralKind;
   deviceId?: string;
   name?: string;
+  hideDisplayPedestal?: boolean;
 }
 
 const SUBSYSTEM_COLORS = {
@@ -51,12 +52,14 @@ function MarsRoverAssembly({
   mastRef,
   armRef,
   wheelGroupRef,
+  hideDisplayPedestal = false,
 }: {
   deviceId?: string;
   activeGroup: DevicePartGroupId;
   mastRef: React.RefObject<THREE.Group | null>;
   armRef: React.RefObject<THREE.Group | null>;
   wheelGroupRef: React.RefObject<THREE.Group | null>;
+  hideDisplayPedestal?: boolean;
 }) {
   const isPerseverance = deviceId === 'perseverance_rover';
   const mastMat = groupOpacity(activeGroup, 'optics_mast');
@@ -76,22 +79,24 @@ function MarsRoverAssembly({
   return (
     <group>
       {/* Sculpted Martian regolith & basalt display pedestal */}
-      <group position={[0, -0.52, 0]}>
-        <mesh>
-          <cylinderGeometry args={[1.38, 1.44, 0.045, 40]} />
-          <meshStandardMaterial color="#8c4227" roughness={0.92} metalness={0.05} />
-        </mesh>
-        <mesh position={[0, -0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.41, 0.016, 10, 48]} />
-          <meshStandardMaterial color="#64748b" roughness={0.4} metalness={0.82} />
-        </mesh>
-        {[-0.58, 0.58].map((x) => (
-          <mesh key={x} position={[x, 0.024, 0]}>
-            <boxGeometry args={[0.17, 0.006, 2.04]} />
-            <meshStandardMaterial color="#5e2a18" roughness={0.96} />
+      {!hideDisplayPedestal && (
+        <group position={[0, -0.52, 0]}>
+          <mesh>
+            <cylinderGeometry args={[1.38, 1.44, 0.045, 40]} />
+            <meshStandardMaterial color="#8c4227" roughness={0.92} metalness={0.05} />
           </mesh>
-        ))}
-      </group>
+          <mesh position={[0, -0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.41, 0.016, 10, 48]} />
+            <meshStandardMaterial color="#64748b" roughness={0.4} metalness={0.82} />
+          </mesh>
+          {[-0.58, 0.58].map((x) => (
+            <mesh key={x} position={[x, 0.024, 0]}>
+              <boxGeometry args={[0.17, 0.006, 2.04]} />
+              <meshStandardMaterial color="#5e2a18" roughness={0.96} />
+            </mesh>
+          ))}
+        </group>
+      )}
       {/* Main warm electronics box (WEB) chassis & rover deck */}
       <mesh position={[0, 0.04, 0]}>
         <boxGeometry args={[0.72, 0.34, isPerseverance ? 1.12 : 1.05]} />
@@ -283,12 +288,14 @@ function ApolloLrvAssembly({
   activeGroup,
   mastRef,
   wheelGroupRef,
+  hideDisplayPedestal = false,
 }: {
   kind: 'apollo_lrv' | 'apollo_lrv_deploy';
   deviceId?: string;
   activeGroup: DevicePartGroupId;
   mastRef: React.RefObject<THREE.Group | null>;
   wheelGroupRef: React.RefObject<THREE.Group | null>;
+  hideDisplayPedestal?: boolean;
 }) {
   const isDeploy = kind === 'apollo_lrv_deploy';
   const isApollo15 = deviceId === 'apollo_15_lrv';
@@ -310,7 +317,9 @@ function ApolloLrvAssembly({
 
   return (
     <group>
-      <LunarRegolithPedestal radius={1.42} y={-0.47} withWheelTracks={!isDeploy} />
+      {!hideDisplayPedestal && (
+        <LunarRegolithPedestal radius={1.42} y={-0.47} withWheelTracks={!isDeploy} />
+      )}
 
       {/* LM Quadrant 1 Deployment Bay Bulkhead & Braddock-Cunningham Struts (for apollo_lrv_deployment) */}
       {isDeploy && (
@@ -397,32 +406,36 @@ function ApolloLrvAssembly({
                   <meshStandardMaterial color="#e2e8f0" metalness={0.78} roughness={0.32} {...chassisMat} />
                 </mesh>
 
-                {/* Woven Zinc-Coated Piano-Wire Mesh Tire Torus */}
-                <mesh rotation={[0, Math.PI / 2, 0]}>
-                  <torusGeometry args={[0.165, 0.052, 14, 28]} />
-                  <meshStandardMaterial color="#94a3b8" metalness={0.68} roughness={0.62} {...chassisMat} />
-                </mesh>
-                {/* Outer Titanium Chevron Tread Rings */}
-                <mesh rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.214, 0.214, 0.11, 20, 1, true]} />
-                  <meshStandardMaterial color="#cbd5e1" metalness={0.75} roughness={0.48} side={2} {...chassisMat} />
-                </mesh>
-                {/* 12 Radial Titanium Bump-Stop Spokes */}
-                {spokeAngles.map((ang, sIdx) => (
-                  <mesh key={sIdx} rotation={[ang, 0, 0]}>
-                    <boxGeometry args={[0.08, 0.33, 0.016]} />
-                    <meshStandardMaterial color="#e2e8f0" metalness={0.82} roughness={0.3} {...chassisMat} />
-                  </mesh>
-                ))}
-                {/* Spun-Aluminum Wheel Hub & Crimson Anodized Cap */}
-                <mesh rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.085, 0.085, 0.135, 16]} />
-                  <meshStandardMaterial color="#f1f5f9" metalness={0.85} roughness={0.28} {...chassisMat} />
-                </mesh>
-                <mesh position={[sideSign * 0.072, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-                  <cylinderGeometry args={[0.052, 0.058, 0.022, 16]} />
-                  <meshStandardMaterial color="#dc2626" metalness={0.65} roughness={0.35} {...chassisMat} />
-                </mesh>
+                {/* Woven Zinc-Coated Piano-Wire Mesh Tire + Spin & Steer Pivots */}
+                <group name={`sim_wheel_steer_${idx}`}>
+                  <group name={`sim_wheel_spin_${idx}`}>
+                    <mesh rotation={[0, Math.PI / 2, 0]}>
+                      <torusGeometry args={[0.165, 0.052, 14, 28]} />
+                      <meshStandardMaterial color="#94a3b8" metalness={0.68} roughness={0.62} {...chassisMat} />
+                    </mesh>
+                    {/* Outer Titanium Chevron Tread Rings */}
+                    <mesh rotation={[0, 0, Math.PI / 2]}>
+                      <cylinderGeometry args={[0.214, 0.214, 0.11, 20, 1, true]} />
+                      <meshStandardMaterial color="#cbd5e1" metalness={0.75} roughness={0.48} side={2} {...chassisMat} />
+                    </mesh>
+                    {/* 12 Radial Titanium Bump-Stop Spokes */}
+                    {spokeAngles.map((ang, sIdx) => (
+                      <mesh key={sIdx} rotation={[ang, 0, 0]}>
+                        <boxGeometry args={[0.08, 0.33, 0.016]} />
+                        <meshStandardMaterial color="#e2e8f0" metalness={0.82} roughness={0.3} {...chassisMat} />
+                      </mesh>
+                    ))}
+                    {/* Spun-Aluminum Wheel Hub & Crimson Anodized Cap */}
+                    <mesh rotation={[0, 0, Math.PI / 2]}>
+                      <cylinderGeometry args={[0.085, 0.085, 0.135, 16]} />
+                      <meshStandardMaterial color="#f1f5f9" metalness={0.85} roughness={0.28} {...chassisMat} />
+                    </mesh>
+                    <mesh position={[sideSign * 0.072, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+                      <cylinderGeometry args={[0.052, 0.058, 0.022, 16]} />
+                      <meshStandardMaterial color="#dc2626" metalness={0.65} roughness={0.35} {...chassisMat} />
+                    </mesh>
+                  </group>
+                </group>
 
                 {/* Curvilinear Fiberglass Dust Fender */}
                 <mesh position={[0, 0.21, 0]}>
@@ -680,9 +693,11 @@ function ApolloLrvAssembly({
 function ApolloSurfacePackOrMesa({
   kind,
   activeGroup,
+  hideDisplayPedestal = false,
 }: {
   kind: 'apollo_surface_pack' | 'apollo_lm_mesa';
   activeGroup: DevicePartGroupId;
+  hideDisplayPedestal?: boolean;
 }) {
   const opticsMat = groupOpacity(activeGroup, 'optics_mast');
   const powerMat = groupOpacity(activeGroup, 'power_thermal');
@@ -695,7 +710,9 @@ function ApolloSurfacePackOrMesa({
 
     return (
       <group>
-        <LunarRegolithPedestal radius={1.45} y={-0.38} withWheelTracks={false} />
+        {!hideDisplayPedestal && (
+          <LunarRegolithPedestal radius={1.45} y={-0.38} withWheelTracks={false} />
+        )}
 
         {/* Flat Kapton Ribbon Interconnect Cables radiating from Central Station */}
         {[
@@ -807,7 +824,9 @@ function ApolloSurfacePackOrMesa({
 
   return (
     <group>
-      <LunarRegolithPedestal radius={1.45} y={-0.47} withWheelTracks={false} />
+      {!hideDisplayPedestal && (
+        <LunarRegolithPedestal radius={1.45} y={-0.47} withWheelTracks={false} />
+      )}
 
       {/* Octagonal Kapton-Gold & Black-Inconel LM Descent Stage Quadrant IV Hull */}
       <group position={[-0.08, 0.14, -0.26]}>
@@ -1057,7 +1076,11 @@ function OrbitalCraftAssembly({
  * Normalized procedural 3D hardware reconstructions (2-unit scale) for documented
  * rovers, Apollo equipment, and illustrative orbiters that do not ship a NASA GLB file.
  */
-export function ProceduralDeviceModel({ kind, deviceId }: ProceduralDeviceModelProps) {
+export function ProceduralDeviceModel({
+  kind,
+  deviceId,
+  hideDisplayPedestal = false,
+}: ProceduralDeviceModelProps) {
   const activePartGroupId = useCosmosStore((state) => state.activePartGroupId);
   const rotorStepDeg = useCosmosStore((state) => state.rotorStepDeg);
   const mastRef = useRef<THREE.Group | null>(null);
@@ -1092,6 +1115,7 @@ export function ProceduralDeviceModel({ kind, deviceId }: ProceduralDeviceModelP
           mastRef={mastRef}
           armRef={armRef}
           wheelGroupRef={wheelRef}
+          hideDisplayPedestal={hideDisplayPedestal}
         />
       )}
       {(kind === 'apollo_lrv' || kind === 'apollo_lrv_deploy') && (
@@ -1101,10 +1125,15 @@ export function ProceduralDeviceModel({ kind, deviceId }: ProceduralDeviceModelP
           activeGroup={activePartGroupId}
           mastRef={mastRef}
           wheelGroupRef={wheelRef}
+          hideDisplayPedestal={hideDisplayPedestal}
         />
       )}
       {(kind === 'apollo_surface_pack' || kind === 'apollo_lm_mesa') && (
-        <ApolloSurfacePackOrMesa kind={kind} activeGroup={activePartGroupId} />
+        <ApolloSurfacePackOrMesa
+          kind={kind}
+          activeGroup={activePartGroupId}
+          hideDisplayPedestal={hideDisplayPedestal}
+        />
       )}
       {(kind === 'orbiter_science' ||
         kind === 'station_centrifuge' ||

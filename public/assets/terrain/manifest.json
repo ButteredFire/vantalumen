@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-15T00:00:00Z",
+  "note": "Regional terrain streaming manifest combining NASA MOLA/LOLA reference coordinates with deterministic seeded micro-relief.",
+  "regions": [
+    {
+      "bodyId": "mars",
+      "regionName": "Ares Vallis — Vùng hạ cánh Pathfinder",
+      "regionSizeKm": 2,
+      "tileSizeM": 256,
+      "baseGridResolution": 97,
+      "boundsMeters": {
+        "minX": -1000,
+        "maxX": 1000,
+        "minZ": -1000,
+        "maxZ": 1000
+      },
+      "elevationRangeM": {
+        "min": -28.4,
+        "max": 32.8
+      },
+      "quantizationStepM": 0.005,
+      "maxQuantizationErrorM": 0.0025,
+      "source": "MOLA baseline parameters + deterministic seeded synthetic micro-relief",
+      "license": "Public domain NASA/MOLA reference + MIT procedural relief",
+      "isBaselinePlusSyntheticRelief": true,
+      "seed": 409731,
+      "sha256": "02f8eb2acfe9731cb7fb26e975f4effb58681b661004b790483fa89bb8e6c658"
+    },
+    {
+      "bodyId": "mars",
+      "regionName": "Ares Vallis — Vùng hạ cánh Pathfinder",
+      "regionSizeKm": 16,
+      "tileSizeM": 256,
+      "baseGridResolution": 97,
+      "boundsMeters": {
+        "minX": -8000,
+        "maxX": 8000,
+        "minZ": -8000,
+        "maxZ": 8000
+      },
+      "elevationRangeM": {
+        "min": -28.4,
+        "max": 32.8
+      },
+      "quantizationStepM": 0.005,
+      "maxQuantizationErrorM": 0.0025,
+      "source": "MOLA baseline parameters + deterministic seeded synthetic micro-relief",
+      "license": "Public domain NASA/MOLA reference + MIT procedural relief",
+      "isBaselinePlusSyntheticRelief": true,
+      "seed": 409731,
+      "sha256": "16fd84e4957370e7f8313d6a86eef74a40f54fa3caf6ae68f2bd75fdc973bf93"
+    },
+    {
+      "bodyId": "mars",
+      "regionName": "Ares Vallis — Vùng hạ cánh Pathfinder",
+      "regionSizeKm": 64,
+      "tileSizeM": 256,
+      "baseGridResolution": 97,
+      "boundsMeters": {
+        "minX": -32000,
+        "maxX": 32000,
+        "minZ": -32000,
+        "maxZ": 32000
+      },
+      "elevationRangeM": {
+        "min": -28.4,
+        "max": 32.8
+      },
+      "quantizationStepM": 0.005,
+      "maxQuantizationErrorM": 0.0025,
+      "source": "MOLA baseline parameters + deterministic seeded synthetic micro-relief",
+      "license": "Public domain NASA/MOLA reference + MIT procedural relief",
+      "isBaselinePlusSyntheticRelief": true,
+      "seed": 409731,
+      "sha256": "b6f2a4b4aebeff6b7e22da4140086f3179237cfa6a0d135f3d610809f1c56ab6"
+    },
+    {
+      "bodyId": "moon",
+      "regionName": "Hadley–Apennine — Apollo 15",
+      "regionSizeKm": 2,
+      "tileSizeM": 256,
+      "baseGridResolution": 97,
+      "boundsMeters": {
+        "minX": -1000,
+        "maxX": 1000,
+        "minZ": -1000,
+        "maxZ": 1000
+      },
+      "elevationRangeM": {
+        "min": -34.2,
+        "max": 38.6
+      },
+      "quantizationStepM": 0.005,
+      "maxQuantizationErrorM": 0.0025,
+      "source": "LOLA baseline parameters + deterministic seeded synthetic rille & craters",
+      "license": "Public domain NASA/LOLA reference + MIT procedural relief",
+      "isBaselinePlusSyntheticRelief": true,
+      "seed": 823157,
+      "sha256": "3338187c7f7b108eaea4b9067ac45e676fb818e275b40f11b5c3e19a44ed5740"
+    },
+    {
+      "bodyId": "moon",
+      "regionName": "Hadley–Apennine — Apollo 15",
+      "regionSizeKm": 16,
+      "tileSizeM": 256,
+      "baseGridResolution": 97,
+      "boundsMeters": {
+        "minX": -8000,
+        "maxX": 8000,
+        "minZ": -8000,
+        "maxZ": 8000
+      },
+      "elevationRangeM": {
+        "min": -34.2,
+        "max": 38.6
+      },
+      "quantizationStepM": 0.005,
+      "maxQuantizationErrorM": 0.0025,
+      "source": "LOLA baseline parameters + deterministic seeded synthetic rille & craters",
+      "license": "Public domain NASA/LOLA reference + MIT procedural relief",
+      "isBaselinePlusSyntheticRelief": true,
+      "seed": 823157,
+      "sha256": "816ddc52862fa6747195dd9550448ff60ffac803e9b059ff9786e8fd20b3845e"
+    },
+    {
+      "bodyId": "moon",
+      "regionName": "Hadley–Apennine — Apollo 15",
+      "regionSizeKm": 64,
+      "tileSizeM": 256,
+      "baseGridResolution": 97,
+      "boundsMeters": {
+        "minX": -32000,
+        "maxX": 32000,
+        "minZ": -32000,
+        "maxZ": 32000
+      },
+      "elevationRangeM": {
+        "min": -34.2,
+        "max": 38.6
+      },
+      "quantizationStepM": 0.005,
+      "maxQuantizationErrorM": 0.0025,
+      "source": "LOLA baseline parameters + deterministic seeded synthetic rille & craters",
+      "license": "Public domain NASA/LOLA reference + MIT procedural relief",
+      "isBaselinePlusSyntheticRelief": true,
+      "seed": 823157,
+      "sha256": "87d65d42d5b62c8b31d8a5e7e0e2f3fc870fe38b833894f5705a18de7a97d999"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { assetManager } from './KTX2DracoManager';
+import { getQualityPreset } from '../quality/QualityManager';
 import { useCosmosStore } from '../../store/useCosmosStore';
+import { assetManager } from './KTX2DracoManager';
 
 export interface BodyPlanetaryTextures {
   albedo: THREE.Texture;
@@ -343,32 +344,50 @@ async function loadBakedBodyWebPTextures(
   options?: {
     flipY?: boolean;
     signal?: AbortSignal;
+    maxWidth?: number;
   },
 ): Promise<BakedMarsWebPSet> {
   if (options?.signal?.aborted) {
     throw new DOMException('Aborted', 'AbortError');
   }
   const flipY = options?.flipY ?? true;
+  const resolvedTier = useCosmosStore.getState().resolvedQualityTier;
+  const maxWidthCap = Math.min(
+    8192,
+    Math.max(1024, options?.maxWidth ?? getQualityPreset(resolvedTier).maxSurfaceTextureSize),
+  );
+  const variantKey = `${cacheKey}:${maxWidthCap}`;
 
-  let cachedPromise = bakedWebPImageCache.get(cacheKey);
+  let cachedPromise = bakedWebPImageCache.get(variantKey);
   if (!cachedPromise) {
     cachedPromise = Promise.all([
       loadWebPImage(urls.albedo),
       loadWebPImage(urls.normal),
       loadWebPImage(urls.roughness),
     ])
-      .then(([albedo, normal, roughness]) => ({
-        // Store HTMLCanvasElement instead of ImageBitmap so disposeModel's bitmap.close()
-        // on unmounted sub-scenes cannot detach cached globe surface pixels.
-        albedo: rasterizeImageToPowerOfTwoCanvas(albedo, 2048, 1024),
-        normal: rasterizeImageToPowerOfTwoCanvas(normal, 2048, 1024),
-        roughness: rasterizeImageToPowerOfTwoCanvas(roughness, 1024, 512),
-      }))
+      .then(([albedo, normal, roughness]) => {
+        const capDims = (img: HTMLImageElement, limitW: number) => {
+          const naturalW = img.naturalWidth || img.width || limitW;
+          const targetW = Math.min(limitW, Math.max(512, naturalW));
+          const targetH = Math.max(256, Math.round(targetW / 2));
+          return { w: targetW, h: targetH };
+        };
+        const aDims = capDims(albedo, maxWidthCap);
+        const nDims = capDims(normal, maxWidthCap);
+        const rDims = capDims(roughness, Math.min(2048, maxWidthCap));
+        return {
+          // Store HTMLCanvasElement instead of ImageBitmap so disposeModel's bitmap.close()
+          // on unmounted sub-scenes cannot detach cached globe surface pixels.
+          albedo: rasterizeImageToPowerOfTwoCanvas(albedo, aDims.w, aDims.h),
+          normal: rasterizeImageToPowerOfTwoCanvas(normal, nDims.w, nDims.h),
+          roughness: rasterizeImageToPowerOfTwoCanvas(roughness, rDims.w, rDims.h),
+        };
+      })
       .catch((err) => {
-        bakedWebPImageCache.delete(cacheKey);
+        bakedWebPImageCache.delete(variantKey);
         throw err;
       });
-    bakedWebPImageCache.set(cacheKey, cachedPromise);
+    bakedWebPImageCache.set(variantKey, cachedPromise);
   }
 
   const images = await cachedPromise;
@@ -385,7 +404,7 @@ async function loadBakedBodyWebPTextures(
     tex.magFilter = THREE.LinearFilter;
     tex.minFilter = THREE.LinearMipmapLinearFilter;
     tex.generateMipmaps = true;
-    tex.anisotropy = 8;
+    tex.anisotropy = resolvedTier === 'high' ? 8 : resolvedTier === 'medium' ? 4 : 2;
     tex.needsUpdate = true;
     return tex;
   };
@@ -398,21 +417,23 @@ async function loadBakedBodyWebPTextures(
 }
 
 /**
- * Loads the baked 8K Mars WebP texture suite asynchronously.
+ * Loads the baked 8K Mars WebP texture suite asynchronously (tier-scaled up to 8K on high tier).
  */
 export function loadBakedMarsWebPTextures(options?: {
   flipY?: boolean;
   signal?: AbortSignal;
+  maxWidth?: number;
 }): Promise<BakedMarsWebPSet> {
   return loadBakedBodyWebPTextures('mars', MARS_BAKED_WEBP_URLS, options);
 }
 
 /**
- * Loads the baked 8K Moon WebP texture suite asynchronously.
+ * Loads the baked 8K Moon WebP texture suite asynchronously (tier-scaled up to 8K on high tier).
  */
 export function loadBakedMoonWebPTextures(options?: {
   flipY?: boolean;
   signal?: AbortSignal;
+  maxWidth?: number;
 }): Promise<BakedMarsWebPSet> {
   return loadBakedBodyWebPTextures('moon', MOON_BAKED_WEBP_URLS, options);
 }

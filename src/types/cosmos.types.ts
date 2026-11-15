@@ -147,7 +147,175 @@ export interface DeviceRecord {
   coordinates?: { lat: number; lon: number };
   units: string;
   transform: { rotation: [number, number, number]; normalization: 'fit-longest-side-2'; physicalScaleVerified: false };
+  /** Optional simulation capabilities and meter-scale metadata (distinct from Option 1 inspection normalization). */
+  capabilities?: {
+    mobilityKind: MobilityKind;
+    supportsRealMobility: boolean;
+    supportsSimulatedSurfaceDrive: boolean;
+    supportsFlight: boolean;
+  };
+  simulationTransform?: {
+    targetLongestSideM: number;
+    forwardAxis: [number, number, number];
+    physicalScaleVerified: boolean;
+  };
   version: string;
+}
+
+export type QualityTier = 'auto' | 'low' | 'medium' | 'high';
+export type ResolvedQualityTier = 'low' | 'medium' | 'high';
+export type ExplorationRegionSizeKm = 2 | 16 | 64;
+export type MobilityKind = 'rover_6w' | 'rover_4w' | 'helicopter' | 'lander_static' | 'orbital';
+export type CameraMountMode = 'first_person' | 'third_person';
+
+export interface DeviceSimulationCapabilities {
+  supportsRealMobility: boolean;
+  supportsSimulatedSurfaceDrive: boolean;
+  supportsFlight: boolean;
+  supportsArmDeploy: boolean;
+  supportsSpectrometerScan: boolean;
+  supportsHorizonStabilization: boolean;
+  isProceduralModel: boolean;
+}
+
+export interface DevicePhysicalTransform {
+  targetLongestSideM: number;
+  dimensionsM: [number, number, number];
+  forwardAxis: [number, number, number];
+  yawOffsetRad: number;
+  groundClearanceM: number;
+  physicalScaleVerified: boolean;
+  dimensionsDisclaimer: string;
+}
+
+export interface WheelRigSpec {
+  layout: 'rocker_bogie_6w' | 'double_wishbone_4w' | 'skid_static' | 'rotorcraft' | 'orbital_rig';
+  wheelCount: 0 | 4 | 6;
+  wheelRadiusM: number;
+  wheelWidthM: number;
+  trackHalfWidthM: number;
+  wheelZPositionsM: number[];
+  steerableAxles: Array<'front' | 'mid' | 'rear'>;
+  suspensionRestLengthM: number;
+  suspensionStiffness: number;
+  suspensionDamping: number;
+  maxSteerAngleRad: number;
+  chassisMassKg: number;
+  chassisBoxHalfExtentsM: [number, number, number];
+  centerOfMassOffsetM: [number, number, number];
+}
+
+export interface DeviceSimulationProfile {
+  id: string;
+  bodyId?: BodyId;
+  mobilityKind: MobilityKind;
+  maxSpeedMs: number;
+  documentedSpeedNote: string;
+  reverseSpeedMs: number;
+  maxClimbSlopeDeg: number;
+  eyeHeightM: number;
+  eyeForwardOffsetM: number;
+  chaseDistanceM: number;
+  chaseHeightM: number;
+  defaultFovDeg: number;
+  flightMaxAltitudeM?: number;
+  flightMaxSpeedMs?: number;
+  wheelRig: WheelRigSpec;
+  physicalTransform: DevicePhysicalTransform;
+  capabilities: DeviceSimulationCapabilities;
+  provenanceLabel: string;
+}
+
+export interface BodyPhysicsConfig {
+  bodyId: BodyId;
+  gravityMs2: number;
+  meanRadiusM: number;
+  atmosphereDensityKgM3: number;
+  airDragCoefficient: number;
+  surfaceFriction: number;
+  rollingResistance: number;
+  skyZenithHex: string;
+  skyHorizonHex: string;
+  fogColorHex: string;
+  fogDensity: number;
+  sunColorHex: string;
+  sunIntensity: number;
+  ambientColorHex: string;
+  ambientIntensity: number;
+  regionCenterName: string;
+  regionCenterLatLon: { lat: number; lon: number };
+  terrainSourceSummary: string;
+}
+
+export interface TerrainTileManifest {
+  bodyId: BodyId;
+  regionName: string;
+  regionSizeKm: ExplorationRegionSizeKm;
+  tileSizeM: number;
+  baseGridResolution: number;
+  boundsMeters: { minX: number; maxX: number; minZ: number; maxZ: number };
+  elevationRangeM: { min: number; max: number };
+  quantizationStepM: number;
+  maxQuantizationErrorM: number;
+  source: string;
+  license: string;
+  isBaselinePlusSyntheticRelief: true;
+  seed: number;
+  sha256: string;
+}
+
+export type StabilityWarningKind =
+  | 'none'
+  | 'steep_slope'
+  | 'high_center'
+  | 'tip_over'
+  | 'boundary_limit';
+
+export interface SurfaceTelemetrySnapshot {
+  speedMs: number;
+  headingDeg: number;
+  pitchDeg: number;
+  rollDeg: number;
+  altitudeAboveGroundM: number;
+  elevationM: number;
+  globalXM: number;
+  globalYM: number;
+  globalZM: number;
+  distanceTraveledM: number;
+  wheelsGroundedCount: number;
+  totalWheels: number;
+  slipRatio: number;
+  stabilityWarning: StabilityWarningKind;
+  isStreamingColliderHold: boolean;
+  isSimulatedMobilityActive: boolean;
+  isFlightAirborne: boolean;
+  activeCameraMount: CameraMountMode;
+  pointerLocked: boolean;
+  horizonStabilized: boolean;
+  trailPoints: Array<{ x: number; z: number }>;
+  activeChunkCount: number;
+  originShiftCount: number;
+}
+
+export interface SimulationCheckpoint {
+  deviceId: string;
+  bodyId: BodyId;
+  regionSizeKm: ExplorationRegionSizeKm;
+  globalPos: [number, number, number];
+  yawRad: number;
+  odometerM: number;
+  timestampMs: number;
+}
+
+export interface QualityRuntimeStats {
+  p50FrameMs: number;
+  p95FrameMs: number;
+  drawCalls: number;
+  triangles: number;
+  estimatedGpuBytes: number;
+  jsHeapBytes: number | null;
+  activeDpr: number;
+  resolvedTier: ResolvedQualityTier;
 }
 
 export interface LODTierConfig {

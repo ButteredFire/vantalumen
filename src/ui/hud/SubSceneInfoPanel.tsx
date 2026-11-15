@@ -1,9 +1,14 @@
+import { useEffect, useState } from 'react';
 import { BODY_CATALOG } from '../../config/bodyCatalog';
+import { getBodyPhysicsConfig } from '../../config/bodyPhysicsConfig';
 import { LINKED_ORBITAL_DEVICE_IDS } from '../../config/celestialCatalog';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
+import { getDeviceSimulationProfile } from '../../config/deviceSimulationProfiles';
 import { useCosmosStore } from '../../store/useCosmosStore';
 import type {
   DevicePartGroupId,
+  ExplorationRegionSizeKm,
+  QualityTier,
   SensorFilterMode,
   SourceReference,
 } from '../../types/cosmos.types';
@@ -75,6 +80,22 @@ export function SubSceneInfoPanel() {
   const togglePovScan = useCosmosStore((state) => state.togglePovScan);
   const resetPovCamera = useCosmosStore((state) => state.resetPovCamera);
   const orbitalCloseup = useCosmosStore((state) => state.orbitalCloseup);
+  const qualityTier = useCosmosStore((state) => state.qualityTier);
+  const resolvedQualityTier = useCosmosStore((state) => state.resolvedQualityTier);
+  const reducedMotion = useCosmosStore((state) => state.reducedMotion);
+  const qualityStats = useCosmosStore((state) => state.qualityStats);
+  const explorationRegionSizeKm = useCosmosStore((state) => state.explorationRegionSizeKm);
+  const setQualityTier = useCosmosStore((state) => state.setQualityTier);
+  const setExplorationRegionSizeKm = useCosmosStore((state) => state.setExplorationRegionSizeKm);
+
+  const [panelCollapsed, setPanelCollapsed] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 768 : false,
+  );
+  useEffect(() => {
+    if (inspectionMode !== 'CONTROL_ROOM_POV') {
+      setPanelCollapsed(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+    }
+  }, [inspectionMode]);
 
   const device = DEVICE_CATALOG.find((item) => item.id === deviceId);
   const isNonPlanetTarget = Boolean(rawTarget && rawTarget.id !== bodyId);
@@ -124,9 +145,95 @@ export function SubSceneInfoPanel() {
     setInspectionMode('CONTROL_ROOM_POV');
   };
 
+  const profile = getDeviceSimulationProfile(device?.id ?? rawTarget?.id ?? null, device);
+  const bodyPhysics = getBodyPhysicsConfig(device?.bodyId ?? rawTarget?.bodyId ?? bodyId);
+  const isSurfaceProfile = profile.mobilityKind !== 'orbital';
+  const formatMb = (bytes: number) => `${(bytes / 1_048_576).toFixed(1)} MB`;
+
   return (
-    <aside className="hud-right-panel glass-panel" aria-label="Thông tin và nguồn">
-      <h2 className="info-panel-title">{device?.name ?? target.name}</h2>
+    <aside
+      className={`hud-right-panel glass-panel ${panelCollapsed ? 'is-collapsed' : ''}`}
+      data-testid="subscene-info-panel"
+      aria-label="Thông tin và nguồn"
+    >
+      <div className="sim-drawer-head">
+        <h2 className="info-panel-title" style={{ margin: 0 }}>{device?.name ?? target.name}</h2>
+        <button
+          type="button"
+          className="drawer-collapse-btn"
+          data-testid="subscene-drawer-toggle"
+          onClick={() => setPanelCollapsed((prev) => !prev)}
+        >
+          {panelCollapsed ? 'Mở' : 'Thu gọn'}
+        </button>
+      </div>
+
+      {!panelCollapsed && (
+        <>
+          <div className="control-facts-box sim-settings-box" data-testid="simulation-settings-card">
+            {isSurfaceProfile && (
+              <div className="sim-setting-group">
+                <div className="device-control-label">VÙNG KHÁM PHÁ</div>
+                <div className="sim-chip-row">
+                  {([2, 16, 64] as ExplorationRegionSizeKm[]).map((sizeKm) => (
+                    <button
+                      key={sizeKm}
+                      type="button"
+                      className={`pov-chip-btn ${explorationRegionSizeKm === sizeKm ? 'is-active' : ''}`}
+                      data-testid={`region-size-${sizeKm}`}
+                      onClick={() => setExplorationRegionSizeKm(sizeKm)}
+                    >
+                      {sizeKm}×{sizeKm} km
+                    </button>
+                  ))}
+                </div>
+                <div className="sim-provenance-note">
+                  {bodyPhysics.regionCenterName} · {bodyPhysics.terrainSourceSummary}
+                </div>
+              </div>
+            )}
+
+            <div className="sim-setting-group">
+              <div className="device-control-label">
+                CHẤT LƯỢNG ĐỒ HỌA ({resolvedQualityTier.toUpperCase()}
+                {reducedMotion ? ' · GIẢM CHUYỂN ĐỘNG' : ''})
+              </div>
+              <div className="sim-chip-row">
+                {(['auto', 'low', 'medium', 'high'] as QualityTier[]).map((tier) => (
+                  <button
+                    key={tier}
+                    type="button"
+                    className={`pov-chip-btn ${qualityTier === tier ? 'is-active' : ''}`}
+                    data-testid={`quality-tier-${tier}`}
+                    onClick={() => setQualityTier(tier)}
+                  >
+                    {tier === 'auto'
+                      ? 'Tự động'
+                      : tier === 'low'
+                        ? 'Thấp'
+                        : tier === 'medium'
+                          ? 'Vừa'
+                          : 'Cao'}
+                  </button>
+                ))}
+              </div>
+              {qualityStats && (
+                <div className="sim-telemetry-line" data-testid="quality-runtime-stats">
+                  p50 {qualityStats.p50FrameMs}ms · p95 {qualityStats.p95FrameMs}ms · DPR{' '}
+                  {qualityStats.activeDpr} · Draw {qualityStats.drawCalls} · GPU ~
+                  {formatMb(qualityStats.estimatedGpuBytes)}
+                </div>
+              )}
+            </div>
+
+            <div className="sim-provenance-note" data-testid="device-provenance-disclosure">
+              <div>{profile.provenanceLabel}</div>
+              <div>{profile.documentedSpeedNote}</div>
+              {!profile.physicalTransform.physicalScaleVerified && (
+                <div>{profile.physicalTransform.dimensionsDisclaimer}</div>
+              )}
+            </div>
+          </div>
 
       {showDualModeSwitcher && (
         <div
@@ -449,6 +556,8 @@ export function SubSceneInfoPanel() {
             <button className="hud-action-btn secondary-btn" onClick={returnToOrbit}>
                 Trở về toàn cảnh
             </button>
+        </>
+      )}
     </aside>
   );
 }

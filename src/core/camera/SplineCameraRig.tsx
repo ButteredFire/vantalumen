@@ -11,6 +11,7 @@ import { getDeviceControlSpec } from '../../config/deviceControlSpecs';
 import { buildSafeWarpSpline } from './warpPaths';
 import { spatialAudio } from '../audio/SpatialAudioEngine';
 import { OPENING_CAMERA_POS, OPENING_LOOK_TARGET } from '../../scene/opening/OpeningShipScene';
+import { computeOrbitalTimeStep } from '../../scene/simulation/SimulationClock';
 import type { BodyId } from '../../types/cosmos.types';
 
 const INSPECTION_MIN_DISTANCE = 0.35;
@@ -48,16 +49,6 @@ function synchronizeOrbitalControls(
     orbit.enabled = true;
 }
 
-function isOrbitalDevice(deviceId: string | null): boolean {
-  return (
-    deviceId === 'mro_orbiter' ||
-    deviceId === 'dawn_spacecraft' ||
-    deviceId === 'near_shoemaker' ||
-    deviceId === 'pioneer_10' ||
-    deviceId === 'kepler_space_telescope'
-  );
-}
-
 export function SplineCameraRig() {
     const { camera } = useThree();
     const controls = useRef<OrbitControlsImpl>(null);
@@ -72,9 +63,6 @@ export function SplineCameraRig() {
     const deviceCameraTick = useCosmosStore((state) => state.deviceCameraTick);
     const inspectionMode = useCosmosStore((state) => state.inspectionMode);
     const orbitalCloseup = useCosmosStore((state) => state.orbitalCloseup);
-    const povYawDeg = useCosmosStore((state) => state.povYawDeg);
-    const povPitchDeg = useCosmosStore((state) => state.povPitchDeg);
-    const povFovZoom = useCosmosStore((state) => state.povFovZoom);
     const spectralMode = useCosmosStore((state) => state.spectralMode);
     const target = useCosmosStore((state) => state.activeTarget);
     const bodyTransition = useCosmosStore((state) => state.bodyTransition);
@@ -326,44 +314,13 @@ export function SplineCameraRig() {
         };
     }, [bodyTransition, camera]);
 
-  // Apply real-time pan/tilt/zoom inside CONTROL_ROOM_POV without triggering warp animations
+  // Yield camera position, orientation, and projection matrix completely to ControlRoomFirstPersonScene inside CONTROL_ROOM_POV
   useEffect(() => {
     if (!isControlRoomPov) return;
     const orbit = controls.current;
     if (orbit) orbit.enabled = false;
-
-    const perspective = camera as PerspectiveCamera;
-    perspective.near = 0.05;
-    perspective.far = 160;
-    perspective.fov = 52 / povFovZoom;
-    perspective.updateProjectionMatrix();
-
-    const isOrbitalCupola =
-      isOrbitalDevice(device?.id ?? null) ||
-      target?.category === 'MOON' ||
-      target?.category === 'SPACECRAFT';
-    const eyeY = isOrbitalCupola
-      ? 0
-      : device?.id === 'ingenuity_helicopter'
-        ? 0.56
-        : 1.12;
-
-    camera.position.set(0, eyeY, 0);
-    camera.rotation.order = 'YXZ';
-    camera.rotation.set(
-      MathUtils.degToRad(povPitchDeg),
-      MathUtils.degToRad(-povYawDeg),
-      0,
-    );
-  }, [
-    camera,
-    device?.id,
-    isControlRoomPov,
-    povFovZoom,
-    povPitchDeg,
-    povYawDeg,
-    target?.category,
-  ]);
+    prevDeviceIdRef.current = null;
+  }, [isControlRoomPov]);
 
     useEffect(() => {
         if (isControlRoomPov) return;
@@ -549,7 +506,15 @@ export function SplineCameraRig() {
       !isNormalizedCloseup &&
       !isControlRoomPov
     ) {
-      state.advanceSimulationTime(Math.min(delta, 0.1));
+      const stepBase = computeOrbitalTimeStep(
+        delta,
+        1,
+        state.simulationPaused,
+        typeof document !== 'undefined' ? document.hidden : false,
+      );
+      if (stepBase > 0) {
+        state.advanceSimulationTime(stepBase);
+      }
     }
     if (!isNormalizedCloseup && !isControlRoomPov && camera.position.length() < radius * 1.02) {
       camera.position.normalize().multiplyScalar(radius * 1.02);

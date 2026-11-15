@@ -37,6 +37,21 @@
     "coordinates": {
       "lat": 19.13,
       "lon": 326.78
+    },
+    "capabilities": {
+      "mobilityKind": "rover_6w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 0.79,
+      "forwardAxis": [
+        0,
+        0,
+        1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -77,6 +92,21 @@
     "coordinates": {
       "lat": -14.57,
       "lon": 175.47
+    },
+    "capabilities": {
+      "mobilityKind": "rover_6w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 2.28,
+      "forwardAxis": [
+        0,
+        0,
+        1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -117,6 +147,21 @@
     "coordinates": {
       "lat": 22.27,
       "lon": 312.05
+    },
+    "capabilities": {
+      "mobilityKind": "lander_static",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 3.2,
+      "forwardAxis": [
+        0,
+        0,
+        1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -157,6 +202,21 @@
     "coordinates": {
       "lat": 4.502,
       "lon": 135.623
+    },
+    "capabilities": {
+      "mobilityKind": "lander_static",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 6,
+      "forwardAxis": [
+        0,
+        0,
+        1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -197,6 +257,21 @@
     "coordinates": {
       "lat": 18.38,
       "lon": 77.58
+    },
+    "capabilities": {
+      "mobilityKind": "helicopter",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": true
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 1.21,
+      "forwardAxis": [
+        1,
+        0,
+        0
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -233,7 +308,22 @@
     "modelPath": "/assets/models/mars/dawn_spacecraft.glb",
     "bytes": 927020,
     "sha256": "411249aed791994b6a2014894ad6bd7ca0445dbcf6d5342af9edc5df988f04b7",
-    "attributionPath": "/assets/attribution/Mars-Attributions.txt"
+    "attributionPath": "/assets/attribution/Mars-Attributions.txt",
+    "capabilities": {
+      "mobilityKind": "orbital",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 19.7,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
+    }
   },
   {
     "id": "near_shoemaker",
@@ -269,7 +359,22 @@
     "modelPath": "/assets/models/mars/near_shoemaker.glb",
     "bytes": 701808,
     "sha256": "f3de2f87c97685b207be97e80d7cdca37d1567dd68204e1feb2d85f90e3adb0c",
-    "attributionPath": "/assets/attribution/Mars-Attributions.txt"
+    "attributionPath": "/assets/attribution/Mars-Attributions.txt",
+    "capabilities": {
+      "mobilityKind": "orbital",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 2.75,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
+    }
   },
   {
     "id": "pioneer_10",
@@ -305,7 +410,22 @@
     "modelPath": "/assets/models/mars/pioneer_10.glb",
     "bytes": 2049840,
     "sha256": "81443a7fa01cca0dda878cd27692b3307f9c332c4eb8e55a844499d7b350573c",
-    "attributionPath": "/assets/attribution/Mars-Attributions.txt"
+    "attributionPath": "/assets/attribution/Mars-Attributions.txt",
+    "capabilities": {
+      "mobilityKind": "orbital",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 2.9,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
+    }
   },
   {
     "id": "kepler_space_telescope",
@@ -341,7 +461,22 @@
     "modelPath": "/assets/models/mars/kepler_space_telescope.glb",
     "bytes": 2003276,
     "sha256": "382014d90e2cf3e1f23e931d233547e652fe3629fddfb5acb8a99e2ceb72ff19",
-    "attributionPath": "/assets/attribution/Mars-Attributions.txt"
+    "attributionPath": "/assets/attribution/Mars-Attributions.txt",
+    "capabilities": {
+      "mobilityKind": "orbital",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 4.7,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
+    }
   },
   {
     "id": "mro_orbiter",
@@ -376,7 +511,22 @@
     "status": "available",
     "modelPath": "/assets/models/mars/mro_orbiter.glb",
     "bytes": 624660,
-    "sha256": "69ee5dcdddfdbbd5ef7e144757926d6a89729b2ff265477659e82abeaacee621"
+    "sha256": "69ee5dcdddfdbbd5ef7e144757926d6a89729b2ff265477659e82abeaacee621",
+    "capabilities": {
+      "mobilityKind": "orbital",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": false,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 6.5,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
+    }
   },
   {
     "id": "curiosity_rover",
@@ -415,6 +565,21 @@
     "coordinates": {
       "lat": -4.5895,
       "lon": 137.4417
+    },
+    "capabilities": {
+      "mobilityKind": "rover_6w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 3.94,
+      "forwardAxis": [
+        0,
+        0,
+        1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -454,6 +619,21 @@
     "coordinates": {
       "lat": 18.38,
       "lon": 77.58
+    },
+    "capabilities": {
+      "mobilityKind": "rover_6w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 4.09,
+      "forwardAxis": [
+        0,
+        0,
+        1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -491,6 +671,21 @@
     "coordinates": {
       "lat": 26.1322,
       "lon": 3.6339
+    },
+    "capabilities": {
+      "mobilityKind": "rover_4w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 3.1,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -528,6 +723,21 @@
     "coordinates": {
       "lat": 26.1322,
       "lon": 3.6339
+    },
+    "capabilities": {
+      "mobilityKind": "lander_static",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 3.4,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -565,6 +775,21 @@
     "coordinates": {
       "lat": 26.1322,
       "lon": 3.6339
+    },
+    "capabilities": {
+      "mobilityKind": "rover_4w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 3.1,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -602,6 +827,21 @@
     "coordinates": {
       "lat": 20.1908,
       "lon": 30.7717
+    },
+    "capabilities": {
+      "mobilityKind": "rover_4w",
+      "supportsRealMobility": true,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 3.1,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -639,6 +879,21 @@
     "coordinates": {
       "lat": -3.6453,
       "lon": 342.5283
+    },
+    "capabilities": {
+      "mobilityKind": "lander_static",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 2.4,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
     }
   },
   {
@@ -676,6 +931,21 @@
     "coordinates": {
       "lat": 0.6741,
       "lon": 23.473
+    },
+    "capabilities": {
+      "mobilityKind": "lander_static",
+      "supportsRealMobility": false,
+      "supportsSimulatedSurfaceDrive": true,
+      "supportsFlight": false
+    },
+    "simulationTransform": {
+      "targetLongestSideM": 4.3,
+      "forwardAxis": [
+        0,
+        0,
+        -1
+      ],
+      "physicalScaleVerified": false
     }
   }
 ]

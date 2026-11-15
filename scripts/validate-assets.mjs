@@ -67,4 +67,25 @@ for (const [id, modelPath] of orbitalAssets) {
   count++;
 }
 
-console.log('Validated ' + count + ' loadable models.');
+const terrainManifestRaw = await fs.readFile(
+  new URL('../public/assets/terrain/manifest.json', import.meta.url),
+  'utf8',
+);
+const terrainManifest = JSON.parse(terrainManifestRaw);
+if (!Array.isArray(terrainManifest.regions) || terrainManifest.regions.length !== 6) {
+  throw new Error('Invalid terrain manifest: expected 6 region entries (Mars & Moon x 2/16/64 km)');
+}
+for (const entry of terrainManifest.regions) {
+  if (
+    typeof entry.sha256 !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(entry.sha256) ||
+    entry.isBaselinePlusSyntheticRelief !== true ||
+    entry.maxQuantizationErrorM > 0.005
+  ) {
+    throw new Error(`Invalid terrain region manifest entry: ${entry.bodyId}:${entry.regionSizeKm}`);
+  }
+}
+
+console.log(
+  'Validated ' + count + ' loadable models and ' + terrainManifest.regions.length + ' terrain region manifests.',
+);
