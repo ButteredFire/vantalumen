@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
     MAX_CHAT_HISTORY_TURNS,
     MAX_CHAT_MESSAGE_CHARS,
@@ -558,10 +560,33 @@ export const ProjectChatWidget: React.FC = () => {
                                 className={`project-chat-bubble is-${msg.role}`}
                                 data-testid={`project-chat-msg-${msg.role}`}
                             >
-                                <div className="project-chat-bubble-body">
-                                    {msg.text.split('\n\n').map((paragraph, index) => (
-                                        <p key={index}>{paragraph}</p>
-                                    ))}
+                                <div className="project-chat-bubble-body project-chat-markdown">
+                                    {msg.role === 'assistant' ? (
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                a: ({ href, children }) =>
+                                                    href ? (
+                                                        <a href={href} target="_blank" rel="noopener noreferrer">
+                                                            {children}
+                                                        </a>
+                                                    ) : (
+                                                        <>{children}</>
+                                                    ),
+                                                table: ({ children }) => (
+                                                    <div className="project-chat-table-scroll">
+                                                        <table>{children}</table>
+                                                    </div>
+                                                ),
+                                            }}
+                                        >
+                                            {msg.text}
+                                        </ReactMarkdown>
+                                    ) : (
+                                        msg.text.split('\n\n').map((paragraph, index) => (
+                                            <p key={index}>{paragraph}</p>
+                                        ))
+                                    )}
                                 </div>
 
                                 {msg.evidenceNotice && (

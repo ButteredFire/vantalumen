@@ -3786,6 +3786,108 @@ button:disabled {
   margin-top: 0.42rem;
 }
 
+.project-chat-markdown > :first-child {
+  margin-top: 0;
+}
+
+.project-chat-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.project-chat-markdown h1,
+.project-chat-markdown h2,
+.project-chat-markdown h3,
+.project-chat-markdown h4 {
+  margin: 0.6rem 0 0.28rem;
+  color: #f8fafc;
+  line-height: 1.3;
+}
+
+.project-chat-markdown h1 {
+  font-size: 1.12em;
+}
+
+.project-chat-markdown h2 {
+  font-size: 1.06em;
+}
+
+.project-chat-markdown h3,
+.project-chat-markdown h4 {
+  font-size: 1em;
+}
+
+.project-chat-markdown ul,
+.project-chat-markdown ol {
+  margin: 0.25rem 0 0.45rem;
+  padding-left: 1.2rem;
+}
+
+.project-chat-markdown li + li {
+  margin-top: 0.16rem;
+}
+
+.project-chat-markdown blockquote {
+  margin: 0.4rem 0;
+  padding: 0.1rem 0 0.1rem 0.6rem;
+  border-left: 2px solid rgba(56, 189, 248, 0.55);
+  color: #cbd5e1;
+}
+
+.project-chat-markdown code {
+  padding: 0.08rem 0.25rem;
+  border-radius: 0.25rem;
+  background: rgba(2, 6, 23, 0.72);
+  color: #bae6fd;
+  overflow-wrap: anywhere;
+}
+
+.project-chat-markdown pre {
+  max-width: 100%;
+  margin: 0.4rem 0;
+  padding: 0.55rem;
+  overflow-x: auto;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.4rem;
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.project-chat-markdown pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.project-chat-markdown a {
+  color: #7dd3fc;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.project-chat-table-scroll {
+  max-width: 100%;
+  margin: 0.4rem 0;
+  overflow-x: auto;
+}
+
+.project-chat-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.94em;
+}
+
+.project-chat-markdown th,
+.project-chat-markdown td {
+  padding: 0.3rem 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  text-align: left;
+  vertical-align: top;
+}
+
+.project-chat-markdown th {
+  background: rgba(2, 6, 23, 0.48);
+  color: #f8fafc;
+}
+
 .project-chat-evidence-note {
   font-size: 0.68rem;
   line-height: 1.4;
