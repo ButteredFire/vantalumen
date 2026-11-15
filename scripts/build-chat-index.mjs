@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { ATLAS_POIS } from '../src/config/atlasPOIs';
 import { BODY_CATALOG } from '../src/config/bodyCatalog';
 import { ORBITAL_ACTORS_CATALOG } from '../src/config/celestialCatalog';
@@ -10,11 +11,17 @@ import { DEVICE_DOSSIERS } from '../src/config/deviceDossiers';
 import { DEVICE_SIMULATION_PROFILES } from '../src/config/deviceSimulationProfiles';
 import { MISSION_LIST } from '../src/config/missions';
 
-const ROOT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/i, '$1')), '..');
+const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT_PATH = path.join(ROOT_DIR, 'src', 'config', 'chatKnowledgeIndex.json');
 
 const DOC_SOURCES = [
   { relPath: 'README.md', sourceKind: 'documentation', language: 'en', evidenceType: 'mixed' },
+  {
+    relPath: 'docs/VANTALUMEN_INTRODUCTION.md',
+    sourceKind: 'documentation',
+    language: 'en',
+    evidenceType: 'mixed',
+  },
   { relPath: 'docs/SOURCES.md', sourceKind: 'provenance', language: 'mixed', evidenceType: 'source_verified' },
   {
     relPath: 'docs/EXPERIENCE_IMPLEMENTATION_PLAN.md',

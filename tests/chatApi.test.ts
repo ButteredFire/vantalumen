@@ -12,7 +12,7 @@ import {
     OPTIONS,
 } from '../api/chat';
 import {
-    GEMINI_FREE_TIER_MODEL,
+    GROQ_MODEL,
     MAX_CHAT_MESSAGE_CHARS,
     MAX_CHAT_REQUEST_BYTES,
     SYSTEM_INSTRUCTION,
@@ -117,7 +117,7 @@ test('chat system instruction requires English answers regardless of question la
     assert.match(SYSTEM_INSTRUCTION, /Always answer in English, regardless of the language used in the question/);
 });
 
-test('createChatHandler returns grounded answer, verified Free Tier model, XML isolation, and citations', async () => {
+test('createChatHandler returns grounded answer, Groq model, XML isolation, and citations', async () => {
     let capturedCall: { model: string; systemInstruction: string; prompt: string } | null = null;
 
     const handler = createChatHandler({
@@ -149,8 +149,8 @@ test('createChatHandler returns grounded answer, verified Free Tier model, XML i
 
     assert.equal(json.retrievalSufficient, true);
     assert.equal(json.groundedOnly, true);
-    assert.equal(json.model, GEMINI_FREE_TIER_MODEL);
-    assert.equal(json.model, 'gemini-3.8-flash');
+    assert.equal(json.model, GROQ_MODEL);
+    assert.equal(json.model, 'openai/gpt-oss-20b');
     assert.ok(json.citations.length >= 1);
     assert.ok(capturedCall !== null);
     assert.match(capturedCall.prompt, /<question>/);
@@ -324,85 +324,45 @@ test('createChatHandler maps missing key, timeout, rate-limit, and upstream erro
     assert.equal(upstream502Resp.status, 502);
     assert.doesNotMatch(await upstream502Resp.text(), /secret-token-xyz/);
 
-    // Transient 503 on gemini-3.8-flash falls back automatically to gemini-3.6-flash
     const seenModels: string[] = [];
-    const fallbackHandler = createChatHandler({
+    const unavailableHandler = createChatHandler({
         getApiKey: () => 'secret-token-xyz',
         generateReply: async ({ model }) => {
             seenModels.push(model);
-            if (model === 'gemini-3.8-flash') {
-                const err = new Error('503 high demand');
-                (err as Error & { status?: number }).status = 503;
-                throw err;
-            }
-            return 'Apollo Lunar Module from NASA 3D Resources [S1].';
+            const err = new Error('503 provider unavailable');
+            (err as Error & { status?: number }).status = 503;
+            throw err;
         },
     });
-    const fallbackResp = await fallbackHandler(
+    const unavailableResp = await unavailableHandler(
         makeChatRequest({ message: 'Apollo Lunar Module dùng dữ liệu gì?' }),
     );
-    assert.equal(fallbackResp.status, 200);
-    const fallbackJson = (await fallbackResp.json()) as { model: string; citations: unknown[] };
-    assert.deepEqual(seenModels, ['gemini-3.8-flash', 'gemini-3.6-flash']);
-    assert.equal(fallbackJson.model, 'gemini-3.6-flash');
-    assert.ok(fallbackJson.citations.length >= 1);
+    assert.equal(unavailableResp.status, 503);
+    assert.deepEqual(seenModels, [GROQ_MODEL]);
 
-    // Dual 503 across 3.8-flash and 3.6-flash falls back to fast Free Tier gemini-3.5-flash-lite
-    const tripleModels: string[] = [];
-    const tripleFallbackHandler = createChatHandler({
-        getApiKey: () => 'secret-token-xyz',
-        generateReply: async ({ model }) => {
-            tripleModels.push(model);
-            if (model !== 'gemini-3.5-flash-lite') {
-                const err = new Error('503 high demand');
-                (err as Error & { status?: number }).status = 503;
-                throw err;
-            }
-            return 'Apollo Lunar Module from NASA 3D Resources (lite) [S1].';
-        },
-    });
-    const tripleResp = await tripleFallbackHandler(
-        makeChatRequest({ message: 'Apollo Lunar Module GLB creator credit and SHA256' }),
-    );
-    assert.equal(tripleResp.status, 200);
-    const tripleJson = (await tripleResp.json()) as { model: string; citations: unknown[] };
-    assert.deepEqual(tripleModels, ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite']);
-    assert.equal(tripleJson.model, 'gemini-3.5-flash-lite');
-    assert.ok(tripleJson.citations.length >= 1);
-
-    // Hard deadline race cuts off hanging upstream attempts even if AbortSignal is ignored
+    // The hard deadline remains enforced even if the SDK promise ignores AbortSignal.
     const stalledModels: string[] = [];
-    const hardTimeoutCascadeHandler = createChatHandler({
+    const hardTimeoutHandler = createChatHandler({
         getApiKey: () => 'secret-token-xyz',
-        timeoutMs: 2_500,
-        attemptBudgetsMs: {
-            'gemini-3.8-flash': 30,
-            'gemini-3.6-flash': 30,
-            'gemini-3.5-flash-lite': 500,
-        },
+        timeoutMs: 40,
         generateReply: async ({ model }) => {
             stalledModels.push(model);
-            if (model !== 'gemini-3.5-flash-lite') {
-                return await new Promise<string>(() => {
-                    // Deliberately never resolves and ignores AbortSignal
-                });
-            }
-            return 'NASA NSSDCA, MOLA, and THEMIS [S1].';
+            return await new Promise<string>(() => {
+                // Deliberately never resolves and ignores AbortSignal.
+            });
         },
     });
     const t0 = Date.now();
-    const hardCascadeResp = await hardTimeoutCascadeHandler(
+    const hardTimeoutResp = await hardTimeoutHandler(
         makeChatRequest({ message: 'Apollo Lunar Module GLB creator credit and SHA256' }),
     );
-    const cascadeElapsedMs = Date.now() - t0;
-    assert.equal(hardCascadeResp.status, 200);
-    assert.ok(cascadeElapsedMs < 1_000, `Expected fast cascade cutoff, got ${cascadeElapsedMs}ms`);
-    const hardCascadeJson = (await hardCascadeResp.json()) as { model: string };
-    assert.deepEqual(stalledModels, ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite']);
-    assert.equal(hardCascadeJson.model, 'gemini-3.5-flash-lite');
+    const timeoutElapsedMs = Date.now() - t0;
+    assert.equal(hardTimeoutResp.status, 504);
+    assert.ok(timeoutElapsedMs < 1_000, `Expected hard timeout, got ${timeoutElapsedMs}ms`);
+    assert.deepEqual(stalledModels, [GROQ_MODEL]);
 });
 
-test('client src/ never imports Gemini SDK or reads API keys, and C3 mascot asset matches inventory', () => {
+test('client src/ never imports the Groq SDK or reads API keys, and C3 mascot asset matches inventory', () => {
     const srcFiles = walkFiles(path.join(ROOT_DIR, 'src'));
     for (const filePath of srcFiles) {
         if (!/\.(ts|tsx|css|json)$/i.test(filePath)) continue;
@@ -410,14 +370,14 @@ test('client src/ never imports Gemini SDK or reads API keys, and C3 mascot asse
         if (relPath.replace(/\\/g, '/') === 'src/config/chatKnowledgeIndex.json') continue;
         const content = fs.readFileSync(filePath, 'utf8');
         assert.equal(
-            content.includes('@google/genai'),
+            content.includes('groq-sdk'),
             false,
-            `${relPath} must not import @google/genai in browser bundle`,
+            `${relPath} must not import groq-sdk in browser bundle`,
         );
         assert.equal(
-            /GEMINI_API_KEY|VITE_GEMINI|AQ\.Ab8RN6|AIza[0-9A-Za-z_-]{20,}/.test(content),
+            /GROQ_API_KEY|VITE_GROQ|GEMINI_API_KEY|VITE_GEMINI|AQ\.Ab8RN6|AIza[0-9A-Za-z_-]{20,}/.test(content),
             false,
-            `${relPath} must never contain API keys or VITE_GEMINI env references`,
+            `${relPath} must never contain API keys or provider key env references`,
         );
     }
 

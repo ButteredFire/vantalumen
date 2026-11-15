@@ -22,14 +22,13 @@ npm run dev
 
 To enable the **RISE assistant** (`/api/chat`, launched from the 3D button at
 `public/assets/mascot/rise_plushie.glb` through
-`src/scene/mascot/RiseMascot.tsx`), configure the server-side `GEMINI_API_KEY`
+`src/scene/mascot/RiseMascot.tsx`), configure the server-side `GROQ_API_KEY`
 environment variable in `.env.local` locally or in Vercel Environment
-Variables. Do not expose it to the client with the `VITE_` prefix. The backend
-uses the `@google/genai` Interactions API with the highest Free Tier model
-`gemini-3.8-flash`, falling back according to the time budget to
-`gemini-3.6-flash` and `gemini-3.5-flash-lite` under load (`store: false`). It
-uses the locally indexed project knowledge in `src/config/chatKnowledgeIndex.json`
-(`npm run build:chat-index`).
+Variables (a local `.env` file is also supported). Do not expose it to the
+client with the `VITE_` prefix. The backend
+uses the `groq-sdk` chat completions API with `openai/gpt-oss-20b`. It grounds
+answers in the locally indexed project knowledge in
+`src/config/chatKnowledgeIndex.json` (`npm run build:chat-index`).
 
 Choose Mars or the Moon in the top navigation, follow the suggested journey
 (`Guided journey`) or switch to `Explore freely`, use `?v=1&body=...` for shared

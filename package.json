@@ -16,11 +16,11 @@
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",
-    "@google/genai": "^3.3.0",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@react-three/postprocessing": "^3.0.4",
     "cesium": "^1.133.1",
+    "groq-sdk": "^1.6.0",
     "gsap": "^3.13.0",
     "howler": "^2.2.4",
     "postprocessing": "^6.37.8",

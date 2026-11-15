@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "contentHash": "eee9b0ad32e14ec591660e97ea2c018d4e08a42e2a778292f86a687432f52c22",
-  "chunkCount": 85,
+  "contentHash": "e01c86a29506704bd3395a433081b006b91047e817edb4c22ab36d066a73d06f",
+  "chunkCount": 94,
   "chunks": [
     {
       "id": "doc_readme_md_1_1_readme_md",
@@ -45,7 +45,7 @@
       "language": "en",
       "evidenceType": "mixed",
       "sourceUrls": [],
-      "text": "```powershell\nnpm install\nnpm run dev\n```\n\nTo enable the **RISE assistant** (`/api/chat`, launched from the 3D button at\n`public/assets/mascot/rise_plushie.glb` through\n`src/scene/mascot/RiseMascot.tsx`), configure the server-side `GEMINI_API_KEY`\nenvironment variable in `.env.local` locally or in Vercel Environment\nVariables. Do not expose it to the client with the `VITE_` prefix. The backend\nuses the `@google/genai` Interactions API with the highest Free Tier model\n`gemini-3.8-flash`, falling back according to the time budget to\n`gemini-3.6-flash` and `gemini-3.5-flash-lite` under load (`store: false`). It\nuses the locally indexed project knowledge in `src/config/chatKnowledgeIndex.json`\n(`npm run build:chat-index`).\n\nChoose Mars or the Moon in the top navigation, follow the suggested journey\n(`Guided journey`) or switch to `Explore freely`, use `?v=1&body=...` for shared\nlinks, and view sources and model status in the right-hand information panel."
+      "text": "```powershell\nnpm install\nnpm run dev\n```\n\nTo enable the **RISE assistant** (`/api/chat`, launched from the 3D button at\n`public/assets/mascot/rise_plushie.glb` through\n`src/scene/mascot/RiseMascot.tsx`), configure the server-side `GROQ_API_KEY`\nenvironment variable in `.env.local` locally or in Vercel Environment\nVariables (a local `.env` file is also supported). Do not expose it to the\nclient with the `VITE_` prefix. The backend\nuses the `groq-sdk` chat completions API with `openai/gpt-oss-20b`. It grounds\nanswers in the locally indexed project knowledge in\n`src/config/chatKnowledgeIndex.json` (`npm run build:chat-index`).\n\nChoose Mars or the Moon in the top navigation, follow the suggested journey\n(`Guided journey`) or switch to `Explore freely`, use `?v=1&body=...` for shared\nlinks, and view sources and model status in the right-hand information panel."
     },
     {
       "id": "doc_readme_md_4_1_test_and_build",
@@ -57,6 +57,111 @@
       "evidenceType": "mixed",
       "sourceUrls": [],
       "text": "```powershell\nnpm test\nnpm run typecheck\nnpm run validate:assets\nnpm run build\nnpm run verify:dist\nnpm run test:browser\n```\n\n`validate:assets` inventories all 28 `.glb` files in `public/assets/models/`\n(separating 22 catalog/orbital/terrain runtime GLBs from six non-catalog\npreload/LOD/legacy GLBs) and one UI mascot `.glb`\n(`public/assets/mascot/rise_plushie.glb`), verifying glTF `2.0`, byte counts,\nSHA-256, and six terrain-region manifest entries. `verify:dist` compares all\nasset files and SHA-256 checksums between `public/` and `dist/` after a build.\n`npm run build:chat-index` regenerates the locally sourced knowledge index at\n`src/config/chatKnowledgeIndex.json`. `test:browser` runs Playwright/Chrome\nwith SwiftShader through both Mars and Moon journeys on desktop and narrow\nviewports.\n\nCesium is served from `/cesium/`; GLSL shaders and WASM resources are configured\nin Vite. Model assets, textures, audio, and decoders are under `public/assets/`\nand `public/decoders/`. Unprocessed source models are under `raw_assets/`.\nData sources and visualization limits are documented in `docs/SOURCES.md`."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_1_1_vantalumen_introduction_md",
+      "title": "VANTALUMEN_INTRODUCTION.md — VANTALUMEN_INTRODUCTION.md",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#VANTALUMEN_INTRODUCTION.md",
+      "section": "VANTALUMEN_INTRODUCTION.md",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "# Project Vantalumen - Keeping Space Exploration Stories Alive"
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_2_1_summary",
+      "title": "VANTALUMEN_INTRODUCTION.md — Summary",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#Summary",
+      "section": "Summary",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Since the 1960s, NASA has sent many spacecraft and robots to explore the Moon\nand Mars. Some are now silent, left behind after completing their missions, but\ntheir stories are far from over. For the \"Abandoned but not Forgotten\"\nchallenge, our team created VantaLumen, an interactive educational website that\nhelps people rediscover these space explorers and the stories behind them.\n\nVantaLumen combines 3D maps of Mars and the Moon, interactive spacecraft\ninspections, first-person mission-control-inspired views, and educational\nstorytelling. It uses NASA open data, including NSSDCA, alongside clearly\nidentified illustrative visualizations. We believe every spacecraft has a story\nworth telling. The machines may be silent, but their stories can still inspire\nus."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_3_1_technologies_used",
+      "title": "VANTALUMEN_INTRODUCTION.md — Technologies used",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#Technologies used",
+      "section": "Technologies used",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "- **Application:** React 19, TypeScript 5.9, and Vite 7.\n- **3D scenes:** Three.js, React Three Fiber, and Drei for interactive 3D\n  scenes, model loading, camera controls, and effects.\n- **Planetary/geospatial visualization:** Cesium for globe and geospatial\n  views; custom GLSL shaders and Three.js terrain rendering for other views.\n- **State and animation:** Zustand for shared application state and GSAP for\n  camera and interface transitions.\n- **Visual and audio effects:** `@react-three/postprocessing` / `postprocessing`\n  and Howler.js.\n- **Chat assistant:** A server-side API uses Groq's `groq-sdk` with the\n  `openai/gpt-oss-20b` model. Its answers are grounded in a locally indexed set\n  of project documents and catalog data; `GROQ_API_KEY` is kept server-side.\n- **3D asset formats:** glTF/GLB assets, including Draco-compressed models,\n  textures, and separate terrain meshes."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_4_1_3d_models_and_assets_currently_available",
+      "title": "VANTALUMEN_INTRODUCTION.md — 3D models and assets currently available (1/2)",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#3D models and assets currently available",
+      "section": "3D models and assets currently available",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "The following is the website's current interactive model inventory. Model\npresence does not mean that the real spacecraft is currently at the displayed\nlocation: some orbit paths, positions, scales, reconstructions, and views are\nillustrative. See [SOURCES.md](./SOURCES.md) and each model's in-app source\ninformation for provenance and limitations.\n\n### Mars surface and mission spacecraft\n\n- Sojourner rover\n- Spirit and Opportunity rovers\n- Viking landers\n- InSight lander\n- Ingenuity helicopter\n- Curiosity rover\n- Perseverance rover\n- Mars Reconnaissance Orbiter (MRO)\n- Dawn spacecraft (shown in the context of its 2009 Mars flyby)\n\nAdditional spacecraft models available as off-world/reference objects:\n\n- NEAR Shoemaker\n- Pioneer 10\n- Kepler Space Telescope\n\n### Mars orbit\n\n- Phobos and Deimos, Mars's natural moons\n- 2001 Mars Odyssey orbiter\n- MAVEN orbiter\n- Mars Reconnaissance Orbiter (MRO)\n- Dawn spacecraft, shown along an illustrative flyby path rather than as a\n  spacecraft in a current Mars orbit\n- Ares Orbital Station concept, using an International Space Station (ISS)\n  model as a structural proxy; it is not a real or historically launched Mars\n  station\n\n### Moon and lunar missions"
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_4_2_3d_models_and_assets_currently_available",
+      "title": "VANTALUMEN_INTRODUCTION.md — 3D models and assets currently available (2/2)",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#3D models and assets currently available",
+      "section": "3D models and assets currently available",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "- Lunar Reconnaissance Orbiter (LRO)\n- Apollo Command/Service Module (CSM), represented by an Apollo-era reference\n  model\n- Apollo Lunar Module, available for static inspection\n- Six Apollo surface-equipment records: Lunar Roving Vehicle, its deployment\n  mechanism and chassis, Apollo 15 LRV, Apollo 17 LRV, Apollo surface\n  equipment, and Lunar Module MESA equipment. These records do not have\n  dedicated GLB models and use illustrative procedural reconstructions where\n  shown.\n\n### Terrain and interface models\n\n- Mars terrain mesh: `public/assets/models/mars/mars_terrain.glb`\n- Lunar terrain mesh: `public/assets/models/moons/moon_terrain.glb`\n- RISE assistant mascot: `public/assets/mascot/rise_plushie.glb`\n\nThe terrain meshes and generated terrain, globe maps, and procedural\nreconstructions are visualization assets, not a claim that the site contains\nthe complete original MOLA, THEMIS, LOLA, or Diviner measurement datasets."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_5_1_what_does_the_website_do_and_how_does_it_work",
+      "title": "VANTALUMEN_INTRODUCTION.md — What does the website do, and how does it work?",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#What does the website do, and how does it work?",
+      "section": "What does the website do, and how does it work?",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "Vantalumen is an interactive educational website that tells the stories of space equipment left behind on the Moon and Mars.\n\nOur project focuses on real NASA missions, including the Opportunity rover on Mars and the Apollo lunar missions. We want people to learn what happened to these machines, why they were important, and what they can still teach us today.\n\nOn our website, users can explore 3D maps of the Moon and Mars and find the locations of different spacecraft. They can also view 3D models of space equipment from different angles. We provide two ways to explore: a normal 3D view and a first-person view inspired by a mission control room.\n\nAnother feature shows how space equipment might change over 50 years because of the harsh conditions on the Moon and Mars. We use SVG animations that move as users scroll down the page. This is an educational simulation, not an exact prediction.\n\nWe also use information from NASA's official databases, including NSSDCA, to make our stories more accurate and useful."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_6_1_what_benefits_and_intended_impacts_does_it_have",
+      "title": "VANTALUMEN_INTRODUCTION.md — What benefits and intended impacts does it have?",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#What benefits and intended impacts does it have?",
+      "section": "What benefits and intended impacts does it have?",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "We created Vantalumen because we believe that space history should be interesting and easy to understand, especially for young people.\n\nFor children, we made a comic series about Oppy, a friendly character based on NASA's Opportunity rover. Through Oppy's adventures, children can learn about real events on Mars, such as finding layers of rocks, getting stuck in soft sand, and solving problems during a mission.\n\nWe hope these stories will help children become more curious about science and encourage them to ask questions, think creatively, and learn from mistakes.\n\nFor older students and adults, our website offers a different way to learn about NASA missions. Instead of only reading articles or looking at photos, they can explore 3D models, learn how the equipment worked, and understand why these missions mattered.\n\nWe also want people to think about what happens to space equipment after a mission ends. Even when a rover stops working, it remains part of the history of space exploration.\n\nThrough this project, we hope more people will become interested in space science and understand why protecting our space history is important."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_7_1_creativity_and_considerations",
+      "title": "VANTALUMEN_INTRODUCTION.md — Creativity and Considerations",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#Creativity and Considerations",
+      "section": "Creativity and Considerations",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [],
+      "text": "The main idea behind Vantalumen is to tell the stories of machines that can no longer work but still have something important to share.\n\nWhen we first learned about old rovers and equipment left on the Moon and Mars, we wondered what stories they could tell if they had a voice. This question became the starting point of our project.\n\nWe wanted to create something different from a normal information website. That is why we combined 3D exploration, interactive animations, NASA data, and comics in one place.\n\nOne of our favorite parts is Oppy's comic series. We use a friendly rover character and simple stories to explain real problems that NASA engineers faced. We believe children can learn difficult science topics more easily when they enjoy the story.\n\nAt the same time, we know scientific accuracy matters. We use NASA information for real mission events and make it clear when something is a simulation or an imagined situation.\n\nOur biggest challenge is balancing science, technology, and storytelling. We want the website to be fun, but we also want visitors to learn something real.\n\nFor us, Vantalumen is a way to remember the work of past space missions and share their stories with the next generation.\n\nVantalumen — The mission ends, but the story continues."
+    },
+    {
+      "id": "doc_docs_vantalumen_introduction_md_8_1_miscellaneous",
+      "title": "VANTALUMEN_INTRODUCTION.md — Miscellaneous",
+      "sourcePath": "docs/VANTALUMEN_INTRODUCTION.md#Miscellaneous",
+      "section": "Miscellaneous",
+      "sourceKind": "documentation",
+      "language": "en",
+      "evidenceType": "mixed",
+      "sourceUrls": [
+        "https://nssdc.gsfc.nasa.gov/",
+        "https://data.nasa.gov/",
+        "https://svs.gsfc.nasa.gov/",
+        "https://science.nasa.gov/planetary-science/programs/mars-exploration/",
+        "https://www.usgs.gov/"
+      ],
+      "text": "### Sources used\nThe website's equipment and model data is based on the following sources:\n- NASA Space Science Data Coordinated Archive (NSSDCA) (https://nssdc.gsfc.nasa.gov/)\n- NASA Open Data Portal (https://data.nasa.gov/)\n- NASA Scientific Visualization Studio (https://svs.gsfc.nasa.gov/)\n- NASA Mars Exploration Program (https://science.nasa.gov/planetary-science/programs/mars-exploration/)\n- Astrogeology Science Center (https://www.usgs.gov/)"
     },
     {
       "id": "doc_docs_sources_md_1_1_sources_md",
@@ -245,7 +350,7 @@
         "https://science.nasa.gov/3d-resources/apollo-lunar-module/",
         "https://www.nasa.gov/nasa-brand-center/images-and-media/"
       ],
-      "text": "- **Apollo Lunar Module (`apollo_lunar_module`, Section 11)**:\n  - **Source**: [NASA Science 3D Resources — Apollo Lunar Module](https://science.nasa.gov/3d-resources/apollo-lunar-module/) (direct asset `Apollo Lunar Module.glb`, published `2025-03-20`, modified `2025-06-09`, checked `2026-11-15`).\n  - **Credit & Terms**: `NASA / Michael D. Carbajal` under [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/) (educational/informational attribution without NASA logo or endorsement implied).\n  - **Preserved Source & Runtime Artifact**: `raw_assets/nasa-3d/Apollo Lunar Module.glb` and runtime copy `/assets/models/moons/apollo_lunar_module.glb` (`716,840` bytes, identical unmodified source & runtime SHA-256 `379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e`). Uses glTF `2.0` (`glTF-Transform v4.5.1`) with `KHR_draco_mesh_compression`, `EXT_texture_webp` (6 embedded textures: `BOOSTER3`, `TEXTUREA`, `TEXTURE_`), `KHR_materials_specular`, `64,787` vertices, `97,588` triangles, upright bounds `~6.43 × 5.01 × 6.43` units.\n  - **Limitations**: Represents general two-stage Apollo Lunar Module structure rather than a mission-specific flight scan; no calibrated CAD rig or verified physical dimensions (`physicalScaleVerified: false`), configured strictly as view-only static hardware (`supportsRealMobility: false`, `supportsSimulatedSurfaceDrive: false`). Does **not** replace the six `apollo-equipment.csv` procedural/unavailable records (`apollo_lrv`, `apollo_lrv_deployment`, `apollo_15_lrv`, `apollo_17_lrv`, `apollo_surface_equipment`, `apollo_lm_equipment`).\n- **Complete Asset Inventory & `dist/` Checksum Pipeline (Section 13)**:\n  - `scripts/assetInventoryLib.mjs`, `scripts/validate-assets.mjs`, and `scripts/verify-dist-assets.mjs` (`npm run verify:dist`) distinguish **22 unique runtime catalog GLBs** (covering `13` selectable `deviceManifest.json` GLBs, `9` orbital actor GLBs in `celestialCatalog.ts` sharing `mro_orbiter.glb` and `dawn_spacecraft.glb`, plus `mars_terrain.glb` and `moon_terrain.glb`), **6 documented non-catalog GLBs** (`4` preload warmup stubs referenced by `CORE_MODEL_PATHS` in `useProgressiveAsset.ts`: `phobos_draco.glb`, `deimos_draco.glb`, `spacecraft/mars_reconnaissance_orbiter.glb`, `stations/ares_orbital_station_lod0.glb`; plus `2` legacy/LOD variants: `spacecraft/perseverance_rover.glb`, `stations/ares_orbital_station_lod1.glb`), and **6 unavailable Apollo CSV records**. Every build verifies byte counts and `SHA-256` hashes from `public/` to `dist/`.\n- **RISE Plushie Mascot Audit & Section 12 C0–C3 Status (2026-11-15)**:\n  - Audited and integrated owner-supplied external file `D:\\rise_plushie.glb` into `public/assets/mascot/rise_plushie.glb` (`716,904` bytes, SHA-256 `aee69a76157e5b5fea6067dc91d9ae847bcf747686e2b4694db383946ff6d32f`, generator `Khronos glTF Blender I/O v3.6.27`, 1 node `empty_2`, 1 mesh `Mesh_0`, 35 opaque materials, 0 textures, 0 animations, `21,516` vertices, `29,177` triangles, uncentered local bounds `[-50.80, -48.00, -50.79]` to `[76.11, 54.46, 50.79]`) for the Section 12 C3 3D RISE chat launcher (`src/scene/mascot/RiseMascot.tsx`). Contains **no embedded author, copyright, or license metadata** (`asset.extras` absent); this model is inspired by NASA Artemis II's \"Rise\" zero-gravity indicator mascot and implies no NASA endorsement or agency insignia use—confirm third-party creator attribution and commercial redistribution terms before public commercial release.\n  - **Server-Side Grounded Q&A (`/api/chat`, `api/chat.ts`, `src/chat/chatContract.ts`, `src/chat/knowledgeRetriever.ts`)**: Uses the official `@google/genai` SDK (`>= 3.2.0`) Interactions API with `GEMINI_API_KEY` read strictly server-side (`store: false`, `thinking_level: \"low\"`, `max_output_tokens: 2048`) and primary model **`gemini-3.8-flash`** (with bounded per-attempt budgets and automatic fallback through **`gemini-3.6-flash`** and **`gemini-3.5-flash-lite`**, all verified in official Gemini Developer API pricing documentation with Free Tier input/output availability, whereas `gemini-4-argon` and `gemini-3.1-pro-preview` are not available on Free Tier). Enforces same-origin checks, bounded JSON validation (`<= 16 KB` body, `<= 800` chars message), per-instance sliding-window rate limiting (`429`), XML delimiter prompt isolation, and deterministic BM25 project knowledge gating (`src/config/chatKnowledgeIndex.json`) so out-of-scope or real-time queries return an honest boundary reply without hallucinating sources.\n  - **Accessible Floating Chat Widget (`src/ui/chat/ProjectChatWidget.tsx`)**: Mounted globally across orbital, closeup, POV, and surface views with a neutral geometric launcher (`data-mascot-slot=\"neutral-placeholder\"`), pointer-capture drag vs click separation, Arrow-key movement, `Escape` focus return, `Enter`/`Shift+Enter` IME-safe composition handling, `prefers-reduced-motion` support, and visible source/evidence-type citation chips. (Note: any developer key shared in workspace chat during setup should be rotated in Google AI Studio prior to public deployment.)"
+      "text": "- **Apollo Lunar Module (`apollo_lunar_module`, Section 11)**:\n  - **Source**: [NASA Science 3D Resources — Apollo Lunar Module](https://science.nasa.gov/3d-resources/apollo-lunar-module/) (direct asset `Apollo Lunar Module.glb`, published `2025-03-20`, modified `2025-06-09`, checked `2026-11-15`).\n  - **Credit & Terms**: `NASA / Michael D. Carbajal` under [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/) (educational/informational attribution without NASA logo or endorsement implied).\n  - **Preserved Source & Runtime Artifact**: `raw_assets/nasa-3d/Apollo Lunar Module.glb` and runtime copy `/assets/models/moons/apollo_lunar_module.glb` (`716,840` bytes, identical unmodified source & runtime SHA-256 `379101dfcee399267addf771709107c35e826b0b9e5233272f123e4c8a585c4e`). Uses glTF `2.0` (`glTF-Transform v4.5.1`) with `KHR_draco_mesh_compression`, `EXT_texture_webp` (6 embedded textures: `BOOSTER3`, `TEXTUREA`, `TEXTURE_`), `KHR_materials_specular`, `64,787` vertices, `97,588` triangles, upright bounds `~6.43 × 5.01 × 6.43` units.\n  - **Limitations**: Represents general two-stage Apollo Lunar Module structure rather than a mission-specific flight scan; no calibrated CAD rig or verified physical dimensions (`physicalScaleVerified: false`), configured strictly as view-only static hardware (`supportsRealMobility: false`, `supportsSimulatedSurfaceDrive: false`). Does **not** replace the six `apollo-equipment.csv` procedural/unavailable records (`apollo_lrv`, `apollo_lrv_deployment`, `apollo_15_lrv`, `apollo_17_lrv`, `apollo_surface_equipment`, `apollo_lm_equipment`).\n- **Complete Asset Inventory & `dist/` Checksum Pipeline (Section 13)**:\n  - `scripts/assetInventoryLib.mjs`, `scripts/validate-assets.mjs`, and `scripts/verify-dist-assets.mjs` (`npm run verify:dist`) distinguish **22 unique runtime catalog GLBs** (covering `13` selectable `deviceManifest.json` GLBs, `9` orbital actor GLBs in `celestialCatalog.ts` sharing `mro_orbiter.glb` and `dawn_spacecraft.glb`, plus `mars_terrain.glb` and `moon_terrain.glb`), **6 documented non-catalog GLBs** (`4` preload warmup stubs referenced by `CORE_MODEL_PATHS` in `useProgressiveAsset.ts`: `phobos_draco.glb`, `deimos_draco.glb`, `spacecraft/mars_reconnaissance_orbiter.glb`, `stations/ares_orbital_station_lod0.glb`; plus `2` legacy/LOD variants: `spacecraft/perseverance_rover.glb`, `stations/ares_orbital_station_lod1.glb`), and **6 unavailable Apollo CSV records**. Every build verifies byte counts and `SHA-256` hashes from `public/` to `dist/`.\n- **RISE Plushie Mascot Audit & Section 12 C0–C3 Status (2026-11-15)**:\n  - Audited and integrated owner-supplied external file `D:\\rise_plushie.glb` into `public/assets/mascot/rise_plushie.glb` (`716,904` bytes, SHA-256 `aee69a76157e5b5fea6067dc91d9ae847bcf747686e2b4694db383946ff6d32f`, generator `Khronos glTF Blender I/O v3.6.27`, 1 node `empty_2`, 1 mesh `Mesh_0`, 35 opaque materials, 0 textures, 0 animations, `21,516` vertices, `29,177` triangles, uncentered local bounds `[-50.80, -48.00, -50.79]` to `[76.11, 54.46, 50.79]`) for the Section 12 C3 3D RISE chat launcher (`src/scene/mascot/RiseMascot.tsx`). Contains **no embedded author, copyright, or license metadata** (`asset.extras` absent); this model is inspired by NASA Artemis II's \"Rise\" zero-gravity indicator mascot and implies no NASA endorsement or agency insignia use—confirm third-party creator attribution and commercial redistribution terms before public commercial release.\n  - **Server-Side Grounded Q&A (`/api/chat`, `api/chat.ts`, `src/chat/chatContract.ts`, `src/chat/knowledgeRetriever.ts`)**: Uses the official `groq-sdk` chat completions API with model **`openai/gpt-oss-20b`** and reads `GROQ_API_KEY` strictly server-side. Enforces same-origin checks, bounded JSON validation (`<= 16 KB` body, `<= 800` chars message), per-instance sliding-window rate limiting (`429`), XML delimiter prompt isolation, a bounded request timeout, and deterministic BM25 project knowledge gating (`src/config/chatKnowledgeIndex.json`) so out-of-scope or real-time queries return an honest boundary reply without hallucinating sources.\n  - **Accessible Floating Chat Widget (`src/ui/chat/ProjectChatWidget.tsx`)**: Mounted globally across orbital, closeup, POV, and surface views with a neutral geometric launcher (`data-mascot-slot=\"neutral-placeholder\"`), pointer-capture drag vs click separation, Arrow-key movement, `Escape` focus return, `Enter`/`Shift+Enter` IME-safe composition handling, `prefers-reduced-motion` support, and visible source/evidence-type citation chips. Keep `GROQ_API_KEY` in server environment variables only; never expose it with a `VITE_` prefix or commit it to source control."
     },
     {
       "id": "doc_docs_experience_implementation_plan_md_1_1_experience_implementation_plan_md",

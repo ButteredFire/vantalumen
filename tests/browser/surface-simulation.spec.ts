@@ -513,7 +513,7 @@ test('ProjectChatWidget drag/click separation, keyboard focus, Escape restore & 
         evidenceNotice: 'Values verified against NASA/USGS sources in the project.',
         retrievalSufficient: true,
         groundedOnly: true,
-        model: 'gemini-3.8-flash',
+        model: 'openai/gpt-oss-20b',
       }),
     });
   });

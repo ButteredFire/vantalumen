@@ -34,7 +34,7 @@ function localChatApiDevPlugin(mode: string): Plugin {
   return {
     name: 'vantalumen-local-chat-api',
     configureServer(server) {
-      const env = loadEnv(mode, process.cwd(), 'GEMINI_');
+      const env = loadEnv(mode, process.cwd(), 'GROQ_');
       const allowedEnv = loadEnv(mode, process.cwd(), 'ALLOWED_CHAT_');
       let sharedLimiter: unknown;
 
@@ -52,7 +52,7 @@ function localChatApiDevPlugin(mode: string): Plugin {
             sharedLimiter = mod.createSlidingWindowLimiter();
           }
           const handler = mod.createChatHandler({
-            getApiKey: () => env.GEMINI_API_KEY?.trim() || process.env.GEMINI_API_KEY?.trim(),
+            getApiKey: () => env.GROQ_API_KEY?.trim() || process.env.GROQ_API_KEY?.trim(),
             getAllowedHosts: () =>
               (allowedEnv.ALLOWED_CHAT_HOSTS || process.env.ALLOWED_CHAT_HOSTS || '')
                 .split(',')

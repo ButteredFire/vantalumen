@@ -1,7 +1,7 @@
-import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
 import {
     CHAT_TOP_K_CHUNKS,
-    GEMINI_FREE_TIER_FALLBACK_MODELS,
+    GROQ_MODEL,
     MAX_CHAT_REQUEST_BYTES,
     SYSTEM_INSTRUCTION,
     buildGreetingReply,
@@ -20,11 +20,6 @@ import { searchKnowledgeChunks } from '../src/chat/knowledgeRetriever.ts';
 const DEFAULT_RATE_LIMIT_MAX = 12;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60_000;
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 30_000;
-const PER_MODEL_ATTEMPT_BUDGET_MS: Record<string, number> = {
-    'gemini-3.8-flash': 6_000,
-    'gemini-3.6-flash': 13_500,
-    'gemini-3.5-flash-lite': 10_500,
-};
 const MAX_TRACKED_CLIENT_BUCKETS = 512;
 
 export interface RateLimiterResult {
@@ -51,7 +46,6 @@ export interface ChatHandlerDeps {
     generateReply?: (args: GenerateChatReplyArgs) => Promise<string>;
     rateLimiter?: RateLimiter;
     timeoutMs?: number;
-    attemptBudgetsMs?: Record<string, number>;
     retrieveKnowledge?: typeof searchKnowledgeChunks;
 }
 
@@ -204,68 +198,33 @@ export function createSlidingWindowLimiter(
     };
 }
 
-function extractInteractionText(interaction: {
-    output_text?: string;
-    outputs?: Array<{ type?: string; text?: string }>;
-}): string {
-    if (typeof interaction.output_text === 'string' && interaction.output_text.trim()) {
-        return interaction.output_text.trim();
-    }
-    if (Array.isArray(interaction.outputs)) {
-        const joined = interaction.outputs
-            .map((part) => (part && typeof part.text === 'string' ? part.text : ''))
-            .join('\n')
-            .trim();
-        if (joined) return joined;
-    }
-    return '';
-}
-
 async function defaultGenerateReply(args: GenerateChatReplyArgs): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: args.apiKey });
-    const interaction = await ai.interactions.create(
+    const groq = new Groq({
+        apiKey: args.apiKey,
+        maxRetries: 0,
+        timeout: args.timeoutMs,
+    });
+    const completion = await groq.chat.completions.create(
         {
             model: args.model,
-            system_instruction: args.systemInstruction,
-            input: args.prompt,
-            store: false,
-            generation_config: {
-                max_output_tokens: 2048,
-                thinking_level: 'low',
-            },
+            messages: [
+                { role: 'system', content: args.systemInstruction },
+                { role: 'user', content: args.prompt },
+            ],
+            max_completion_tokens: 2048,
+            reasoning_effort: 'low',
+            stream: false,
         },
         {
             signal: args.signal,
-            timeout_ms: args.timeoutMs,
-            maxRetries: 0,
         },
     );
 
-    const text = extractInteractionText(
-        interaction as {
-            output_text?: string;
-            outputs?: Array<{ type?: string; text?: string }>;
-        },
-    );
-    if (!text) {
+    const text = completion.choices[0]?.message.content;
+    if (typeof text !== 'string' || !text.trim()) {
         throw new Error('EMPTY_MODEL_RESPONSE');
     }
-    return text;
-}
-
-function isTransientRetryableModelError(error: unknown): boolean {
-    const errRecord = (error && typeof error === 'object' ? error : {}) as {
-        status?: unknown;
-        message?: unknown;
-    };
-    const status = typeof errRecord.status === 'number' ? errRecord.status : undefined;
-    const message = typeof errRecord.message === 'string' ? errRecord.message : '';
-    return (
-        status === 429 ||
-        status === 503 ||
-        status === 500 ||
-        /high demand|unavailable|overloaded|resource_exhausted|429|503/i.test(message)
-    );
+    return text.trim();
 }
 
 function classifyUpstreamError(error: unknown, didTimeout: boolean): {
@@ -311,12 +270,12 @@ function classifyUpstreamError(error: unknown, didTimeout: boolean): {
 
     if (
         status === 429 ||
-        /429|resource_exhausted|quota|rate limit/i.test(message)
+        /429|quota|rate limit/i.test(message)
     ) {
         return {
             status: 429,
             body: {
-                error: 'The AI model’s free-tier limit is temporarily busy. Please try again in a few minutes.',
+                error: 'The AI provider rate limit has been reached. Please try again shortly.',
                 code: 'UPSTREAM_RATE_LIMIT',
             },
         };
@@ -326,7 +285,7 @@ function classifyUpstreamError(error: unknown, didTimeout: boolean): {
         return {
             status: 503,
             body: {
-                error: 'The free AI model is temporarily under heavy load. Please try again in a few seconds.',
+                error: 'The AI provider is temporarily unavailable. Please try again shortly.',
                 code: 'UPSTREAM_UNAVAILABLE',
             },
         };
@@ -476,7 +435,7 @@ async function runWithAbortSignal<T>(
  * Creates a testable Web Request/Response handler for /api/chat.
  */
 export function createChatHandler(deps: ChatHandlerDeps = {}): (request: Request) => Promise<Response> {
-    const getApiKey = deps.getApiKey ?? (() => process.env.GEMINI_API_KEY?.trim());
+    const getApiKey = deps.getApiKey ?? (() => process.env.GROQ_API_KEY?.trim());
     const getAllowedHosts =
         deps.getAllowedHosts ??
         (() =>
@@ -487,7 +446,6 @@ export function createChatHandler(deps: ChatHandlerDeps = {}): (request: Request
     const generateReply = deps.generateReply ?? defaultGenerateReply;
     const rateLimiter = deps.rateLimiter ?? createSlidingWindowLimiter();
     const timeoutMs = deps.timeoutMs ?? DEFAULT_UPSTREAM_TIMEOUT_MS;
-    const attemptBudgets = deps.attemptBudgetsMs ?? PER_MODEL_ATTEMPT_BUDGET_MS;
     const retrieveKnowledge = deps.retrieveKnowledge ?? searchKnowledgeChunks;
 
     return async (request: Request): Promise<Response> => {
@@ -566,81 +524,36 @@ export function createChatHandler(deps: ChatHandlerDeps = {}): (request: Request
 
         const outerController = new AbortController();
         let didOuterTimeout = false;
-        const startedAt = Date.now();
         const outerTimer = setTimeout(() => {
             didOuterTimeout = true;
             outerController.abort();
         }, timeoutMs);
 
         try {
-            let lastError: unknown = null;
-            for (let idx = 0; idx < GEMINI_FREE_TIER_FALLBACK_MODELS.length; idx += 1) {
-                const candidateModel = GEMINI_FREE_TIER_FALLBACK_MODELS[idx];
-                const elapsed = Date.now() - startedAt;
-                const remainingMs = timeoutMs - elapsed;
-                if (didOuterTimeout || outerController.signal.aborted || remainingMs <= 500) {
-                    break;
-                }
+            const answer = await runWithAbortSignal(
+                () =>
+                    generateReply({
+                        apiKey,
+                        model: GROQ_MODEL,
+                        systemInstruction: SYSTEM_INSTRUCTION,
+                        prompt,
+                        signal: outerController.signal,
+                        timeoutMs,
+                    }),
+                outerController.signal,
+            );
 
-                const hasMoreModels = idx < GEMINI_FREE_TIER_FALLBACK_MODELS.length - 1;
-                const modelBudget = attemptBudgets[candidateModel] ?? remainingMs;
-                const attemptBudgetMs = hasMoreModels
-                    ? Math.min(remainingMs, Math.max(15, modelBudget))
-                    : remainingMs;
-
-                const attemptController = new AbortController();
-                let didAttemptTimeout = false;
-                const onOuterAbort = () => attemptController.abort();
-                outerController.signal.addEventListener('abort', onOuterAbort, { once: true });
-                const attemptTimer = setTimeout(() => {
-                    didAttemptTimeout = true;
-                    attemptController.abort();
-                }, attemptBudgetMs);
-
-                try {
-                    const answer = await runWithAbortSignal(
-                        () =>
-                            generateReply({
-                                apiKey,
-                                model: candidateModel,
-                                systemInstruction: SYSTEM_INSTRUCTION,
-                                prompt,
-                                signal: attemptController.signal,
-                                timeoutMs: attemptBudgetMs,
-                            }),
-                        attemptController.signal,
-                    );
-
-                    return jsonResponse(
-                        {
-                            answer: answer.trim(),
-                            citations,
-                            evidenceNotice,
-                            retrievalSufficient: true,
-                            groundedOnly: true,
-                            model: candidateModel,
-                        },
-                        200,
-                    );
-                } catch (err) {
-                    lastError = err;
-                    const remainingAfterFail = timeoutMs - (Date.now() - startedAt);
-                    const canFallback =
-                        hasMoreModels &&
-                        !didOuterTimeout &&
-                        !outerController.signal.aborted &&
-                        remainingAfterFail > 800 &&
-                        (didAttemptTimeout || isTransientRetryableModelError(err));
-                    if (!canFallback) {
-                        throw err;
-                    }
-                } finally {
-                    clearTimeout(attemptTimer);
-                    outerController.signal.removeEventListener('abort', onOuterAbort);
-                }
-            }
-
-            throw lastError ?? new Error('UPSTREAM_TIMEOUT');
+            return jsonResponse(
+                {
+                    answer: answer.trim(),
+                    citations,
+                    evidenceNotice,
+                    retrievalSufficient: true,
+                    groundedOnly: true,
+                    model: GROQ_MODEL,
+                },
+                200,
+            );
         } catch (error) {
             const classified = classifyUpstreamError(error, didOuterTimeout);
             return jsonResponse(classified.body, classified.status);
