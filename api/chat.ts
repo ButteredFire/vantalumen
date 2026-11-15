@@ -519,12 +519,12 @@ export function createChatHandler(deps: ChatHandlerDeps = {}): (request: Request
         }
 
         const parsedBody = await readJsonWithinByteLimit(request, MAX_CHAT_REQUEST_BYTES);
-        if (!parsedBody.ok) {
+        if (parsedBody.ok === false) {
             return parsedBody.response;
         }
 
         const validated = validateChatRequest(parsedBody.data);
-        if (!validated.ok) {
+        if (validated.ok === false) {
             return jsonResponse(
                 {
                     error: validated.error,

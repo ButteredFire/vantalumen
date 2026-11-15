@@ -1,4 +1,4 @@
-import type { ChatEvidenceType, ChatRetrievalResult } from './knowledgeRetriever';
+import type { ChatEvidenceType, ChatRetrievalResult } from './knowledgeRetriever.js';
 
 export type ChatKnowledgeMatch = ChatRetrievalResult['matches'][number];
 
