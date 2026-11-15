@@ -172,3 +172,96 @@ Không mở rộng bản đồ và toàn bộ danh mục trước khi M1 chứng
 - Bộ lệnh khi triển khai: npm test, npm run typecheck, npm run validate:assets, npm run build, npm run test:browser sau khi đã bổ sung browser tests. Giữ hồ sơ asset/nguồn và cập nhật checklist theo từng mốc.
 
 Các giới hạn cần quản lý: chưa có GLB bề mặt Apollo hoàn chỉnh; chưa kiểm chứng rig/tỉ lệ vật lý mọi asset; chưa tích hợp DEM nguồn; chưa có benchmark trên điện thoại thật. Hoàn thành kế hoạch không đồng nghĩa những phụ thuộc này đã được giải quyết.
+
+## 11. Kế hoạch bổ sung GLB Mặt Trăng từ nguồn có sẵn
+
+Mục tiêu là bổ sung mô hình Mặt Trăng có nguồn gốc kiểm chứng được thay vì tự dựng các mô hình phương tiện/địa hình mới từ đầu. Ưu tiên tải asset gốc có thể sử dụng; chỉ chuyển đổi định dạng hoặc tối ưu khi cần, giữ nguyên file nguồn và ghi lại quy trình. Kiểm tra các trang nguồn dưới đây vào ngày 15/11/2026; chưa có asset nào trong danh sách này được nhập vào ứng dụng.
+
+**Hiện trạng catalog:** sáu hồ sơ bề mặt Apollo trong `src/config/deviceManifest.json` (`apollo_lrv`, `apollo_lrv_deployment`, `apollo_15_lrv`, `apollo_17_lrv`, `apollo_surface_equipment`, `apollo_lm_equipment`) hiện có `status: "unavailable"` và tham chiếu `proceduralModel`. Đây là proxy hình học procedural; mã nguồn đã kiểm tra chưa chứng minh chúng là AI-generated, vì vậy không ghi nhãn “AI-generated” nếu chưa có provenance xác nhận. Thư mục `public/assets/models/moons/` hiện có GLB cho Apollo CSM, LRO, Phobos, Deimos và terrain Mặt Trăng, không có GLB LRV/Lunar Module bề mặt.
+
+### Nguồn và ứng viên
+
+| Ứng viên | Định dạng/tình trạng đã kiểm tra | Cách dùng dự kiến và giới hạn |
+| --- | --- | --- |
+| [NASA Science 3D Resources](https://science.nasa.gov/3d-resources/) | Danh mục NASA có các model tải được; trang nêu asset miễn phí tải xuống và sử dụng | Nguồn ưu tiên. Xác minh trang và ghi chú quyền sử dụng của từng asset, không suy rộng quyền từ một model sang toàn bộ nội dung bên thứ ba |
+| [Apollo Lunar Module](https://science.nasa.gov/3d-resources/apollo-lunar-module/) | Có file `Apollo Lunar Module.glb`, khoảng 700 KB | Ưu tiên nhập làm model bề mặt và mẫu kiểm chứng tải GLB, sau khi kiểm tra node, hướng, tỉ lệ và chất lượng mesh. Bản [Innerscene](https://www.innerscene.com/tools/library/3d-parts/apollo-lunar-module-8f760425) là bản sao dẫn về nguồn NASA; ưu tiên tải bản chính thức |
+| [Apollo 15 – Landing Site](https://science.nasa.gov/3d-resources/apollo-15-landing-site/) | Có STL khoảng 6.74 MB; mô tả vùng 30 × 30 km và phóng đại trục Z lên 25 lần; không có GLB trực tiếp | Ứng viên địa hình khu vực sau khi chuyển đổi có kiểm soát và khôi phục đúng tỉ lệ đứng. Không coi mesh này là dữ liệu va chạm cấp bánh xe hay DEM đo đạc chi tiết nếu chưa kiểm chứng độ phân giải và datum |
+| [NASA SVS – Moon 3D Models for Web, AR, and Animation](https://svs.gsfc.nasa.gov/14959/) | Có các GLB toàn cầu, gồm bản màu khoảng 13.2/51.4 MB và bản địa hình `Moon_NASA_LRO_8k_Topo_Small.glb` khoảng 77.7 MB; bản topo đầy đủ khoảng 298.9 MB | Đánh giá làm model globe hoặc tham chiếu địa hình, không thay thế tile địa hình cục bộ cho lái xe. Chú ý chi phí tải/bộ nhớ và lỗi chụm cực được trang nguồn nêu |
+| [NASA Astromaterials 3D – mẫu Apollo 15](https://ares.jsc.nasa.gov/astromaterials3d/sample-catalog.htm?origin=A15) | Danh mục mẫu quét 3D; định dạng, file tải và quyền của từng mẫu cần kiểm tra riêng | Có thể dùng làm đạo cụ mẫu đá, không phải địa hình hay model phương tiện. Chỉ nhập sau khi xác minh file gốc, điều khoản và attribution cụ thể |
+| [CGTrader](https://www.cgtrader.com/de/3d-modelle/apollo) và [Free3D – LRV](https://free3d.com/3d-model/lunar-roving-vehicle-from-apollo-15-rigged-7196.html) | Nguồn bên thứ ba; điều kiện miễn phí/trả phí và giấy phép phụ thuộc từng model. Trang Free3D chưa được xác minh trong lần kiểm tra này | Chỉ là nguồn dự phòng nếu không tìm được asset chính thức phù hợp. Không nhập chỉ vì trang gắn nhãn “free”; cần kiểm tra giấy phép, độ chính xác, rig, attribution và quyền phân phối |
+
+NASA 3D Resources nêu quyền tải và sử dụng asset của danh mục, nhưng vẫn phải tuân thủ [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/), ghi credit và tránh hàm ý NASA chứng thực ứng dụng. NASA insignia/logotype và một số nội dung bên thứ ba có các hạn chế riêng; không đưa logo NASA vào giao diện chỉ dựa trên việc model là nguồn NASA.
+
+### Các bước tích hợp
+
+1. **Lập shortlist theo vai trò**: tìm asset NASA trước trong 3D Resources và NASA-3D-Resources trên GitHub; tìm vật mẫu/đá ở Astromaterials 3D và địa hình ở NASA SVS. Nếu thiếu, khảo sát community model trên Innerscene, Sketchfab, CGTrader và Free3D. Chọn model khớp thiết bị; không dùng GLB globe để thay LRV hoặc dùng model toàn cầu làm terrain lái xe.
+2. **Duyệt giấy phép trước khi tải vào runtime**: lưu trang nguồn cụ thể, tác giả, giấy phép, quyền chỉnh sửa/phân phối và yêu cầu credit. CC0/public domain được dùng theo điều kiện tương ứng; CC BY phải có attribution; CC BY-SA phải giữ nghĩa vụ chia sẻ tương tự với bản chuyển đổi; loại asset NC/ND, quyền không rõ, hoặc chỉ được xem nếu không đáp ứng mục đích phân phối. Tên website hay nhãn “free/open-source” không thay cho giấy phép của model cụ thể. Không dùng online converter nếu chưa rõ quyền tải lên và quyền với file tạo ra.
+3. **Tải và chuyển đổi có thể tái lập**: lưu bản gốc và giấy phép trong hồ sơ nguồn; nếu chỉ có STL/OBJ, chuyển bằng Blender/công cụ cục bộ đã khóa phiên bản. Ghi rõ đơn vị, trục, tỉ lệ, xử lý texture và mọi hiệu chỉnh; giữ checksum file gốc và GLB đầu ra. Không bỏ hệ số phóng đại đứng của Apollo 15 khi chưa khôi phục đúng tỉ lệ.
+4. **Ghép model vào hồ sơ đúng nghĩa**: ưu tiên dùng cùng một GLB LRV cho hồ sơ Apollo 15/17 nếu nguồn chỉ có model chung, và ghi rõ đây là hình dạng tham khảo chung, không phải hai bản quét riêng theo từng nhiệm vụ. Chỉ bật chế độ triển khai/animation nếu GLB có node, pivot hoặc clip đã xác minh. Lunar Module GLB không tự động thay thế bộ MESA/thiết bị bề mặt. Hồ sơ không có model tương ứng tiếp tục `unavailable`, không gán nhầm asset.
+5. **Đăng ký catalog và provenance**: đặt GLB runtime phù hợp dưới `public/assets/models/moons/`; khai báo metadata trong `src/config/deviceManifest.json` và catalog/dossier/control profile liên quan. Ghi tên asset, mission, URL nguồn trực tiếp, tác giả/credit, giấy phép, checksum, đơn vị, physical-scale status và giới hạn. Model chưa rig/scale-verify chỉ được dùng ở chế độ xem; không bật điều khiển hoặc va chạm theo kích thước thực.
+6. **Tối ưu và kiểm tra**: giữ bản gốc, tạo bản runtime cần thiết với LOD, mipmap/nén và giới hạn dung lượng; không tải GLB địa hình toàn cầu 299 MB trên mobile. Kiểm tra GLB trên desktop/mobile, fallback và giải phóng tài nguyên; chạy `npm run validate:assets`, `npm test`, `npm run build` và browser tests. Bổ sung nguồn được chọn vào `docs/SOURCES.md`; không xóa placeholder cũ trước khi model thay thế qua nghiệm thu.
+
+### Điều kiện nghiệm thu
+
+- Mỗi asset phát hành có URL gốc, giấy phép/điều khoản, credit, checksum và ghi chú giới hạn; không có file chỉ ghi “NASA/public domain” mà thiếu nguồn cụ thể.
+- Apollo Lunar Module GLB tải được và hiển thị đúng; model LRV chỉ được bật khi đã xác minh nguồn, rig và scale tương ứng với chức năng được cung cấp.
+- Model Moon toàn cầu chỉ phục vụ globe/tham chiếu; terrain vùng lái dùng dữ liệu có scale và nguồn riêng, không dùng mesh Apollo 15 phóng đại 25 lần trực tiếp làm collider.
+- Không tạo model thay thế khi chưa tìm thấy asset có quyền sử dụng; giữ trạng thái `unavailable` và nêu rõ lý do thay vì gắn model không xác minh.
+- Không vượt ngân sách tải/bộ nhớ mobile đã chốt ở M5; bản 8K/độ phân giải cao chỉ tải theo tier và sau khi đo trên thiết bị mục tiêu.
+
+## 12. Kế hoạch chatbot hỏi đáp dự án với mascot 3D RISE
+
+Trạng thái: đề xuất, chưa triển khai. Chatbot trả lời câu hỏi về các chủ đề của VantaLumen: Sao Hỏa/Mặt Trăng, sứ mệnh và thiết bị, điều khiển, mô phỏng, địa hình, asset, nguồn dữ liệu và cách sử dụng ứng dụng. Câu trả lời cần bám theo tài liệu/mã nguồn của dự án, kèm nguồn tham chiếu và phân biệt dữ kiện đã xác minh với nội dung minh họa hoặc mô phỏng.
+
+### Kiến trúc hỏi đáp và bảo vệ API
+
+- Dùng Gemini Flash qua một backend endpoint cùng origin, dự kiến Vercel Function `api/chat.ts`; trình duyệt không gọi Gemini trực tiếp. Xác nhận chính xác tên model/API, giới hạn quota miễn phí và điều khoản hiện hành khi bắt đầu triển khai; không mặc định quota miễn phí là không giới hạn.
+- API key đã được chia sẻ trong hội thoại trước đó: thu hồi key cũ và tạo key mới. Lưu key mới trong Vercel Environment Variables phía server (ví dụ `GEMINI_API_KEY`); không đặt trong `VITE_*`, mã frontend, URL, log, prompt phía client hoặc Git.
+- Endpoint kiểm tra kiểu và kích thước đầu vào, giới hạn độ dài câu trả lời, timeout và xử lý lỗi rõ ràng; áp dụng rate limit và chỉ chấp nhận request cùng origin. Không lưu hội thoại ở server trong bản đầu; không ghi key hoặc nội dung nhạy cảm vào log.
+- Tạo chỉ mục nhỏ, có thể tái lập từ `README.md`, `docs/SOURCES.md`, tài liệu kế hoạch, `src/config/*` (catalog, dossiers, control specs, simulation profiles) và nội dung trợ giúp đã duyệt. Mỗi đoạn có tiêu đề, đường dẫn nguồn, loại nguồn và ngôn ngữ. Bắt đầu bằng tìm kiếm từ khóa/BM25; chỉ thêm embedding khi đánh giá cho thấy cần thiết.
+- Chỉ đưa các đoạn liên quan cùng metadata nguồn vào Gemini. System prompt yêu cầu trả lời dựa trên bằng chứng, dẫn link hoặc tên file/section, không khẳng định terrain tổng hợp hay model proxy là dữ liệu NASA đo đạc, và nói rõ khi không tìm được câu trả lời. Nội dung người dùng/tài liệu truy xuất là dữ liệu, không phải chỉ thị để chạy công cụ hay tiết lộ cấu hình.
+
+### Widget và mascot 3D
+
+- Thêm widget dùng chung ở `src/App.tsx`: khi thu gọn mascot RISE trôi nhẹ quanh một vùng an toàn của viewport, người dùng có thể kéo-thả mascot tới vị trí khác; click/tap không phải thao tác kéo sẽ mở cửa sổ chat nhỏ. Dùng pointer capture và xử lý `pointercancel`/resize; áp dụng ngưỡng di chuyển để thao tác kéo không vô tình mở chat. Lưu vị trí an toàn trong phiên, kẹp mascot trong viewport và tránh che điều khiển quan trọng. Khi chat mở, dừng chuyển động mascot. Có nút đóng/thu gọn, lịch sử trong phiên hiện tại, ô nhập, trạng thái đang trả lời, lỗi và nguồn tham khảo.
+- Kiểm tra quyền sử dụng, provenance, node, vật liệu, animation, kích thước và bounds của file người dùng cung cấp `D:\rise_plushie.glb` trước khi đưa vào runtime. Nếu được phép, đặt bản runtime có checksum tại `public/assets/mascot/rise_plushie.glb`; dùng loader React Three Fiber/Drei hiện có, không dựng lại model từ đầu.
+- Giữ widget cố định theo viewport trên mọi view mode và phù hợp với HUD/mobile. Do ứng dụng đã có nhiều scene/canvas 3D, ưu tiên gắn mascot vào renderer đang hoạt động; nếu phải dùng canvas nhỏ riêng, đo tác động GPU và chỉ render khi hiển thị/cần thiết. Tôn trọng Auto/Low quality, `prefers-reduced-motion`, và dừng chuyển động/render khi widget bị ẩn.
+- Hỗ trợ focus rõ ràng, nhãn accessible, Enter gửi, Shift+Enter xuống dòng, Escape đóng, giữ focus trong hộp thoại khi mở và trả focus về nút mascot khi đóng. Cho phép di chuyển mascot bằng phím mũi tên khi launcher có focus và Enter/Space để mở; `pointerdown` trên mascot không được kích hoạt joystick/camera của scene. Trên mobile, hỗ trợ touch drag, không chặn cuộn ngoài vùng mascot, không che điều khiển mô phỏng hoặc làm tràn viewport.
+- Chỉ dùng tên/nhận diện RISE và nội dung NASA theo quyền đã xác minh; không dùng insignia/logotype hoặc tạo hàm ý NASA chứng thực VantaLumen nếu chưa được cho phép.
+
+### Thứ tự thực hiện và điều kiện nghiệm thu
+
+| Mốc | Công việc / đầu ra | Điều kiện nghiệm thu |
+| --- | --- | --- |
+| C0 — Chuẩn bị an toàn | Thu hồi API key đã lộ, thiết lập secret server-side, xác nhận model/quota/endpoint và quyền dùng mascot | Không còn key trong client/Git/log; quyền sử dụng model được ghi nhận |
+| C1 — Kiến thức và backend | Chỉ mục nguồn có version, endpoint Gemini, giới hạn request, trích dẫn và thông báo lỗi | Test với câu hỏi có/không có nguồn; câu trả lời dẫn nguồn đúng, từ chối đoán khi thiếu bằng chứng; rate limit và lỗi provider hoạt động |
+| C2 — Chat UI | Widget và cửa sổ hội thoại responsive, trạng thái tải/lỗi, accessible keyboard flow | Chạy được ở desktop/mobile và mọi view mode; gửi/đóng/mở không chặn điều khiển chính |
+| C3 — Mascot RISE | Audit, tối ưu và tích hợp GLB vào launcher; chuyển động tự trôi, drag/touch drag và click mở chat | Kéo không mở nhầm chat; click/keyboard mở đúng; resize/pointercancel không làm mất mascot; không xung đột input scene; reduced-motion và ẩn widget dừng chuyển động/render |
+| C4 — Đánh giá và phát hành | Bộ câu hỏi chuẩn theo chủ đề, kiểm thử nguồn, hiệu năng và triển khai preview | Không có key ở client; nội dung khoa học có nguồn; không bịa khi không có nguồn; đạt mục tiêu hiệu năng mobile đã đo và có attribution |
+
+Các file dự kiến: `api/chat.ts`, `src/ui/chat/ProjectChatWidget.tsx`, `src/scene/mascot/RiseMascot.tsx`, `public/assets/mascot/rise_plushie.glb`, script tạo chỉ mục và test API/UI. Đây là phạm vi dự kiến; chỉ thêm endpoint Gemini và model sau khi hoàn tất C0.
+
+## 13. Quy trình hoàn chỉnh thay asset và xác minh model trên website
+
+### Kiểm kê hiện tại đã kiểm tra
+
+- Website đặt trong GitHub homepage là [vantalumen-atlas.vercel.app](https://vantalumen-atlas.vercel.app); `vercel.json` cấu hình Vite với `dist` là output directory. Cấu hình trong repo không tự chứng minh một lần deploy cụ thể đã thành công.
+- `public/assets/models/` hiện có 27 GLB (15 `mars`, 7 `moons`, 2 `spacecraft`, 3 `stations`), tổng 79,515,088 bytes. Bản `dist/assets/models/` đã kiểm tra có đủ 27 file với tổng kích thước bằng source.
+- `npm run validate:assets` đã xác nhận 21 model loadable và 6 terrain manifests hợp lệ. Kiểm tra HTTP HEAD production ngày 15/11/2026 cho 27 GLB hiện có đều trả `200` và `Content-Length` trùng file local. Đây là kiểm tra khả năng truy cập/kích thước, không thay thế kiểm tra checksum từ response hoặc xác nhận GLB đã giải mã/render thành công trên browser.
+- Điều còn thiếu: 6 hồ sơ thiết bị bề mặt Mặt Trăng chưa có modelPath GLB; không được coi việc 27 file hiện tại tải được là đã hoàn tất thay thế các placeholder Apollo.
+
+### Luồng phát hành cho mọi model Mars/Moon
+
+1. **Định nghĩa inventory kỳ vọng**: tạo script kiểm tra tất cả `modelPath` từ device manifest, celestial catalog và các model terrain được ứng dụng sử dụng; xác nhận file có trong `public/assets/` và không tham chiếu đường dẫn ngoài runtime. Ghi riêng file GLB không được catalog dùng (ví dụ bản nén/LOD) để không nhầm với thiết bị người dùng có thể chọn.
+2. **Kiểm tra source và catalog**: chạy asset validator; xác nhận bytes/SHA-256, attribution/license, trạng thái `available`/`unavailable`, URL nguồn, và phân biệt model bề mặt, mô hình quỹ đạo, terrain globe và tile va chạm. Model chưa có bằng chứng nguồn vẫn giữ unavailable.
+3. **Build và đối chiếu output**: chạy test, typecheck, `npm run validate:assets`, `npm run build`; sau build, đối chiếu từng đường dẫn catalog với `dist`, số byte và checksum source→dist. Build phải fail nếu một model được khai báo available nhưng thiếu file hoặc sai hash.
+4. **Deploy preview**: tạo preview deployment từ commit chứa manifest và assets; không xóa asset cũ trong cùng đợt thay model. Ghi deployment URL, commit SHA và inventory manifest dùng để kiểm tra.
+5. **Xác minh web preview**: với mọi modelPath dự kiến, kiểm tra HTTPS GET/HEAD trả 200, MIME phù hợp, Content-Length và SHA-256 khớp; sau đó tải/giải mã model bằng loader của ứng dụng. Mở từng model có thể chọn qua UI ở Mars và Moon; xác nhận không có 404, lỗi decoder/CORS, vật liệu hỏng, scale/orientation sai hoặc lỗi console. Kiểm tra tối thiểu desktop, viewport mobile, Auto/Low quality và đổi thiên thể.
+6. **Promote và hậu kiểm**: chỉ đưa preview đã đạt vào production; chạy lại kiểm tra inventory trên production URL và một browser smoke test sau deploy. Lưu kết quả (commit, URL, count, checksum, test) trong release record. Nếu URL/GLB/hash/render không đạt, rollback deployment hoặc đặt đúng entry về unavailable trước khi gỡ file; không để UI báo model sẵn sàng khi file hỏng/thiếu.
+
+### Điều kiện bàn giao
+
+- Tất cả modelPath `available` của cả hai thiên thể trả về asset đúng trên production và GLB giải mã thành công; toàn bộ GLB runtime được yêu cầu lưu trữ đều có trong inventory deploy.
+- Không gộp LOD, orbiters, terrain và thiết bị bề mặt thành một nhóm không phân biệt; tên, nguồn và nhiệm vụ của từng model hiển thị đúng trong UI.
+- Các thay đổi mới về Moon GLB chỉ được đánh dấu hoàn tất sau preview + production checks; kết quả HEAD hiện tại không được dùng làm bằng chứng cho asset mới chưa phát hành.
+- Mascot/chat có kiểm thử riêng cho drag/click/keyboard, touch, pointercancel, resize, reduced-motion và không làm hỏng điều khiển mô phỏng.
