@@ -3,6 +3,11 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/chat.ts": {
+      "includeFiles": "src/{chat/**,config/chatKnowledgeIndex.json}"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

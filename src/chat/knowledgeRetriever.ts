@@ -1,4 +1,4 @@
-import rawIndex from '../config/chatKnowledgeIndex.json';
+import rawIndex from '../config/chatKnowledgeIndex.json' with { type: 'json' };
 
 export type ChatSourceKind =
   | 'documentation'
