@@ -189,6 +189,34 @@ test('createChatHandler refuses out-of-scope queries without calling LLM', async
     assert.equal(json.model, 'grounding-guard');
 });
 
+test('createChatHandler answers simple greetings without retrieval or an LLM call', async () => {
+    let llmCalls = 0;
+    const handler = createChatHandler({
+        getApiKey: () => 'unit-test-fake-key',
+        generateReply: async () => {
+            llmCalls += 1;
+            return 'Should never run';
+        },
+    });
+
+    const response = await handler(makeChatRequest({ message: 'Hi!' }));
+    const json = (await response.json()) as {
+        answer: string;
+        citations: unknown[];
+        evidenceNotice: string | null;
+        retrievalSufficient: boolean;
+        model: string;
+    };
+
+    assert.equal(response.status, 200);
+    assert.match(json.answer, /Hi! I’m RISE/);
+    assert.deepEqual(json.citations, []);
+    assert.equal(json.evidenceNotice, null);
+    assert.equal(json.retrievalSufficient, false);
+    assert.equal(json.model, 'local-greeting');
+    assert.equal(llmCalls, 0);
+});
+
 test('createChatHandler enforces HTTP method, same-origin, content-type, payload size, and rate limit', async () => {
     const getResp = await GET();
     assert.equal(getResp.status, 405);

@@ -4,11 +4,13 @@ import {
     GEMINI_FREE_TIER_FALLBACK_MODELS,
     MAX_CHAT_REQUEST_BYTES,
     SYSTEM_INSTRUCTION,
+    buildGreetingReply,
     buildCitationsFromMatches,
     buildEvidenceNotice,
     buildGroundedPrompt,
     buildInsufficientEvidenceReply,
     buildRetrievalQuery,
+    isSimpleGreeting,
     validateChatRequest,
     type ChatApiErrorResponse,
     type ChatApiSuccessResponse,
@@ -533,6 +535,10 @@ export function createChatHandler(deps: ChatHandlerDeps = {}): (request: Request
         }
 
         const payload = validated.value;
+        if (isSimpleGreeting(payload.message)) {
+            return jsonResponse(buildGreetingReply(), 200);
+        }
+
         const retrievalQuery = buildRetrievalQuery(payload);
         const retrieval = retrieveKnowledge(retrievalQuery, {
             topK: CHAT_TOP_K_CHUNKS,

@@ -91,6 +91,13 @@ function foldBasicAscii(text: string): string {
         .replace(/\p{Mark}+/gu, '');
 }
 
+export function isSimpleGreeting(message: string): boolean {
+    const normalized = foldBasicAscii(message).trim().replace(/\s+/g, ' ').toLowerCase();
+    return /^(?:hi|hello|hey|greetings|howdy|good morning|good afternoon|good evening|xin chao|chao ban)(?:\s+(?:there|rise|ban))?[.!?]*$/.test(
+        normalized,
+    );
+}
+
 /**
  * Escapes untrusted XML delimiter characters so user queries and retrieved chunks
  * cannot break prompt boundaries.
@@ -349,5 +356,17 @@ export function buildInsufficientEvidenceReply(_retrieval: ChatRetrievalResult):
         retrievalSufficient: false,
         groundedOnly: true,
         model: 'grounding-guard',
+    };
+}
+
+export function buildGreetingReply(): ChatApiSuccessResponse {
+    return {
+        answer:
+            'Hi! I’m RISE, VantaLumen’s assistant. Ask me about Mars and Moon data, missions, 3D models, surface simulations, or how to use the atlas.',
+        citations: [],
+        evidenceNotice: null,
+        retrievalSufficient: false,
+        groundedOnly: true,
+        model: 'local-greeting',
     };
 }
