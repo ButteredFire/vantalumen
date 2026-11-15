@@ -23,6 +23,8 @@ class SurfaceAudioController {
         error?: Howl;
         select?: Howl;
         analyze?: Howl;
+        riseAiClickStart?: Howl;
+        riseAiClickEnd?: Howl;
         mouseHover: Howl[];
     } = {
         mouseHover: [],
@@ -54,6 +56,8 @@ class SurfaceAudioController {
             this.sounds.error = new Howl({ src: ['/ui_error.mp3'], volume: 0.12 });
             this.sounds.select = new Howl({ src: ['/ui_select.mp3'], volume: 0.08 });
             this.sounds.analyze = new Howl({ src: ['/ui_analyze.mp3'], volume: 0.22 });
+            this.sounds.riseAiClickStart = new Howl({ src: ['/rise_ai_click_start.mp3'], volume: 0.1 });
+            this.sounds.riseAiClickEnd = new Howl({ src: ['/rise_ai_click_end.mp3'], volume: 0.1 });
 
             this.sounds.mouseHover = [
                 new Howl({ src: ['/ui_mouse_1.mp3'], volume: 0.04 }),
@@ -196,6 +200,16 @@ class SurfaceAudioController {
     public playAnalyze() {
         if (useCosmosStore.getState().audioMuted) return;
         this.sounds.analyze?.play();
+    }
+
+    public playRiseAiClickStart() {
+        if (useCosmosStore.getState().audioMuted) return;
+        this.sounds.riseAiClickStart?.play();
+    }
+
+    public playRiseAiClickEnd() {
+        if (useCosmosStore.getState().audioMuted) return;
+        this.sounds.riseAiClickEnd?.play();
     }
 
     public playError() {

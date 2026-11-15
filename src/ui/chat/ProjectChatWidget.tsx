@@ -10,6 +10,7 @@ import {
     type ChatHistoryTurn,
 } from '../../chat/chatContract';
 import { DEVICE_CATALOG } from '../../config/deviceCatalog';
+import { surfaceAudio } from '../../core/audio/SurfaceAudioController';
 import { RiseMascot } from '../../scene/mascot/RiseMascot';
 import { useCosmosStore } from '../../store/useCosmosStore';
 
@@ -164,6 +165,7 @@ export const ProjectChatWidget: React.FC = () => {
         h: typeof window !== 'undefined' ? window.innerHeight : 800,
     }));
     const [isDragging, setIsDragging] = useState(false);
+    const [isLauncherPressed, setIsLauncherPressed] = useState(false);
     const [messages, setMessages] = useState<WidgetMessage[]>(() => createInitialMessages());
     const [draft, setDraft] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -341,6 +343,8 @@ export const ProjectChatWidget: React.FC = () => {
     const handleLauncherPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         if (e.pointerType === 'mouse' && e.button !== 0) return;
+        surfaceAudio.playRiseAiClickStart();
+        setIsLauncherPressed(true);
         e.currentTarget.setPointerCapture(e.pointerId);
         dragRef.current = {
             pointerId: e.pointerId,
@@ -372,6 +376,8 @@ export const ProjectChatWidget: React.FC = () => {
         e.stopPropagation();
         const activeDrag = dragRef.current;
         if (!activeDrag || activeDrag.pointerId !== e.pointerId) return;
+        setIsLauncherPressed(false);
+        if (!cancelled) surfaceAudio.playRiseAiClickEnd();
         if (e.currentTarget.hasPointerCapture(e.pointerId)) {
             e.currentTarget.releasePointerCapture(e.pointerId);
         }
@@ -406,6 +412,7 @@ export const ProjectChatWidget: React.FC = () => {
     const handleLauncherKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         if (e.key === 'Enter' || e.key === ' ') {
+            setIsLauncherPressed(true);
             suppressNextClickRef.current = false;
             return;
         }
@@ -491,12 +498,16 @@ export const ProjectChatWidget: React.FC = () => {
                 onPointerMove={handleLauncherPointerMove}
                 onPointerUp={(e) => handleLauncherPointerEnd(e, false)}
                 onPointerCancel={(e) => handleLauncherPointerEnd(e, true)}
+                onLostPointerCapture={() => setIsLauncherPressed(false)}
                 onClick={handleLauncherClick}
                 onKeyDown={handleLauncherKeyDown}
+                onKeyUp={() => setIsLauncherPressed(false)}
+                onBlur={() => setIsLauncherPressed(false)}
             >
                 <RiseMascot
                     isOpen={isOpen}
                     isDragging={isDragging}
+                    isPressed={isLauncherPressed}
                     reducedMotion={reducedMotion}
                     resolvedQualityTier={resolvedQualityTier}
                 />
@@ -543,12 +554,13 @@ export const ProjectChatWidget: React.FC = () => {
                             </button>
                             <button
                                 type="button"
-                                className="project-chat-icon-btn"
+                                className="project-chat-icon-btn project-chat-close-btn"
                                 data-testid="project-chat-close"
                                 aria-label="Close assistant dialog"
                                 onClick={closeDialog}
+                                title="Close assistant"
                             >
-                                Close
+                                ×
                             </button>
                         </div>
                     </header>

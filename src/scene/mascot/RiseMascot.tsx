@@ -11,6 +11,7 @@ export const MASCOT_MODEL_PATH = '/assets/mascot/rise_plushie.glb';
 export interface RiseMascotProps {
     isOpen: boolean;
     isDragging: boolean;
+    isPressed: boolean;
     reducedMotion: boolean;
     resolvedQualityTier: QualityTier;
 }
@@ -68,11 +69,22 @@ const MascotFallbackGlyph: React.FC = () => (
 
 interface RiseMascotMeshProps {
     shouldAnimate: boolean;
+    isPressed: boolean;
+    reducedMotion: boolean;
     onReady: () => void;
     onFailure: () => void;
 }
 
-const RiseMascotMesh: React.FC<RiseMascotMeshProps> = ({ shouldAnimate, onReady, onFailure }) => {
+const RESTING_SCALE = new THREE.Vector3(1, 1, 1);
+const PRESSED_SCALE = new THREE.Vector3(1.12, 0.78, 1.12);
+
+const RiseMascotMesh: React.FC<RiseMascotMeshProps> = ({
+    shouldAnimate,
+    isPressed,
+    reducedMotion,
+    onReady,
+    onFailure,
+}) => {
     const gl = useThree((state) => state.gl);
     const invalidate = useThree((state) => state.invalidate);
     const poseGroupRef = useRef<THREE.Group | null>(null);
@@ -132,13 +144,20 @@ const RiseMascotMesh: React.FC<RiseMascotMeshProps> = ({ shouldAnimate, onReady,
         invalidate();
     }, [shouldAnimate, modelGroup, invalidate]);
 
-    useFrame(({ clock }) => {
-        if (!shouldAnimate || !poseGroupRef.current) return;
-        const t = clock.getElapsedTime();
-        poseGroupRef.current.position.y = Math.sin(t * 1.45) * 0.08;
-        poseGroupRef.current.rotation.y = 0.14 + Math.sin(t * 0.85) * 0.24;
-        poseGroupRef.current.rotation.x = 0.06 + Math.sin(t * 1.1) * 0.04;
-        poseGroupRef.current.rotation.z = Math.cos(t * 1.0) * 0.04;
+    useFrame(({ clock }, delta) => {
+        const group = poseGroupRef.current;
+        if (!group) return;
+        if (shouldAnimate) {
+            const t = clock.getElapsedTime();
+            group.rotation.y = 0.14 + Math.sin(t * 0.85) * 0.24;
+            group.rotation.x = 0.06 + Math.sin(t * 1.1) * 0.04;
+            group.rotation.z = Math.cos(t * 1.0) * 0.04;
+        }
+        const targetScale = isPressed ? PRESSED_SCALE : RESTING_SCALE;
+        group.scale.lerp(targetScale, reducedMotion ? 1 : 1 - Math.exp(-delta * 18));
+        const targetY = (shouldAnimate ? Math.sin(clock.getElapsedTime() * 1.45) * 0.08 : 0) -
+            (isPressed ? 0.055 : 0);
+        group.position.y += (targetY - group.position.y) * (reducedMotion ? 1 : 1 - Math.exp(-delta * 18));
     });
 
     if (!modelGroup) return null;
@@ -158,6 +177,7 @@ const RiseMascotMesh: React.FC<RiseMascotMeshProps> = ({ shouldAnimate, onReady,
 export const RiseMascot: React.FC<RiseMascotProps> = ({
     isOpen,
     isDragging,
+    isPressed,
     reducedMotion,
     resolvedQualityTier,
 }) => {
@@ -168,11 +188,22 @@ export const RiseMascot: React.FC<RiseMascotProps> = ({
     const [modelReady, setModelReady] = useState(false);
     const [loadFailed, setLoadFailed] = useState(false);
     const [contextLost, setContextLost] = useState(false);
+    const [squeezeAnimationActive, setSqueezeAnimationActive] = useState(false);
     const [docVisible, setDocVisible] = useState(() =>
         typeof document === 'undefined' ? true : document.visibilityState !== 'hidden',
     );
     const handleReady = useCallback(() => setModelReady(true), []);
     const handleFailure = useCallback(() => setLoadFailed(true), []);
+
+    useEffect(() => {
+        if (isPressed) {
+            setSqueezeAnimationActive(true);
+            return undefined;
+        }
+        if (!squeezeAnimationActive) return undefined;
+        const timer = window.setTimeout(() => setSqueezeAnimationActive(false), 260);
+        return () => window.clearTimeout(timer);
+    }, [isPressed, squeezeAnimationActive]);
 
     useEffect(() => {
         if (typeof document === 'undefined') return undefined;
@@ -207,6 +238,7 @@ export const RiseMascot: React.FC<RiseMascotProps> = ({
         canUseWebGL &&
         modelReady &&
         !isOpen &&
+        !isPressed &&
         !isDragging &&
         !reducedMotion &&
         resolvedQualityTier !== 'low' &&
@@ -225,7 +257,7 @@ export const RiseMascot: React.FC<RiseMascotProps> = ({
                 <MascotErrorBoundary onError={() => setLoadFailed(true)}>
                     <Canvas
                         className="project-chat-mascot-canvas"
-                        frameloop={shouldAnimate ? 'always' : 'demand'}
+                        frameloop={shouldAnimate || squeezeAnimationActive ? 'always' : 'demand'}
                         dpr={resolvedQualityTier === 'low' ? 1 : [1, 1.5]}
                         camera={{ position: [0, 0.14, 3.85], fov: 35, near: 0.1, far: 30 }}
                         gl={{
@@ -265,6 +297,8 @@ export const RiseMascot: React.FC<RiseMascotProps> = ({
                         <Suspense fallback={null}>
                             <RiseMascotMesh
                                 shouldAnimate={shouldAnimate}
+                                isPressed={isPressed}
+                                reducedMotion={reducedMotion}
                                 onReady={handleReady}
                                 onFailure={handleFailure}
                             />

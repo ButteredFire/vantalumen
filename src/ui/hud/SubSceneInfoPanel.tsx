@@ -240,7 +240,7 @@ export function SubSceneInfoPanel() {
                         ? 'Low'
                         : tier === 'medium'
                           ? 'Medium'
-                          : 'Cao'}
+                          : 'High'}
                   </button>
                 ))}
               </div>
